@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# dildopaper
+awww-daemon && awww img ~/walls/smth.jpg

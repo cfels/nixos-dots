@@ -1,0 +1,4 @@
+#!/bin/sh
+
+sleep 0.1
+hyprctl setcursor Bibata-Modern-Ice 24

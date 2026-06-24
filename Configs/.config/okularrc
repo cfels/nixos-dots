@@ -1,0 +1,10 @@
+[Desktop Entry]
+FullScreen=false
+
+[General]
+LockSidebar=true
+ShowSidebar=true
+
+[Recent Files]
+File1[$e]=$HOME/Downloads/atlantis.jpg
+Name1[$e]=atlantis.jpg

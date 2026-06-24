@@ -1,0 +1,9 @@
+[Added Associations]
+x-scheme-handler/discord=vesktop.desktop;
+x-scheme-handler/tg=org.telegram.desktop.desktop;
+x-scheme-handler/tonsite=org.telegram.desktop.desktop;
+
+[Default Applications]
+x-scheme-handler/discord=vesktop.desktop
+x-scheme-handler/tg=org.telegram.desktop.desktop
+x-scheme-handler/tonsite=org.telegram.desktop.desktop

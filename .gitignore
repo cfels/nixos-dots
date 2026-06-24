@@ -1,0 +1,25 @@
+# keep sensitive data away
+*protonpass*
+*proton-pass*
+*ProtonPass*
+Configs/.config/discord/**
+Configs/.config/vesktop/**
+Configs/.config/Equicord/**
+Configs/.config/libaccounts-glib/**
+Configs/.config/kwalletrc
+Configs/.config/kscreenlockerrc
+Configs/.config/mozilla/**
+Configs/.config/librewolf/**
+Configs/.config/Code/**
+Configs/.config/dconf/**
+Configs/.config/session/**
+Configs/.config/pulse/**
+Configs/.config/systemd/**
+Configs/.config/trashrc
+Configs/.config/ktrashrc
+Configs/.config/baloofilerc
+Configs/.config/baloofileinformationrc
+Configs/.config/git/config
+Configs/.config/git/credentials
+Configs/.local/state/**
+Configs/.local/share/**
