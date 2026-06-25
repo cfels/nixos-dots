@@ -66,3 +66,6 @@ compatibility.ini
 # locks cocks
 .parentlock
 lock
+# misc
+activity-stream.shortcut_cache.json
+activity-stream.inferred_personalization_feed.json
