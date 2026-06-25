@@ -1,0 +1,11 @@
+\.sqlite(-shm|-wal)?$
+\.bdic$
+LOCK$
+MANIFEST-
+CURRENT$
+Singleton
+DIPS(-wal)?$
+SharedStorage(-wal)?$
+Trust Tokens
+Cookies-journal$
+domainMigrated$

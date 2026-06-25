@@ -1,0 +1,7 @@
+\.git
+\.gitignore
+\.stowrc
+README.*
+nixos
+shell
+scrnsht

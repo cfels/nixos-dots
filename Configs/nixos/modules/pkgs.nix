@@ -95,6 +95,10 @@ pkg-config
 pango
 gdk-pixbuf
 graphene
+python3
+pipx
+stow
+tree
 ];
   programs.nix-ld.enable = true;
 }
