@@ -2,11 +2,12 @@
 an work in progress dotfiles by me
 
 ### Installation
-````
+
 ```
 cd ~/nixos-dots/
 bash ./installer
 ```
+
 for restoring ur old setup use `-h, --help` flag it'll tell u what to do
 
 ### TODO:
