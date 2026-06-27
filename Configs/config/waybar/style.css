@@ -17,8 +17,9 @@ window#waybar {
   padding: 0 2px;
 }
 #workspaces button {
-  padding: 0.3rem 0.6rem;
+  padding: 0.3rem 0;
   margin: 2px;
+  min-width: 2.4rem;
   border-radius: 8px;
   background-color: transparent;
   color: #cdd6f4;
@@ -31,8 +32,6 @@ window#waybar {
 #workspaces button.active {
   background-color: #313244;
   color: #89b4fa;
-  padding-left: 1.2rem;
-  padding-right: 1.2rem;
   transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 #workspaces button.urgent {
