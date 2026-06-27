@@ -20,7 +20,6 @@ vim
 wget
 fastfetch
 neovim
-vscode
 librewolf
 hyprland
 git

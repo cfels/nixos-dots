@@ -2,7 +2,12 @@
 an work in progress dotfiles by me
 
 ### Installation
-installer is work in progress soo u eaither risk installing it manually or wait for installer
+````
+```
+cd ~/nixos-dots/
+bash ./installer
+```
+for restoring ur old setup use `-h, --help` flag it'll tell u what to do
 
 ### TODO:
 https://monogr.ph/6a385c463475628ec84f5c0f

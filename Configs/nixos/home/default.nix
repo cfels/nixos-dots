@@ -29,8 +29,8 @@
   };
   
   home.file = {
-    ".config/hypr" = { source = ../../../Configs/.config/hypr; recursive = true; };
-    ".config/kitty" = { source = ../../../Configs/.config/kitty; recursive = true; };
+    ".config/hypr" = { source = ../../../Configs/config/hypr; recursive = true; };
+    ".config/kitty" = { source = ../../../Configs/config/kitty; recursive = true; };
     
     "Pictures/walls" = {
       source = ../../../Configs/walls;

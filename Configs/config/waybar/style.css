@@ -5,37 +5,40 @@
   font-size: 16px;
   font-weight: 600;
 }
-
 window#waybar {
   transition-property: background-color;
   transition-duration: 0.5s;
   background-color: rgba(17, 17, 27, 0.6);
 }
-
+#workspaces {
+  margin: 0.4rem 0.25rem;
+  border-radius: 10px;
+  background-color: #1e1e2e;
+  padding: 0 2px;
+}
 #workspaces button {
   padding: 0.3rem 0.6rem;
-  margin: 0.4rem 0.25rem;
-  border-radius: 6px;
-  /* background-color: #181825; */
-  background-color: #1e1e2e;
+  margin: 2px;
+  border-radius: 8px;
+  background-color: transparent;
   color: #cdd6f4;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
 #workspaces button:hover {
   color: #1e1e2e;
   background-color: #cdd6f4;
 }
-
 #workspaces button.active {
-  background-color: #1e1e2e;
+  background-color: #313244;
   color: #89b4fa;
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
+  transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
 #workspaces button.urgent {
-  background-color: #1e1e2e;
+  background-color: transparent;
   color: #f38ba8;
 }
-
 #clock,
 #pulseaudio,
 #custom-logo,
@@ -50,71 +53,55 @@ window#waybar {
   padding: 0.3rem 0.48rem;
   margin: 0.4rem 0.35rem;
   border-radius: 6px;
-  /* background-color: #181825; */
   background-color: #1e1e2e;
 }
-
 #mpris.playing {
   color: #a6e3a1;
 }
-
 #mpris.paused {
   color: #9399b2;
 }
-
 #custom-sep {
   padding: 0px;
   color: #585b70;
 }
-
 window#waybar.empty #window {
   background-color: transparent;
 }
-
 #cpu {
   color: #94e2d5;
   padding: 5px 10.5px 5px 5px;
 }
-
 #memory {
   color: #cba6f7;
   padding: 5px 10.5px 5px 5px;
 }
-
 #clock {
   color: #74c7ec;
   padding: 5px 10.5px 5px 5px;
 }
-
 #clock.simpleclock {
   color: #89b4fa;
 }
-
 #window {
   color: #cdd6f4;
 }
-
 #pulseaudio {
   color: #b4befe;
 }
-
 #pulseaudio.muted {
   color: #a6adc8;
 }
-
 #custom-logo {
   color: #89b4fa;
 }
-
 #custom-power {
   color: #f38ba8;
   padding: 5px 10.5px 5px 5px;
 }
-
 #custom-notification {
   padding: 5px 14px 5px 5px;
 }
-
 tooltip {
   background-color: #181825;
   border: 2px solid #89b4fa;
