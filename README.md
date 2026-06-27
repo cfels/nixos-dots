@@ -1,3 +1,6 @@
+> [!WARNING]  
+> Work in progress dotfiles so that basically means i'm not responsible for any damage's done to your nix install
+
 ## NixOS dots
 an work in progress dotfiles by me
 

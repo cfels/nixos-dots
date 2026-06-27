@@ -2,5 +2,4 @@
 
 set -e
 
-echo "execute real installer"
-exec "$HOME/nixos-dots/scripts/installer/main.sh"
+"$HOME/nixos-dots/scripts/installer/main.sh" "$@"
