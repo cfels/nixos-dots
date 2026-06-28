@@ -7,7 +7,7 @@
   "gtk-layer-shell": true,
   "passthrough": false,
   "fixed-center": true,
-  "modules-left": ["hyprland/workspaces", "hyprland/window"],
+  "modules-left": ["hyprland/workspaces"],
   "modules-center": ["mpris"],
   "modules-right": [
     "cpu",
@@ -17,8 +17,8 @@
     "clock#simpleclock",
     "tray",
     "custom/notification",
-    "custom/power",
-  ],
+    "custom/power"
+],
   "mpris": {
     "dynamic-order": ["artist", "title"],
     "format": "{player_icon} {dynamic}",
@@ -59,6 +59,10 @@
   },
   "hyprland/window": {
     "format": "{title}",
+    "separate-outputs": true,
+    "rewrite": {
+        "": " "
+    },
   },
   "tray": {
     "show-passive-items": true,

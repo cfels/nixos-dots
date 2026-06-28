@@ -98,6 +98,8 @@ python3
 pipx
 stow
 tree
+nodejs
+bun
 ];
   programs.nix-ld.enable = true;
 }
