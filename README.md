@@ -19,12 +19,12 @@ https://monogr.ph/6a385c463475628ec84f5c0f
 ### Screenshots
 | cava | fastfetch | lavat + peaclock |
 |:---:|:---:|:---:|
-| ![cava](https://github.com/cfels/nixos-dots/blob/dev/assets/cava.png?raw=true) | ![fastfetch](https://github.com/cfels/nixos-dots/blob/dev/assets/fastfetch.png?raw=true) | ![lavat + peaclock](https://github.com/cfels/nixos-dots/blob/dev/assets/lavat+peaclock.png?raw=true) |
+| ![cava](https://raw.githubusercontent.com/cfels/nixos-dots/dev/assets/cava.png) | ![fastfetch](https://raw.githubusercontent.com/cfels/nixos-dots/dev/assets/fastfetch.png) | ![lavat + peaclock](https://raw.githubusercontent.com/cfels/nixos-dots/dev/assets/lavat+peaclock.png) |
 
 | librewolf | lockscreen | rofi |
 |:---:|:---:|:---:|
-| ![librewolf](https://github.com/cfels/nixos-dots/blob/dev/assets/librewolf.png?raw=true) | ![lockscreen](https://github.com/cfels/nixos-dots/blob/dev/assets/lockscreen1.png?raw=true) | ![rofi](https://github.com/cfels/nixos-dots/blob/dev/assets/rofi.png?raw=true) |
+| ![librewolf](https://raw.githubusercontent.com/cfels/nixos-dots/dev/assets/librewolf.png) | ![lockscreen](https://raw.githubusercontent.com/cfels/nixos-dots/dev/assets/lockscreen1.png) | ![rofi](https://raw.githubusercontent.com/cfels/nixos-dots/dev/assets/rofi.png) |
 
 | swaync | wlogout |
 |:---:|:---:|
-| ![swaync](https://github.com/cfels/nixos-dots/blob/dev/assets/swaync.png?raw=true) | ![wlogout](https://github.com/cfels/nixos-dots/blob/dev/assets/wlogout.png?raw=true) |
+| ![swaync](https://raw.githubusercontent.com/cfels/nixos-dots/dev/assets/swaync.png) | ![wlogout](https://raw.githubusercontent.com/cfels/nixos-dots/dev/assets/wlogout.png) |
