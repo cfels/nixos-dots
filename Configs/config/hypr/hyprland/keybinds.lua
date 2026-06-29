@@ -40,7 +40,7 @@ hl.bind(SUPER .. " + SHIFT + R", function()
 	hl.exec_cmd("swaync-client -R && swaync-client -rs")
 end)
 
-hl.bind(SUPER .. " + RETURN", hl.dsp.exec_cmd(terminal))
+-- close program
 local closeWindowBind = hl.bind(SUPER .. " + Q", hl.dsp.window.close())
 
 -- SHUTDOWN HYPRLAND ig
@@ -49,14 +49,16 @@ hl.bind(
 	hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'")
 )
 
-hl.bind(SUPER .. " + E", hl.dsp.exec_cmd(fileManager))
+-- window stuff
 hl.bind(SUPER .. " + SHIFT + T", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(SUPER .. " + SPACE", hl.dsp.exec_cmd(menu))
 hl.bind(SUPER .. " + J", hl.dsp.layout("togglesplit")) -- basically splits or smth like that
 
--- quick fixes
+-- apps
 hl.bind(SUPER .. " + W", hl.dsp.exec_cmd(browser))
 hl.bind(SUPER .. " + SHIFT + D", hl.dsp.exec_cmd(mess))
+hl.bind(SUPER .. " + SPACE", hl.dsp.exec_cmd(menu))
+hl.bind(SUPER .. " + E", hl.dsp.exec_cmd(fileManager))
+hl.bind(SUPER .. " + RETURN", hl.dsp.exec_cmd(terminal))
 
 -- move focus to diff window
 hl.bind(SUPER .. " + left", hl.dsp.focus({ direction = "left" }))

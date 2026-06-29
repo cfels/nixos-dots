@@ -100,6 +100,8 @@ stow
 tree
 nodejs
 bun
+cmake
+gnumake
 ];
   programs.nix-ld.enable = true;
 }
