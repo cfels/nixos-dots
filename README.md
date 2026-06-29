@@ -10,8 +10,13 @@ an work in progress dotfiles by me
 cd ~/nixos-dots/
 bash ./installer
 ```
-
 for restoring ur old setup use `-h, --help` flag it'll tell u what to do
+
+### Usage
+type this into your terminal to view keybinds
+```
+keybinds
+```
 
 ### TODO:
 https://monogr.ph/6a385c463475628ec84f5c0f
