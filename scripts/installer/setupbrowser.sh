@@ -2,4 +2,6 @@
 
 set -e
 
-echo "ill do it later"
+echo "copy profile"
+cp -r $HOME/nixos-dots/Configs/lb_profile/profile/* $HOME/.config/librewolf/librewolf/*.default/
+echo "done! (this soltution maybe works)"
