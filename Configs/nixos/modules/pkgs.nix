@@ -29,7 +29,6 @@ wl-clipboard
 nerd-fonts.iosevka
 doas
 fish
-discord
 tldr
 kdePackages.spectacle
 starship
@@ -102,6 +101,9 @@ nodejs
 bun
 cmake
 gnumake
+deno
+dig
+signal-desktop
 ];
   programs.nix-ld.enable = true;
 }

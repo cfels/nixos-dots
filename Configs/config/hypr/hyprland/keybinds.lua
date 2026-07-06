@@ -7,7 +7,6 @@ local terminal = "kitty"
 local fileManager = "dolphin"
 local menu = "rofi -show drun"
 local browser = "librewolf"
-local mess = "discord"
 local lockapp = "hyprlock"
 local logout = "wlogout"
 local mojis = "hypremoji"
@@ -55,7 +54,6 @@ hl.bind(SUPER .. " + J", hl.dsp.layout("togglesplit")) -- basically splits or sm
 
 -- apps
 hl.bind(SUPER .. " + W", hl.dsp.exec_cmd(browser))
-hl.bind(SUPER .. " + SHIFT + D", hl.dsp.exec_cmd(mess))
 hl.bind(SUPER .. " + SPACE", hl.dsp.exec_cmd(menu))
 hl.bind(SUPER .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(SUPER .. " + RETURN", hl.dsp.exec_cmd(terminal))
