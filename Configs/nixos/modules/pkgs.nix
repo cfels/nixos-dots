@@ -103,7 +103,7 @@ cmake
 gnumake
 deno
 dig
-signal-desktop
+go
 ];
   programs.nix-ld.enable = true;
 }
