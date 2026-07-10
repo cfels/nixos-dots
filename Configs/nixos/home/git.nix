@@ -7,6 +7,7 @@
     signing.signByDefault = true;
     extraConfig = {
       init.defaultBranch = "main";
+      core.editor = "nvim";
     };
   };
 

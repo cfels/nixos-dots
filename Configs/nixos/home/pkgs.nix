@@ -2,9 +2,11 @@
   config,
   pkgs,
   lib,
+  inputs,
   ...
 }: {
   home.packages = with pkgs; [
+    inputs.fagram.packages.x86_64-linux.default
     btop
     ripgrep
     fd
