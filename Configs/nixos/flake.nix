@@ -4,6 +4,7 @@
   inputs = { 
     nixcord.url = "github:FlameFlag/nixcord";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    fagram.url = "github:cfels/fadesktop";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";

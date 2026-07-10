@@ -39,7 +39,7 @@ texlivePackages.noto-emoji
 aria2
 clang
 gcc
-telegram-desktop
+signal-desktop
 nh
 waybar
 wlogout
@@ -104,6 +104,11 @@ gnumake
 deno
 dig
 go
+kiro-cli
+mpv
+gifski
+obs-studio
+nvme-cli
 ];
   programs.nix-ld.enable = true;
 }
