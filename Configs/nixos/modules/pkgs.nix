@@ -108,6 +108,9 @@ mpv
 gifski
 obs-studio
 nvme-cli
+android-tools
+binutils
+signal-desktop
 ];
   programs.nix-ld.enable = true;
 }

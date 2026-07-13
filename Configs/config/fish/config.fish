@@ -17,3 +17,4 @@ alias nixupdate="doas nix flake update --flake /etc/nixos"
 alias vac="vac-status"
 alias vps="ssh root@104.245.245.82"
 alias server="ssh -p 2222 root@192.168.18.138"
+alias rm='rm -i'
