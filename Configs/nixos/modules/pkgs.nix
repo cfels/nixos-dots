@@ -39,7 +39,6 @@ texlivePackages.noto-emoji
 aria2
 clang
 gcc
-signal-desktop
 nh
 waybar
 wlogout
