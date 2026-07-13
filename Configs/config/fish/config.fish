@@ -18,3 +18,4 @@ alias vac="vac-status"
 alias vps="ssh root@REDACTED_IP"
 alias server="ssh -p 2222 root@REDACTED_IP"
 alias rm='rm -i'
+alias sudo='doas'
