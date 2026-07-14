@@ -54,6 +54,7 @@ hl.bind(SUPER .. " + J", hl.dsp.layout("togglesplit")) -- basically splits or sm
 
 -- apps
 hl.bind(SUPER .. " + W", hl.dsp.exec_cmd(browser))
+hl.bind(SUPER .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(SUPER .. " + SPACE", hl.dsp.exec_cmd(menu))
 hl.bind(SUPER .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(SUPER .. " + RETURN", hl.dsp.exec_cmd(terminal))
