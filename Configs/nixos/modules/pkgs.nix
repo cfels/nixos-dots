@@ -14,6 +14,8 @@
   "librewolf-151.0.2-1"
   "librewolf-unwrapped-151.0.2-1"
   ];
+  
+  services.flatpak.enable = true;
 
   environment.systemPackages = with pkgs; [
 vim
@@ -116,6 +118,9 @@ prismlauncher
 jdk21
 sl
 libva-utils
+pnpm
+steam
+depotdownloader
 ];
   programs.nix-ld.enable = true;
 }
