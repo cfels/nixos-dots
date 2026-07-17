@@ -21,6 +21,8 @@
   environment.plasma6.excludePackages = with pkgs.kdePackages; [
     gwenview
     okular
+    #kwrite
+    kate
   ];
 
   security.doas.extraRules = [
