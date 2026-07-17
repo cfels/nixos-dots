@@ -9,4 +9,5 @@
     # enable networking
     systemd.services.NetworkManager-wait-online.enable = false;
     networking.networkmanager.enable = true;
+    networking.firewall.allowedTCPPorts = [ 22 25565 ];
 }

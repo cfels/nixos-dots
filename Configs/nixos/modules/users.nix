@@ -4,7 +4,7 @@
   users.users."moxiu" = {
     isNormalUser = true;
     description = "moxiu";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "video" "render" ];
     packages = with pkgs; [
       kdePackages.kate
     ];

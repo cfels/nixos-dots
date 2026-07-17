@@ -111,6 +111,11 @@ nvme-cli
 android-tools
 binutils
 signal-desktop
+gitleaks
+prismlauncher
+jdk21
+sl
+libva-utils
 ];
   programs.nix-ld.enable = true;
 }
