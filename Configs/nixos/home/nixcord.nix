@@ -125,10 +125,10 @@
         webScreenShareFixes = { enable = true; };
         whoReacted = { enable = true; };
         whosWatching = { enable = true; };
-        youtubeadblock = { enable = true; };
-        #blurNsfw = { enable = true; };
-        #contentwarning = { enable = true; };
-        #favouriteanything = { enable = true; };
+        youtubeAdblock = { enable = true; };
+        blurNsfw = { enable = true; };
+        contentWarning = { enable = true; };
+        favouriteAnything = { enable = true; };
       };
     };
     extraConfig.plugins = {
