@@ -25,6 +25,8 @@ neovim
 librewolf
 hyprland
 git
+git-filter-repo
+git-crypt
 kitty
 cliphist
 wl-clipboard

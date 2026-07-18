@@ -1,5 +1,8 @@
 { config, pkgs, lib, ... }:
+
 {
+  imports = [ ./personalcord.nix ];
+
   programs.nixcord = {
     enable = true;
     package = pkgs.discord;
@@ -8,7 +11,9 @@
     config = {
       themeLinks = [
         "https://catppuccin.github.io/discord/dist/catppuccin-mocha-pink.theme.css"
-        "https://refact0r.github.io/system24/build/system24.css"
+      ];
+      enabledThemeLinks = [
+        "https://catppuccin.github.io/discord/dist/catppuccin-mocha-pink.theme.css"
       ];
       plugins = {
         autoDndWhilePlaying = { enable = true; statusToSet = "dnd"; };
@@ -22,7 +27,12 @@
         clearUrls = { enable = true; };
         clientTheme = { enable = true; color = "000000"; };
         crashHandler = { enable = true; attemptToPreventCrashes = true; };
-        decor = { enable = true; baseUrl = "https://decor.fieryflames.dev"; };
+        customTimestamps = {
+          formats = {
+            enable = false;
+          };
+        };
+        decor = { enable = true; baseUrl = "https://decor.fieryflames.dev"; agreedToGuidelines = true; };
         disableCallIdle = { enable = true; };
         disableDeepLinks = { enable = true; };
         equicordHelper = { enable = true; };
@@ -39,8 +49,20 @@
         fixImagesQuality = { enable = true; originalImagesInChat = false; };
         fixSpotifyEmbeds = { enable = true; volume = 10.0; };
         fixYoutubeEmbeds = { enable = true; youtubeDescription = false; };
+        gameActivityToggle = {
+          enable = true;
+          oldIcon = true;
+        };
+        ignoreActivities = {
+          enable = true;
+          ignoreCompeting = true;
+          ignoreListening = true;
+          ignorePlaying = true;
+          ignoreStreaming = true;
+          ignoreWatching = true;
+        };
         imageZoom = { enable = true; saveZoomValues = true; zoom = 4.11; };
-        memberCount = { enable = true; memberList = true; voiceActivity = true; };
+        memberCount = { enable = true; memberList = true; voiceActivity = true; toolTip = false; };
         messageClickActions = {
           enable = true;
           doubleClickAction = "EDIT";
@@ -48,39 +70,112 @@
           tripleClickAction = "REACT";
         };
         messageLogger = { enable = true; logDeletes = true; logEdits = true; };
+        moreUserTags = {
+          enable = true;
+          tagSettings = {
+            administrator = { enable = false; };
+            chatModerator = { enable = false; };
+            moderator = { enable = false; };
+            moderatorStaff = { enable = false; };
+            owner = { enable = false; };
+            voiceModerator = { enable = false; };
+            webhook = { enable = false; };
+            enable = false;
+          };
+        };
+        newGuildSettings = {
+          enable = true;
+          messages = 2;
+        };
         newPluginsManager = { enable = true; };
         noOnboardingDelay = { enable = true; };
         noTypingAnimation = { enable = true; };
         notificationVolume = { enable = true; notificationVolume = 58.66; };
         pictureInPicture = { enable = true; loop = true; };
-        pinDms = { enable = true; };
+        pinDms = {
+          enable = true;
+        };
         plainFolderIcon = { enable = true; };
-
-        # newly enabled in your Equicord backup, added below
         previewMessage = { enable = true; };
         readAllNotificationsButton = { enable = true; };
         relationshipNotifier = { enable = true; };
         reviewDb = { enable = true; };
         serverInfo = { enable = true; sorting = "displayname"; };
-        shikiCodeblocks = { enable = true; };
+        shikiCodeblocks = {
+          enable = true;
+          theme = "https://raw.githubusercontent.com/shikijs/textmate-grammars-themes/bc5436518111d87ea58eb56d97b3f9bec30e6b83/packages/tm-themes/themes/dark-plus.json";
+        };
         showHiddenChannels = { enable = true; };
         showHiddenThings = { enable = true; };
         silentTyping = { enable = true; };
         spotifyCrack = { enable = true; noSpotifyAutoPause = true; };
         spotifyShareCommands = { enable = true; };
-        translate = { enable = true; };
+        streamerModeOnStream = { enable = true; };
+        translate = { enable = true; receivedOutput = "pl"; sentOutput = "pl"; };
         typingIndicator = { enable = true; };
         typingTweaks = { enable = true; };
         unlockedAvatarZoom = { enable = true; zoomMultiplier = 4.0; };
         userVoiceShow = { enable = true; };
         viewRaw = { enable = true; };
         voiceDownload = { enable = true; };
-        voiceMessages = { enable = true; };
+        voiceMessages = { enable = true; echoCancellation = false; noiseSuppression = false; };
         volumeBooster = { enable = true; multiplier = 2.0; };
+        webContextMenus = { enable = true; addBack = true; };
+        webKeybinds = { enable = true; };
+        webScreenShareFixes = { enable = true; };
         whoReacted = { enable = true; };
-        youtubeAdblock = { enable = true; };
+        whosWatching = { enable = true; };
+        youtubeadblock = { enable = true; };
+        #blurNsfw = { enable = true; };
+        #contentwarning = { enable = true; };
+        #favouriteanything = { enable = true; };
+      };
+    };
+    extraConfig.plugins = {
+      customCommands = {
+        clyde = true;
+      };
+      fontLoader = {
+        applyOnClodeBlocks = false;
+      };
+      globalBadges = {
+        showRa1ncord = true;
+      };
+      messageClickActions = {
+        enableDeleteOnClick = true;
+        enableDoubleClickToEdit = false;
+        enableDoubleClickToReply = true;
+        requireModifier = true;
+      };
+      noBlockedMessages = {
+        applyToIgnoredUsers = true;
+        ignoreBlockedMessages = false;
+        ignoreMessages = false;
+      };
+      platformIndicators = {
+        badges = true;
+      };
+      showHiddenChannels = {
+        hideUnreads = true;
+      };
+      showMeYourName = {
+        displayNames = false;
+        friendNicknames = "dms";
+        inReplies = false;
+        mode = "user-nick";
+      };
+      silentTyping = {
+        contextMenu = true;
+        isEnabled = true;
+        showIcon = false;
+      };
+      translate = {
+        shavian = true;
+        sitelen = true;
+        target = "en";
+        toki = true;
+        showChatBarButton = true;
       };
     };
   };
 }
-
