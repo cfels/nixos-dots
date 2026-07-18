@@ -1,1 +1,1 @@
-Configs/nixos/home/personalcord.nix filter=git-crypt diff=git-crypt
+Configs/nixos/home/nixcord-secrets.nix filter=git-crypt diff=git-crypt
