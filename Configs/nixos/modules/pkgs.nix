@@ -114,7 +114,6 @@ obs-studio
 nvme-cli
 android-tools
 binutils
-signal-desktop
 gitleaks
 prismlauncher
 jdk21
