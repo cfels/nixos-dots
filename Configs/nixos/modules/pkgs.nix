@@ -98,6 +98,7 @@ stow
 tree
 nodejs
 bun
+tshark
 cmake
 gnumake
 deno
