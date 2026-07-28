@@ -401,8 +401,4 @@
       },
     },
   },
-  "experimental": {
-    "extension_repositories": ["https://github.com/zed-extensions/extensions"],
-  },
-  "extensions": ["discord-presence"],
 }
