@@ -17,6 +17,7 @@ alias nixupdate="doas nix flake update --flake /etc/nixos"
 alias vac="vac-status"
 alias sudo='doas'
 alias conf='nvim $HOME/nixos-dots/Configs/config/.config'
+alias icat="kitten icat"
 
 # make rm safer
 function rm
