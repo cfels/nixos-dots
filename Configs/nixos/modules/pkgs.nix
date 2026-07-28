@@ -105,6 +105,8 @@ deno
 dig
 go
 mpv
+nixd
+nil
 obs-studio
 nvme-cli
 android-tools

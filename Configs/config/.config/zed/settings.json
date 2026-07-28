@@ -388,6 +388,22 @@
     "clangd": {
       "binary": {
         "path": "/run/current-system/sw/bin/clangd",
+        "arguments": ["--background-index", "--compile-commands-dir=."],
+      },
+    },
+    "nil": {
+      "binary": {
+        "path": "/run/current-system/sw/bin/nil",
+      },
+    },
+    "nixd": {
+      "binary": {
+        "path": "/run/current-system/sw/bin/nixd",
+      },
+      "settings": {
+        "nixpkgs": {
+          "expr": "import <nixpkgs> {}",
+        },
       },
     },
     "pyright": {
