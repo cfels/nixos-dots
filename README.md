@@ -1,8 +1,8 @@
 > [!WARNING]  
-> Work in progress dotfiles so that basically means i'm not responsible for any damage's done to your nix install
+> THE `hypr` branch is No Longer MAINTAINED! so USE my `hypr` dots at ur own risk!
 
 ## NixOS dots
-an work in progress dotfiles by me
+outdated dots
 
 ### Installation
 
@@ -17,9 +17,6 @@ type this into your terminal to view keybinds
 ```
 keybinds
 ```
-
-### TODO:
-https://monogr.ph/6a385c463475628ec84f5c0f
 
 ### Screenshots
 | cava | fastfetch | lavat + peaclock |
