@@ -105,7 +105,7 @@ deno
 dig
 go
 mpv
-gifski
+libusb1
 obs-studio
 nvme-cli
 android-tools
