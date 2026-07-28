@@ -20,6 +20,6 @@ alias conf='nvim $HOME/nixos-dots/Configs/config/.config'
 
 # make rm safer
 function rm
-    command rm $argv -i
+    command rm -i $argv
 end
 funcsave rm >/dev/null
