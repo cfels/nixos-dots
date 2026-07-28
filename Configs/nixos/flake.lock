@@ -191,13 +191,30 @@
         "type": "github"
       }
     },
+    "nixpkgs_4": {
+      "locked": {
+        "lastModified": 1777578337,
+        "narHash": "sha256-Ad49moKWeXtKBJNy2ebiTQUEgdLyvGmTeykAQ9xM+Z4=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "15f4ee454b1dce334612fa6843b3e05cf546efab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "fagram": "fagram",
         "home-manager": "home-manager",
         "kwin-better-blur-dx": "kwin-better-blur-dx",
         "nixcord": "nixcord",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_3",
+        "vm_curator": "vm_curator"
       }
     },
     "systems": {
@@ -230,6 +247,24 @@
       "original": {
         "owner": "numtide",
         "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "vm_curator": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_4"
+      },
+      "locked": {
+        "lastModified": 1785173452,
+        "narHash": "sha256-8Ynf+UvmD8Aj4DLkOPMt81+6fz9002b5/OjwPpRZ0vc=",
+        "owner": "mroboff",
+        "repo": "vm-curator",
+        "rev": "1d79c3f048ef94f4fdeae71b4d7d77f81e4bbb37",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mroboff",
+        "repo": "vm-curator",
         "type": "github"
       }
     }

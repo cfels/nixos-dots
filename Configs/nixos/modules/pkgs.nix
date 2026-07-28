@@ -118,6 +118,7 @@ libva-utils
 pnpm
 steam
 depotdownloader
+qemu
 ];
   programs.nix-ld.enable = true;
 }

@@ -26,16 +26,24 @@
   # stuff
   programs.fish.enable = true;
   
-  # window blur
+  # stuff 2
   environment.systemPackages = [
     inputs.kwin-better-blur-dx.packages.${pkgs.system}.default
+    inputs.vm_curator.packages.${pkgs.system}.default
+    pkgs.OVMF
   ];
   
   # get write access for my mouse
+    # for nix
   services.udev.extraRules = ''
-    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f54f", MODE="0666"
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f54d", MODE="0666"
   '';
 
+    # for windows VM
+  #services.udev.extraRules = ''
+  #  SUBSYSTEM=="usb", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f54d", MODE="0666"
+  #'';
+  
   # kde portal enable
   xdg.portal = {
    enable = true;

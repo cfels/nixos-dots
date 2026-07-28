@@ -154,7 +154,7 @@ immutability=1
 plugin=plasmusic-toolbar
 
 [Containments][55][Applets][80][Configuration]
-popupHeight=417
+popupHeight=398
 popupWidth=252
 
 [Containments][55][General]
