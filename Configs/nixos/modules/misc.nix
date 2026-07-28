@@ -30,6 +30,11 @@
   environment.systemPackages = [
     inputs.kwin-better-blur-dx.packages.${pkgs.system}.default
   ];
+  
+  # get write access for my mouse
+  services.udev.extraRules = ''
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f54f", MODE="0666"
+  '';
 
   # kde portal enable
   xdg.portal = {

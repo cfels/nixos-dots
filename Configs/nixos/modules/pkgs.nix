@@ -83,11 +83,13 @@ lavat
 rustup
 gtk4
 glib
+glibc.dev
 cairo
 pkg-config
 pango
 gdk-pixbuf
 graphene
+clang-tools
 python3
 #pipx
 stow
