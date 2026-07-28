@@ -18,5 +18,5 @@ alias vac="vac-status"
 alias vps="ssh root@104.245.245.82"
 alias server="ssh -p 2222 root@192.168.18.138"
 alias rm='rm -i'
-alias rm -rf='rm -rf -i'
 alias sudo='doas'
+alias conf='nvim $HOME/nixos-dots/Configs/config/.config'
