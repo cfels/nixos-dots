@@ -91,6 +91,8 @@ gdk-pixbuf
 graphene
 clang-tools
 python3
+meson
+ninja
 #pipx
 stow
 tree
