@@ -2,9 +2,6 @@
 
 set -e
 
-# vars
-#VAR="something"
-
 # delete and make dirs
 #del dirs
 rm -rf $HOME/.config
@@ -16,5 +13,9 @@ mkdir $HOME/.local
 mkdir $HOME/.icons
 
 # stow
-stow --dir=~/nixos-dots/Configs --target=~/.config --no-folding --adopt --restow config
-stow --dir=~/nixos-dots/Configs --target=~ --no-folding --adopt --restow icons local walls
+cd $HOME/nixos-dots/Configs/
+stow config local walls
+
+# symlnk /etc/nixos
+rm -rf /etc/nixos
+sudo ln -s /home/moxiu/nixos-dots/Configs/nixos /etc/nixos

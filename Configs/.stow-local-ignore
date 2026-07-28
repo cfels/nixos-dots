@@ -4,4 +4,14 @@
 README.*
 nixos
 shell
-scrnsht
+kwinoutputconfig.json
+kglobalshortcutsrc
+sessionData
+Code Cache
+Cache
+storage
+Singleton
+*.log
+*.ldb
+LOCK
+LOG

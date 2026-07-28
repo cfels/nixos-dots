@@ -9,13 +9,13 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    kwin-effects-forceblur = {
-      url = "github:taj-ny/kwin-effects-forceblur";
-      inputs.nixpkgs.follows = "nixpkgs";
+    kwin-better-blur-dx = {
+    url = "github:xarblu/kwin-effects-better-blur-dx";
+    inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
+  outputs = inputs@{ self, nixpkgs, home-manager, kwin-better-blur-dx, ... }: {
     nixosConfigurations.moxiu = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };

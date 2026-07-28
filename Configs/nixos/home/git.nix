@@ -3,7 +3,7 @@
     enable = true;
     userName = "cfels";
     userEmail = "moxiix@proton.me";
-    signing.key = "85B2B66CE0A09BBF";
+    signing.key = "24A060859F7F1C76";
     signing.signByDefault = true;
     extraConfig = {
       init.defaultBranch = "main";

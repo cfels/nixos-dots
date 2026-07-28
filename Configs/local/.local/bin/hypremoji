@@ -1,3 +1,0 @@
-#!/bin/sh
-cd ~/.local/share/hypremoji
-exec ./hypremoji-bin "$@" >/dev/null 2>&1

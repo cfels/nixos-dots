@@ -1,0 +1,6 @@
+[Daemon]
+Timeout=30
+
+[Greeter][Wallpaper][org.kde.image][General]
+Image=file:///home/moxiu/Pictures/jew.jpg
+PreviewImage=file:///home/moxiu/Pictures/jew.jpg

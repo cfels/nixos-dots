@@ -1,33 +1,34 @@
 { inputs, pkgs, ... }:
 {
   # dildo
-  programs.fish.enable = true;
-  programs.hyprland = {
-    enable = true;
-    package = pkgs.hyprland;
-  };
+  #programs.fish.enable = true;
+  #programs.hyprland = {
+  #  enable = true;
+  #  package = pkgs.hyprland;
+  #};
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  nixpkgs.config.permittedInsecurePackages = [
-  "librewolf-151.0.2-1"
-  "librewolf-unwrapped-151.0.2-1"
-  ];
+ # nixpkgs.config.permittedInsecurePackages = [
+ # "librewolf-151.0.2-1"
+ # "librewolf-unwrapped-151.0.2-1"
+ # ];
   
   services.flatpak.enable = true;
 
   environment.systemPackages = with pkgs; [
 vim
 wget
+parted
 fastfetch
 neovim
 librewolf
-hyprland
 git
 git-filter-repo
 git-crypt
 kitty
+nerd-fonts.symbols-only
 cliphist
 wl-clipboard
 nerd-fonts.iosevka
@@ -43,23 +44,17 @@ texlivePackages.noto-emoji
 aria2
 clang
 gcc
+zed-editor
+kdePackages.kcalc
+plasmusic-toolbar
 nh
-waybar
-wlogout
-swaynotificationcenter
 pavucontrol
 playerctl
-rofi
-slurp
-grim
-awww
 qt6Packages.qt6ct
 libsForQt5.qt5ct
 catppuccin-qt5ct
-kdePackages.qtstyleplugin-kvantum
 bibata-cursors
 pulseaudio
-nwg-look
 sassc
 kdePackages.breeze-icons
 swappy
@@ -79,13 +74,9 @@ fzf
 fd
 bat
 zoxide
-papirus-icon-theme
-hyprlock
 hicolor-icon-theme
-whitesur-icon-theme
 libnotify
 jq
-hyprshot
 peaclock
 lavat
 rustup
@@ -97,7 +88,7 @@ pango
 gdk-pixbuf
 graphene
 python3
-pipx
+#pipx
 stow
 tree
 nodejs
@@ -107,7 +98,6 @@ gnumake
 deno
 dig
 go
-kiro-cli
 mpv
 gifski
 obs-studio

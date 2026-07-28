@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-  imports = [ ./nixcord-secrets.nix ];
+  #imports = [ ./nixcord-secrets.nix ];
 
   programs.nixcord = {
     enable = true;
@@ -17,7 +17,7 @@
       ];
       plugins = {
         autoDndWhilePlaying = { enable = true; statusToSet = "dnd"; };
-        betterFolders = { enable = true; enableNestedFolders = true; };
+        #betterFolders = { enable = true; enableNestedFolders = true; };
         betterGifAltText = { enable = true; };
         betterGifPicker = { enable = true; };
         betterSettings = { enable = true; organizeMenu = true; };

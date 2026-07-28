@@ -48,7 +48,4 @@ echo "execute backup script"
 echo "apply configs"
 "$HOME/nixos-dots/scripts/installer/applyconfigs_stow.sh"
 
-echo "setup browser (placeholder for now)"
-"$HOME/nixos-dots/scripts/installer/setupbrowser.sh"
-
 echo "DONE! with no issue's i guess"

@@ -10,6 +10,6 @@ sudo cp -r $HOME/.config $HOME/dots-backup
 echo "backup .local"
 sudo cp -r $HOME/.local $HOME/dots-backup
 echo "backup .icons"
-sudo cp -r $HOME/.icons $HOME/dots-backup
+sudo mv /etc/nixos /etc/nixos.bak
 
 echo "backup DONE!"
