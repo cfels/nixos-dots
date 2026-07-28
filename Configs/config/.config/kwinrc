@@ -22,7 +22,9 @@ BlurStrength=12
 [Plugins]
 better_blur_dxEnabled=true
 blurEnabled=false
+magiclampEnabled=true
 shakecursorEnabled=false
+squashEnabled=false
 translucencyEnabled=true
 wobblywindowsEnabled=true
 
