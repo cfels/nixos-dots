@@ -25,6 +25,7 @@ fastfetch
 neovim
 librewolf
 git
+usbutils
 git-filter-repo
 git-crypt
 kitty
