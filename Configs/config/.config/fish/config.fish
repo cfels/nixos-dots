@@ -18,6 +18,8 @@ alias vac="vac-status"
 alias sudo='doas'
 alias conf='nvim $HOME/nixos-dots/Configs/config/.config'
 alias icat="kitten icat"
+alias changedpi="sudo k1ng_driver"
+alias k1ng_driver="sudo k1ng_driver"
 
 # make rm safer
 function rm

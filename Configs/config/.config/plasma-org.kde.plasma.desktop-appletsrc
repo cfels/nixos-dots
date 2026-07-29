@@ -53,7 +53,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][55][Applets][58][Configuration][General]
-launchers=preferred://filemanager,preferred://browser,file:///nix/store/vi5rj4xd0r6q56fcmlyb0j5zhidhk6sr-user-environment/share/applications/discord.desktop,file:///nix/store/vi5rj4xd0r6q56fcmlyb0j5zhidhk6sr-user-environment/share/applications/org.fagram.desktop,applications:kitty.desktop,applications:dev.zed.Zed.desktop,file:///nix/store/n0k85ahm1484k8p73ansa8lg5bybmmcz-system-path/share/applications/com.obsproject.Studio.desktop
+launchers=preferred://filemanager,preferred://browser,file:///nix/store/464abackvby2c43sqxghamr50w2xlnks-user-environment/share/applications/discord.desktop,file:///nix/store/vi5rj4xd0r6q56fcmlyb0j5zhidhk6sr-user-environment/share/applications/org.fagram.desktop,applications:kitty.desktop,applications:dev.zed.Zed.desktop,file:///nix/store/1wx2q7gdq3wqldynf5q1m0dd4wlld80a-system-path/share/applications/com.obsproject.Studio.desktop
 
 [Containments][55][Applets][59]
 immutability=1
