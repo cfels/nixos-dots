@@ -120,6 +120,8 @@ pnpm
 steam
 depotdownloader
 qemu
+obsidian
+#google-chrome # chrome bloat
 ];
   programs.nix-ld.enable = true;
 }
