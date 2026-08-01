@@ -21,6 +21,7 @@
   fileSystems."/mnt/morestorage" = {
     device = "/dev/disk/by-uuid/e7ef777f-96ba-440b-93c0-b1d09f99f889";
     fsType = "btrfs";
+    options = [ "defaults" "nofail" ];
   };
 
   fileSystems."/home" =
