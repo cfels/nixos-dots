@@ -3,7 +3,9 @@ maybe finished dots..
 
 ### Installation
 
+run
 ```
+nix-shell -p stow git wget aria2
 cd ~/nixos-dots/
 bash ./installer
 ```
