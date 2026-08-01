@@ -30,8 +30,6 @@
     inputs.kwin-better-blur-dx.packages.${pkgs.system}.default
     inputs.vm_curator.packages.${pkgs.system}.default
     OVMF
-    kdePackages.kwallet
-    kdePackages.kwallet-pam
   ];
   
   # get write access for my mouse
