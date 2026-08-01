@@ -25,6 +25,7 @@ fastfetch
 pinentry-qt
 neovim
 librewolf
+pkgs.qt6.qtdeclarative
 git
 usbutils
 git-filter-repo

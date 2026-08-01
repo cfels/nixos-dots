@@ -76,23 +76,6 @@
     },
   },
   "load_direnv": "shell_hook",
-  "agent_servers": {
-    "claude-acp": {
-      "type": "registry",
-    },
-    "opencode": {
-      "type": "registry",
-    },
-    "codex-acp": {
-      "favorite_config_option_values": {
-        "mode": ["auto"],
-      },
-      "default_config_options": {
-        "mode": "auto",
-      },
-      "type": "registry",
-    },
-  },
   "collaboration_panel": {
     "dock": "left",
     "button": true,
@@ -101,7 +84,7 @@
     "diagnostics": false,
     "metrics": false,
   },
-  "disable_ai": false,
+  "disable_ai": true,
   "ssh_connections": [
     {
       "host": "192.168.122.208",
@@ -198,12 +181,7 @@
       "max_severity": null,
     },
   },
-  "show_edit_predictions": true,
-  "edit_predictions": {
-    "provider": "zed",
-    "disabled_globs": ["/home/moxiu/Documents/playground/learn-ruby/*"],
-    "mode": "subtle",
-  },
+  "show_edit_predictions": false,
   "experimental.theme_overrides": {},
   "theme": {
     "mode": "dark",
@@ -213,23 +191,6 @@
   "toolbar": {
     "breadcrumbs": true,
     "quick_actions": true,
-  },
-  "agent": {
-    "profiles": {},
-    "sidebar_side": "right",
-    "dock": "right",
-    "tool_permissions": {
-      "default": "allow",
-    },
-    "use_modifier_to_send": false,
-    "play_sound_when_agent_done": "never",
-    "default_profile": "write",
-    "default_model": {
-      "effort": "xhigh",
-      "enable_thinking": true,
-      "provider": "openai-subscribed",
-      "model": "gpt-5.5",
-    },
   },
   "git": {
     "inline_blame": {
@@ -388,7 +349,12 @@
     "clangd": {
       "binary": {
         "path": "/run/current-system/sw/bin/clangd",
-        "arguments": ["--background-index", "--compile-commands-dir=."],
+        "arguments": [
+          "--background-index",
+          "--compile-commands-dir=.",
+          "--j=4",
+          "--pch-storage=memory",
+        ],
       },
     },
     "nil": {
