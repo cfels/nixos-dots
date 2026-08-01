@@ -10,5 +10,4 @@ echo "alr ur on nixos"
 
 ls -la ~/.config
 ls -la ~/.local
-ls -la ~/.icons
 sudo ls -la /etc/nixos

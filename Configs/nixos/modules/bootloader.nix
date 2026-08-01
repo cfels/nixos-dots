@@ -18,7 +18,7 @@
   # decrypt partitions
   boot.initrd.luks.devices = {
     root = {
-      device = "/dev/disk/by-uuid/ed826d0b-e1cf-4c90-821e-62a0d82aa167";
+      device = "/dev/disk/by-uuid/3c2a65f7-5935-4795-a7fa-774c540ed4c2";
       preLVM = true;
     };
   };

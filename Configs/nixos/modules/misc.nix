@@ -9,7 +9,7 @@
   # hostname
   networking.hostName = "moxiu";
   
-  # ssh
+  # gpg
   programs.mtr.enable = true;
   programs.gnupg.agent = {
     enable = true;
@@ -20,29 +20,24 @@
     };
   };
 
-  # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   
   # stuff
   programs.fish.enable = true;
   
   # stuff 2
-  environment.systemPackages = [
+  environment.systemPackages = with pkgs; [
     inputs.kwin-better-blur-dx.packages.${pkgs.system}.default
     inputs.vm_curator.packages.${pkgs.system}.default
-    pkgs.OVMF
+    OVMF
+    kdePackages.kwallet
+    kdePackages.kwallet-pam
   ];
   
   # get write access for my mouse
-    # for nix
   services.udev.extraRules = ''
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f54d", MODE="0666"
   '';
-
-    # for windows VM
-  #services.udev.extraRules = ''
-  #  SUBSYSTEM=="usb", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f54d", MODE="0666"
-  #'';
   
   # kde portal enable
   xdg.portal = {

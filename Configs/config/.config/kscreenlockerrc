@@ -1,5 +1,5 @@
 [Daemon]
-Timeout=30
+Timeout=120
 
 [Greeter][Wallpaper][org.kde.image][General]
 Image=file:///home/moxiu/Pictures/jew.jpg

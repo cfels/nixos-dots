@@ -5,24 +5,11 @@ RightButton;NoModifier=org.kde.contextmenu
 [ActionPlugins][1]
 RightButton;NoModifier=org.kde.contextmenu
 
-[Containments][54]
-ItemGeometries-1920x1080=
-ItemGeometriesHorizontal=
-activityId=0b6909a8-536a-4921-83c4-cbe51d3f4080
-formfactor=0
-immutability=1
-lastScreen=0
-location=0
-plugin=org.kde.plasma.folder
-wallpaperplugin=org.kde.image
+[Containments][2][Applets][20][Configuration]
+popupHeight=451
 
-[Containments][54][ConfigDialog]
-DialogHeight=755
-DialogWidth=1173
-
-[Containments][54][Wallpaper][org.kde.image][General]
-Image=file:///home/moxiu/Pictures/jew.jpg
-SlidePaths=/home/moxiu/.local/share/wallpapers/,/nix/store/0wiwipvizlpnc209chrgwbvq2ncca8gn-breeze-6.7.3/share/wallpapers/,/run/current-system/sw/share/wallpapers/
+[Containments][2][Applets][5][Configuration][General]
+launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/svhaxlcq6x54ld47f6cfx8fcw5zs8g5h-system-path/share/applications/dev.zed.Zed.desktop,file:///nix/store/464abackvby2c43sqxghamr50w2xlnks-user-environment/share/applications/org.fagram.desktop,file:///nix/store/464abackvby2c43sqxghamr50w2xlnks-user-environment/share/applications/discord.desktop,file:///nix/store/svhaxlcq6x54ld47f6cfx8fcw5zs8g5h-system-path/share/applications/com.obsproject.Studio.desktop
 
 [Containments][55]
 activityId=
@@ -41,8 +28,14 @@ plugin=org.kde.plasma.kickoff
 popupHeight=509
 popupWidth=647
 
+[Containments][55][Applets][56][Configuration][ConfigDialog]
+DialogHeight=630
+DialogWidth=810
+
 [Containments][55][Applets][56][Configuration][General]
 favoritesPortedToKAstats=true
+icon=/home/moxiu/Downloads/image.png
+systemFavorites=suspend\\,hibernate\\,reboot\\,shutdown
 
 [Containments][55][Applets][57]
 immutability=1
@@ -53,7 +46,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][55][Applets][58][Configuration][General]
-launchers=preferred://filemanager,preferred://browser,file:///nix/store/464abackvby2c43sqxghamr50w2xlnks-user-environment/share/applications/discord.desktop,file:///nix/store/vi5rj4xd0r6q56fcmlyb0j5zhidhk6sr-user-environment/share/applications/org.fagram.desktop,applications:kitty.desktop,applications:dev.zed.Zed.desktop,file:///nix/store/1wx2q7gdq3wqldynf5q1m0dd4wlld80a-system-path/share/applications/com.obsproject.Studio.desktop
+launchers=preferred://filemanager,preferred://browser,file:///nix/store/464abackvby2c43sqxghamr50w2xlnks-user-environment/share/applications/discord.desktop,file:///nix/store/464abackvby2c43sqxghamr50w2xlnks-user-environment/share/applications/org.fagram.desktop,applications:kitty.desktop,applications:dev.zed.Zed.desktop,file:///nix/store/svhaxlcq6x54ld47f6cfx8fcw5zs8g5h-system-path/share/applications/com.obsproject.Studio.desktop
 
 [Containments][55][Applets][59]
 immutability=1
@@ -159,6 +152,25 @@ popupWidth=252
 
 [Containments][55][General]
 AppletOrder=56;57;58;80;59;60;73;74
+
+[Containments][81]
+ItemGeometries-1920x1080=
+ItemGeometriesHorizontal=
+activityId=da47f183-1a6a-498b-9fe7-6413eb227b4c
+formfactor=0
+immutability=1
+lastScreen=0
+location=0
+plugin=org.kde.plasma.folder
+wallpaperplugin=org.kde.image
+
+[Containments][81][ConfigDialog]
+DialogHeight=630
+DialogWidth=810
+
+[Containments][81][Wallpaper][org.kde.image][General]
+Image=file:///home/moxiu/Pictures/dis.jpg
+SlidePaths=/nix/store/nzvhlw71drjp32zrnccliyi7w4mkkw0f-breeze-6.7.3/share/wallpapers/,/run/current-system/sw/share/wallpapers/
 
 [ScreenMapping]
 itemsOnDisabledScreens=

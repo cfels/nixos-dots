@@ -4,13 +4,14 @@ set -e
 
 # delete and make dirs
 #del dirs
-rm -rf $HOME/.config
-rm -rf $HOME/.local
-rm -rf $HOME/.icons
+sudo rm -rf "$HOME/.config"
+sudo rm -rf "$HOME/.icons"
 #make dirs
-mkdir $HOME/.config
-mkdir $HOME/.local
-mkdir $HOME/.icons
+mkdir -p $HOME/.config
+mkdir -p $HOME/.icons
+
+# install stow
+#nix-shell -p stow git wget aria2
 
 # stow
 cd $HOME/nixos-dots/Configs/
@@ -19,3 +20,7 @@ stow config local walls
 # symlnk /etc/nixos
 rm -rf /etc/nixos
 sudo ln -s /home/moxiu/nixos-dots/Configs/nixos /etc/nixos
+cp $HOME/dots-backup/nixos/hardware-configuration.nix /etc/nixos
+sudo git config --global --add safe.directory /home/moxiu/nixos-dots
+sudo cp -r $HOME/nixos-dots/Configs/config/.config/nvim/ /root/.config/
+sudo nixos-rebuild switch --flake /etc/nixos#moxiu

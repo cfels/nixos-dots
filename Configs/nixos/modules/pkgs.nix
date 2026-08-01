@@ -22,6 +22,7 @@ vim
 wget
 parted
 fastfetch
+pinentry-qt
 neovim
 librewolf
 git

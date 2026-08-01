@@ -109,12 +109,9 @@ ColorSchemeHash=70452fe35c028201ec2b18b043a052dc4f48817d
 UseSystemBell=true
 accentColorFromWallpaper=false
 
-[Icons]
-Theme=breeze-dark
-
 [KDE]
 AnimationDurationFactor=0.75
-LookAndFeelPackage=Catppcn smth
+LookAndFeelPackage=org.kde.breezedark.desktop
 contrast=7
 frameContrast=0.2
 
