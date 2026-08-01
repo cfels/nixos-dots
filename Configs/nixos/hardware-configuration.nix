@@ -17,6 +17,11 @@
     { device = "/dev/disk/by-uuid/3c2a65f7-5935-4795-a7fa-774c540ed4c2";
       fsType = "btrfs";
     };
+  
+  fileSystems."/mnt/morestorage" = {
+    device = "/dev/disk/by-uuid/e7ef777f-96ba-440b-93c0-b1d09f99f889";
+    fsType = "btrfs";
+  };
 
   fileSystems."/home" =
     { device = "/dev/disk/by-uuid/3c2a65f7-5935-4795-a7fa-774c540ed4c2";
