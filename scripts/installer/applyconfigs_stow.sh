@@ -23,4 +23,5 @@ sudo ln -s /home/moxiu/nixos-dots/Configs/nixos /etc/nixos
 cp $HOME/dots-backup/nixos/hardware-configuration.nix /etc/nixos
 sudo git config --global --add safe.directory /home/moxiu/nixos-dots
 sudo cp -r $HOME/nixos-dots/Configs/config/.config/nvim/ /root/.config/
+fc-cache -f -v
 sudo nixos-rebuild switch --flake /etc/nixos#moxiu

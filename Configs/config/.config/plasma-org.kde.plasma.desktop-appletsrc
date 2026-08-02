@@ -26,7 +26,7 @@ plugin=org.kde.plasma.kickoff
 
 [Containments][55][Applets][56][Configuration]
 popupHeight=509
-popupWidth=647
+popupWidth=685
 
 [Containments][55][Applets][56][Configuration][ConfigDialog]
 DialogHeight=630
@@ -46,7 +46,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][55][Applets][58][Configuration][General]
-launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/464abackvby2c43sqxghamr50w2xlnks-user-environment/share/applications/discord.desktop,file:///nix/store/464abackvby2c43sqxghamr50w2xlnks-user-environment/share/applications/org.fagram.desktop,applications:kitty.desktop,applications:dev.zed.Zed.desktop,file:///nix/store/h2j8z142xcgs9vrzw99fzjc1g3zlyklp-system-path/share/applications/obsidian.desktop,file:///nix/store/svhaxlcq6x54ld47f6cfx8fcw5zs8g5h-system-path/share/applications/com.obsproject.Studio.desktop
+launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/464abackvby2c43sqxghamr50w2xlnks-user-environment/share/applications/discord.desktop,file:///nix/store/464abackvby2c43sqxghamr50w2xlnks-user-environment/share/applications/org.fagram.desktop,applications:kitty.desktop,applications:dev.zed.Zed.desktop,file:///nix/store/h2j8z142xcgs9vrzw99fzjc1g3zlyklp-system-path/share/applications/obsidian.desktop,file:///nix/store/sh1mvjq95m0zfs7dl5daz6gvxiw3d1sp-system-path/share/applications/com.obsproject.Studio.desktop
 
 [Containments][55][Applets][59]
 immutability=1

@@ -107,7 +107,15 @@ ForegroundVisited=137,180,250
 [General]
 ColorSchemeHash=70452fe35c028201ec2b18b043a052dc4f48817d
 UseSystemBell=true
+XftAntialias=true
+XftHintStyle=hintslight
+XftSubPixel=vbgr
 accentColorFromWallpaper=false
+fixed=Maple Mono NF SemiBold,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0
+font=Maple Mono NF SemiBold,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0
+menuFont=Maple Mono NF SemiBold,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0
+smallestReadableFont=Maple Mono NF SemiBold,8,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0
+toolBarFont=Maple Mono NF SemiBold,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0
 
 [KDE]
 AnimationDurationFactor=0.75
@@ -135,6 +143,7 @@ View Style=DetailTree
 [WM]
 activeBackground=30,30,46
 activeBlend=30,30,46
+activeFont=Maple Mono NF SemiBold,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0
 activeForeground=205,214,244
 inactiveBackground=30,30,46
 inactiveBlend=30,30,46
