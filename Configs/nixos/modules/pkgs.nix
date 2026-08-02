@@ -26,6 +26,7 @@ pinentry-qt
 neovim
 librewolf
 pkgs.qt6.qtdeclarative
+kiro-cli
 git
 usbutils
 git-filter-repo
