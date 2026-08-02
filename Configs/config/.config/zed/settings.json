@@ -84,79 +84,7 @@
     "diagnostics": false,
     "metrics": false,
   },
-  "disable_ai": true,
-  "ssh_connections": [
-    {
-      "host": "192.168.122.208",
-      "username": "admin",
-      "args": [],
-      "projects": [
-        {
-          "paths": ["/home/admin/nixos-config"],
-        },
-      ],
-    },
-    {
-      "host": "192.168.68.115",
-      "username": "admin",
-      "args": [],
-      "projects": [
-        {
-          "paths": ["/home/admin/server"],
-        },
-      ],
-    },
-    {
-      "host": "cloudanddigital",
-      "username": "admin",
-      "args": [],
-      "projects": [
-        {
-          "paths": ["/home/admin/server"],
-        },
-      ],
-    },
-    {
-      "host": "127.0.0.1",
-      "username": "moxiu",
-      "args": [],
-      "projects": [
-        {
-          "paths": ["/home/moxiu"],
-        },
-        {
-          "paths": ["/home/moxiu/test_dir"],
-        },
-      ],
-    },
-    {
-      "host": "146.83.233.14",
-      "username": "aparker",
-      "port": 1025,
-      "args": [],
-      "projects": [
-        {
-          "paths": ["/nfs_home/aparker/gitlab/tesis"],
-        },
-      ],
-    },
-    {
-      "host": "cloudanddigital",
-      "username": "admin",
-      "args": [],
-      "projects": [
-        {
-          "paths": ["/home/admin/repos/pos-qwtc"],
-        },
-        {
-          "paths": ["/home/admin/server"],
-        },
-        {
-          "paths": ["/home/admin/stuff/self-hosting"],
-        },
-      ],
-    },
-  ],
+  "disable_ai": false,
   "minimap": {
     "show": "always",
     "display_in": "active_editor",
@@ -289,7 +217,7 @@
   "file_scan_exclusions": [".next", ".turbo", "node_modules", "dist"],
   "project_panel": {
     "hide_hidden": false,
-    "drag_and_drop": false,
+    "drag_and_drop": true,
     "sticky_scroll": false,
     "dock": "left",
     "indent_size": 15,
