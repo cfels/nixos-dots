@@ -51,15 +51,7 @@
         fixYoutubeEmbeds = { enable = true; youtubeDescription = false; };
         gameActivityToggle = {
           enable = true;
-          oldIcon = true;
-        };
-        ignoreActivities = {
-          enable = true;
-          ignoreCompeting = true;
-          ignoreListening = true;
-          ignorePlaying = true;
-          ignoreStreaming = true;
-          ignoreWatching = true;
+          oldIcon = false;
         };
         imageZoom = { enable = true; saveZoomValues = true; zoom = 4.11; };
         memberCount = { enable = true; memberList = true; voiceActivity = true; toolTip = false; };
