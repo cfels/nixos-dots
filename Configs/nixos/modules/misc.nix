@@ -31,7 +31,7 @@
     inputs.vm_curator.packages.${pkgs.system}.default
     OVMF
   ];
-  
+
   # get write access for my mouse
   services.udev.extraRules = ''
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f54d", MODE="0666"
