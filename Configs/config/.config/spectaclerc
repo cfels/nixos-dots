@@ -1,6 +1,9 @@
 [ImageSave]
-lastImageSaveLocation=file:///home/moxiu/Pictures/Screenshots/Screenshot_20260729_212352.png
+lastImageSaveLocation=file:///home/moxiu/Pictures/Screenshots/Screenshot_20260802_180558.png
 translatedScreenshotsFolder=Screenshots
 
 [VideoSave]
 translatedScreencastsFolder=Screencasts
+
+[ViewerWindow]
+1920x1080 screen: Window-Maximized=true
