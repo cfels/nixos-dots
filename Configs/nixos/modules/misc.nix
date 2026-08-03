@@ -32,11 +32,6 @@
     OVMF
   ];
 
-  # get write access for my mouse
-  services.udev.extraRules = ''
-    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f54d", MODE="0666"
-  '';
-  
   # kde portal enable
   xdg.portal = {
    enable = true;

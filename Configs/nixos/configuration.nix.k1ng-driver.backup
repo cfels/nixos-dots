@@ -10,7 +10,4 @@
 
   system.stateVersion = "26.05";
 
-  services.udev.extraRules = ''
-    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f54f", MODE="0666"
-  '';
 }
