@@ -43,6 +43,8 @@ starship
 docker
 unzip
 zip
+binwalk
+ghidra
 texlivePackages.noto-emoji
 aria2
 clang
