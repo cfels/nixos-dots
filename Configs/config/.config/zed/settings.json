@@ -1,4 +1,14 @@
 {
+  "agent": {
+    "default_model": {
+      "provider": "zed.dev",
+      "model": "gpt-5.6-sol",
+      "enable_thinking": true,
+      "effort": "medium"
+    },
+    "favorite_models": [],
+    "model_parameters": []
+  },
   "session": {
     "trust_all_worktrees": true,
   },

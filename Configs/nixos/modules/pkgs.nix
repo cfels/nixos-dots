@@ -48,6 +48,7 @@ texlivePackages.noto-emoji
 aria2
 clang
 gcc
+heroic
 zed-editor
 kdePackages.kcalc
 plasmusic-toolbar
