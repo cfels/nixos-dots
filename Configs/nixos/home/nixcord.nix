@@ -93,10 +93,6 @@
         relationshipNotifier = { enable = true; };
         reviewDb = { enable = true; };
         serverInfo = { enable = true; sorting = "displayname"; };
-        shikiCodeblocks = {
-          enable = true;
-          theme = "https://raw.githubusercontent.com/shikijs/textmate-grammars-themes/bc5436518111d87ea58eb56d97b3f9bec30e6b83/packages/tm-themes/themes/dark-plus.json";
-        };
         showHiddenChannels = { enable = true; };
         showHiddenThings = { enable = true; };
         silentTyping = { enable = true; };

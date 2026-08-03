@@ -36,8 +36,10 @@ cliphist
 wl-clipboard
 nerd-fonts.iosevka
 doas
+jdk25
 fish
 tldr
+pkg-config
 kdePackages.spectacle
 starship
 docker
@@ -90,7 +92,6 @@ gtk4
 glib
 glibc.dev
 cairo
-pkg-config
 pango
 gdk-pixbuf
 graphene
