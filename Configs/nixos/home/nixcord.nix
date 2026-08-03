@@ -17,7 +17,7 @@
       ];
       plugins = {
         autoDndWhilePlaying = { enable = true; statusToSet = "dnd"; };
-        #betterFolders = { enable = true; enableNestedFolders = true; };
+        betterFolders = { enable = true; };
         betterGifAltText = { enable = true; };
         betterGifPicker = { enable = true; };
         betterSettings = { enable = true; organizeMenu = true; };

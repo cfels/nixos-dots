@@ -174,4 +174,4 @@ SlidePaths=/nix/store/nzvhlw71drjp32zrnccliyi7w4mkkw0f-breeze-6.7.3/share/wallpa
 
 [ScreenMapping]
 itemsOnDisabledScreens=
-screenMapping=
+screenMapping=desktop:/com.moxiu.k1ng.desktop,0,da47f183-1a6a-498b-9fe7-6413eb227b4c
