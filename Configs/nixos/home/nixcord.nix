@@ -1,13 +1,14 @@
 { config, pkgs, lib, ... }:
 
 {
-  #imports = [ ./nixcord-secrets.nix ];
-
   programs.nixcord = {
     enable = true;
     package = pkgs.discord;
-    discord.vencord.enable = false;
-    discord.equicord.enable = true;
+    discord = {
+      vencord.enable = false;
+      equicord.enable = true;
+      krisp.enable = true;
+    };
     config = {
       themeLinks = [
         "https://catppuccin.github.io/discord/dist/catppuccin-mocha-pink.theme.css"

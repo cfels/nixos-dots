@@ -46,7 +46,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][55][Applets][58][Configuration][General]
-launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/qa5ivpj2dz0ggnsq1y8z196sjv3r1405-user-environment/share/applications/discord.desktop,file:///nix/store/3vz1b7miq5q327j7j9dbm3d8c5k67zbh-user-environment/share/applications/org.fagram.desktop,file:///nix/store/f65gmv5gvnd5gcz7lpm5hc9s2iqjmlvz-system-path/share/applications/dev.zed.Zed.desktop,applications:kitty.desktop,file:///nix/store/p7w8mk3ikmbpx6pw2syhnpzc4ydn4wg6-system-path/share/applications/obsidian.desktop,file:///nix/store/p7w8mk3ikmbpx6pw2syhnpzc4ydn4wg6-system-path/share/applications/com.obsproject.Studio.desktop
+launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/qa5ivpj2dz0ggnsq1y8z196sjv3r1405-user-environment/share/applications/discord.desktop,file:///nix/store/3vz1b7miq5q327j7j9dbm3d8c5k67zbh-user-environment/share/applications/org.fagram.desktop,file:///nix/store/jrhnj923f3ngsnk8qdybpi2ml4v8dd90-system-path/share/applications/dev.zed.Zed.desktop,applications:kitty.desktop,file:///nix/store/jrhnj923f3ngsnk8qdybpi2ml4v8dd90-system-path/share/applications/obsidian.desktop,file:///nix/store/jrhnj923f3ngsnk8qdybpi2ml4v8dd90-system-path/share/applications/com.obsproject.Studio.desktop
 
 [Containments][55][Applets][59]
 immutability=1
