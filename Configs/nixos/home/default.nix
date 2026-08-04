@@ -3,7 +3,7 @@
   imports = [
     ./pkgs.nix
     ./git.nix
-    ./nixcord.nix
+    #./nixcord.nix
   ];
 
   home = {
