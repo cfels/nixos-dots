@@ -28,8 +28,6 @@
   # stuff 2
   environment.systemPackages = with pkgs; [
     inputs.kwin-better-blur-dx.packages.${pkgs.system}.default
-    inputs.vm_curator.packages.${pkgs.system}.default
-    OVMF
   ];
 
   # kde portal enable

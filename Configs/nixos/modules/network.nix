@@ -11,5 +11,5 @@
     networking.networkmanager.enable = true;
     services.resolved.enable = true;
     networking.firewall.allowedTCPPorts = [ 25565 ];
-    networking.firewall.allowedUDPPorts = [ 24454 ];
+    #networking.firewall.allowedUDPPorts = [ 24454 ];
 }

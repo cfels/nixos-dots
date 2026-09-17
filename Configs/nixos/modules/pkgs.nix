@@ -19,6 +19,7 @@
 
   environment.systemPackages = with pkgs; [
 vim
+cinny-desktop
 wget
 parted
 fastfetch
@@ -52,8 +53,6 @@ texlivePackages.noto-emoji
 aria2
 clang
 gcc
-heroic
-zed-editor
 kdePackages.kcalc
 plasmusic-toolbar
 nh
@@ -116,7 +115,6 @@ nixd
 nil
 obs-studio
 nvme-cli
-android-tools
 binutils
 gitleaks
 prismlauncher
@@ -126,9 +124,6 @@ libva-utils
 pnpm
 steam
 depotdownloader
-qemu
-obsidian
-#google-chrome # chrome bloat
 ];
   programs.nix-ld.enable = true;
 }

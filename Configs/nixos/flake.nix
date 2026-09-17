@@ -5,7 +5,7 @@
     nixcord.url = "github:FlameFlag/nixcord";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     fagram.url = "github:cfels/fadesktop";
-    vm_curator.url = "github:mroboff/vm-curator";
+    psysonic.url = "github:Psysonic/psysonic";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -16,7 +16,7 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, home-manager, kwin-better-blur-dx, vm_curator, ... }: {
+  outputs = inputs@{ self, nixpkgs, home-manager, kwin-better-blur-dx, psysonic, ... }: {
     nixosConfigurations.moxiu = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };

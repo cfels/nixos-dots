@@ -5,11 +5,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1785351115,
-        "narHash": "sha256-bOwGLmrA0CNZOo7Y80fJjPhy77dlr2PE8FO06AM+YhE=",
+        "lastModified": 1789657579,
+        "narHash": "sha256-ybfv0Zj0Wr7sCIPSCdH3bdk6noTTAVrnh5KJuYsokZA=",
         "owner": "cfels",
         "repo": "fadesktop",
-        "rev": "901b268c058f24738773512de600ca8258e4d0cb",
+        "rev": "961d04b29ed5c49dafb64126cb26a26876ab476b",
         "type": "github"
       },
       "original": {
@@ -179,17 +179,35 @@
     },
     "nixpkgs_4": {
       "locked": {
-        "lastModified": 1777578337,
-        "narHash": "sha256-Ad49moKWeXtKBJNy2ebiTQUEgdLyvGmTeykAQ9xM+Z4=",
-        "owner": "nixos",
+        "lastModified": 1789149629,
+        "narHash": "sha256-H6GwaZzZf+4npqv0tph94w9tZddSjFjmQrVsW0z78uk=",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "15f4ee454b1dce334612fa6843b3e05cf546efab",
+        "rev": "eaad089433ca2bb662274377d33df3d0e51ef28b",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
+        "owner": "NixOS",
         "ref": "nixos-unstable",
         "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "psysonic": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_4"
+      },
+      "locked": {
+        "lastModified": 1789654858,
+        "narHash": "sha256-SBMZ3wqYa+THtywUw9KVuYFYpHsCPONCrk0Osv7v4gI=",
+        "owner": "Psysonic",
+        "repo": "psysonic",
+        "rev": "8a762b8d33f6aa54f4a92c0c6402ea5d3fcd9b89",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Psysonic",
+        "repo": "psysonic",
         "type": "github"
       }
     },
@@ -200,7 +218,7 @@
         "kwin-better-blur-dx": "kwin-better-blur-dx",
         "nixcord": "nixcord",
         "nixpkgs": "nixpkgs_3",
-        "vm_curator": "vm_curator"
+        "psysonic": "psysonic"
       }
     },
     "systems": {
@@ -254,24 +272,6 @@
       "original": {
         "owner": "numtide",
         "repo": "flake-utils",
-        "type": "github"
-      }
-    },
-    "vm_curator": {
-      "inputs": {
-        "nixpkgs": "nixpkgs_4"
-      },
-      "locked": {
-        "lastModified": 1785447042,
-        "narHash": "sha256-lq6UuT0ECmuYT2sByYVUi8GHTM2mq0X1c45/WA8+Zss=",
-        "owner": "mroboff",
-        "repo": "vm-curator",
-        "rev": "03eb69e019df4a802b86fd44f5624360a86e0bf9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "mroboff",
-        "repo": "vm-curator",
         "type": "github"
       }
     }

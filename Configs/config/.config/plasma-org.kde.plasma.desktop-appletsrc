@@ -34,7 +34,7 @@ DialogWidth=810
 
 [Containments][55][Applets][56][Configuration][General]
 favoritesPortedToKAstats=true
-icon=/home/moxiu/Downloads/image.png
+icon=nix-snowflake
 systemFavorites=suspend\\,hibernate\\,reboot\\,shutdown
 
 [Containments][55][Applets][57]
@@ -46,7 +46,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][55][Applets][58][Configuration][General]
-launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/qa5ivpj2dz0ggnsq1y8z196sjv3r1405-user-environment/share/applications/discord.desktop,file:///nix/store/3vz1b7miq5q327j7j9dbm3d8c5k67zbh-user-environment/share/applications/org.fagram.desktop,file:///nix/store/jrhnj923f3ngsnk8qdybpi2ml4v8dd90-system-path/share/applications/dev.zed.Zed.desktop,applications:kitty.desktop,file:///nix/store/jrhnj923f3ngsnk8qdybpi2ml4v8dd90-system-path/share/applications/obsidian.desktop,file:///nix/store/jrhnj923f3ngsnk8qdybpi2ml4v8dd90-system-path/share/applications/com.obsproject.Studio.desktop
+launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/52jqv3ghv94dxd3kibliga7kncn04nbr-user-environment/share/applications/org.fagram.desktop,file:///nix/store/8bfdj7pmjpgs4g8arz02m7q2429f1s7z-system-path/share/applications/Cinny.desktop,file:///nix/store/qm5bi3g4lm7vrc0dkwch7dkk8h6wbm80-system-path/share/applications/equibop.desktop,applications:kitty.desktop,file:///nix/store/hji33hvbkqrv1dmnzgcsm1ny7c49z84b-steam-1.0.0.87/share/applications/steam.desktop
 
 [Containments][55][Applets][59]
 immutability=1
@@ -147,30 +147,22 @@ immutability=1
 plugin=plasmusic-toolbar
 
 [Containments][55][Applets][80][Configuration]
-popupHeight=416
+popupHeight=314
 popupWidth=252
 
 [Containments][55][General]
 AppletOrder=56;57;58;80;59;60;73;74
 
-[Containments][81]
+[Containments][82]
 ItemGeometries-1920x1080=
 ItemGeometriesHorizontal=
-activityId=da47f183-1a6a-498b-9fe7-6413eb227b4c
+activityId=68850996-2082-42ec-9342-9bd36031264b
 formfactor=0
 immutability=1
 lastScreen=0
 location=0
 plugin=org.kde.plasma.folder
 wallpaperplugin=org.kde.image
-
-[Containments][81][ConfigDialog]
-DialogHeight=630
-DialogWidth=810
-
-[Containments][81][Wallpaper][org.kde.image][General]
-Image=file:///home/moxiu/Pictures/dis.jpg
-SlidePaths=/nix/store/nzvhlw71drjp32zrnccliyi7w4mkkw0f-breeze-6.7.3/share/wallpapers/,/run/current-system/sw/share/wallpapers/
 
 [ScreenMapping]
 itemsOnDisabledScreens=
