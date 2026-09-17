@@ -46,7 +46,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][55][Applets][58][Configuration][General]
-launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/52jqv3ghv94dxd3kibliga7kncn04nbr-user-environment/share/applications/org.fagram.desktop,file:///nix/store/8bfdj7pmjpgs4g8arz02m7q2429f1s7z-system-path/share/applications/Cinny.desktop,file:///nix/store/qm5bi3g4lm7vrc0dkwch7dkk8h6wbm80-system-path/share/applications/equibop.desktop,applications:kitty.desktop,file:///nix/store/hji33hvbkqrv1dmnzgcsm1ny7c49z84b-steam-1.0.0.87/share/applications/steam.desktop
+launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/52jqv3ghv94dxd3kibliga7kncn04nbr-user-environment/share/applications/org.fagram.desktop,file:///nix/store/m4q0948lvvcnkg8q0kr8926fyn06jl15-system-path/share/applications/signal.desktop,file:///nix/store/qm5bi3g4lm7vrc0dkwch7dkk8h6wbm80-system-path/share/applications/equibop.desktop,file:///nix/store/p61dnz9rhhdj02804ycs0p5sq6sbk0vs-system-path/share/applications/dev.zed.Zed.desktop,applications:kitty.desktop,file:///nix/store/hji33hvbkqrv1dmnzgcsm1ny7c49z84b-steam-1.0.0.87/share/applications/steam.desktop
 
 [Containments][55][Applets][59]
 immutability=1
@@ -163,6 +163,9 @@ lastScreen=0
 location=0
 plugin=org.kde.plasma.folder
 wallpaperplugin=org.kde.image
+
+[Containments][82][Wallpaper][org.kde.image][General]
+Image=/home/moxiu/Downloads/HIRAETH.png
 
 [ScreenMapping]
 itemsOnDisabledScreens=

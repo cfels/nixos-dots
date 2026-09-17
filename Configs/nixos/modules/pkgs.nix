@@ -19,7 +19,8 @@
 
   environment.systemPackages = with pkgs; [
 vim
-cinny-desktop
+signal-desktop
+zed-editor
 wget
 parted
 fastfetch

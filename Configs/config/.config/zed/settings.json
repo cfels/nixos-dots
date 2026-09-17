@@ -1,10 +1,11 @@
 {
   "agent": {
+    "default_profile": "write",
     "default_model": {
-      "provider": "zed.dev",
-      "model": "gpt-5.6-sol",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
       "enable_thinking": true,
-      "effort": "medium"
+      "effort": "high"
     },
     "favorite_models": [],
     "model_parameters": []
