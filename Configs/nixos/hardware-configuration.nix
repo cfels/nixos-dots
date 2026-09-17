@@ -30,6 +30,12 @@
       options = [ "subvol=nix" ];
     };
 
+  fileSystems."/mnt/catpics" =
+  { device = "UUID=edc2f1b1-6137-4e05-9683-7bd5e65aaf2a";
+    fsType = "btrfs";
+    options = [ "noatime" "compress=zstd" ];
+  };
+
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/E19E-E2E6";
       fsType = "vfat";

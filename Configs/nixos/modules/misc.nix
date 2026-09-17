@@ -39,6 +39,10 @@
 
   environment.pathsToLink = [ "/lib/pkgconfig" "/share/pkgconfig" ];
   
+  services.udev.extraRules = ''
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f54d", MODE="0666"
+  '';
+
   environment.sessionVariables = {
     PKG_CONFIG_PATH = "/run/current-system/sw/lib/pkgconfig:/run/current-system/sw/share/pkgconfig";
   };

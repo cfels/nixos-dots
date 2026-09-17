@@ -20,7 +20,6 @@
   environment.systemPackages = with pkgs; [
 vim
 signal-desktop
-zed-editor
 wget
 parted
 fastfetch
