@@ -1,5 +1,23 @@
 {
   "nodes": {
+    "fagram": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1789665610,
+        "narHash": "sha256-9j+0XJZhNnzgvqkxgnyBYjk12AzVZfitgm5v6Xsj6tY=",
+        "owner": "cfels",
+        "repo": "fadesktop",
+        "rev": "9462390b7dae152b820dfbbaf3c04f468db4b90c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cfels",
+        "repo": "fadesktop",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -89,7 +107,7 @@
       "inputs": {
         "home-manager": "home-manager_2",
         "nix-darwin": "nix-darwin",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": "nixpkgs_2",
         "nixpkgs-nixcord": "nixpkgs-nixcord",
         "treefmt-nix": "treefmt-nix"
       },
@@ -109,16 +127,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1789459628,
-        "narHash": "sha256-JOaadoI/IC9qEvwlnjwAhwdcWkCDqEeOJ+cOtUH/8RQ=",
-        "owner": "NixOS",
+        "lastModified": 1789546076,
+        "narHash": "sha256-zVxLZiSnmaaPLwnhj7pwmqe3axBg/C6nG5JZsJMh2g4=",
+        "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "b67c7a60c3732edd4b947a7df8af06215851a614",
+        "rev": "b1b875982b17dabde9b4a37f3e229e74913e6db3",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "ref": "nixos-26.05",
+        "owner": "nixos",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -141,6 +159,22 @@
     },
     "nixpkgs_2": {
       "locked": {
+        "lastModified": 1789459628,
+        "narHash": "sha256-JOaadoI/IC9qEvwlnjwAhwdcWkCDqEeOJ+cOtUH/8RQ=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b67c7a60c3732edd4b947a7df8af06215851a614",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-26.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
         "lastModified": 1789546076,
         "narHash": "sha256-zVxLZiSnmaaPLwnhj7pwmqe3axBg/C6nG5JZsJMh2g4=",
         "owner": "nixos",
@@ -157,10 +191,11 @@
     },
     "root": {
       "inputs": {
+        "fagram": "fagram",
         "home-manager": "home-manager",
         "kwin-better-blur-dx": "kwin-better-blur-dx",
         "nixcord": "nixcord",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_3"
       }
     },
     "systems": {
