@@ -20,6 +20,7 @@
   environment.systemPackages = with pkgs; [
 vim
 uv
+fetch
 signal-desktop
 wget
 parted
