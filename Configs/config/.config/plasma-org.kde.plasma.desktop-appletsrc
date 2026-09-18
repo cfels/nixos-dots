@@ -46,7 +46,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][55][Applets][58][Configuration][General]
-launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/52jqv3ghv94dxd3kibliga7kncn04nbr-user-environment/share/applications/org.fagram.desktop,file:///nix/store/m4q0948lvvcnkg8q0kr8926fyn06jl15-system-path/share/applications/signal.desktop,file:///nix/store/qm5bi3g4lm7vrc0dkwch7dkk8h6wbm80-system-path/share/applications/equibop.desktop,applications:kitty.desktop,file:///nix/store/hji33hvbkqrv1dmnzgcsm1ny7c49z84b-steam-1.0.0.87/share/applications/steam.desktop
+launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/y07bkmnf8x9ipky8bkxqnl9m3rv6pf1q-user-environment/share/applications/org.fagram.desktop,file:///nix/store/cg4siaw704cz5knap3h1ma20792w1ad0-system-path/share/applications/signal.desktop,file:///nix/store/cg4siaw704cz5knap3h1ma20792w1ad0-system-path/share/applications/equibop.desktop,applications:kitty.desktop,file:///nix/store/cg4siaw704cz5knap3h1ma20792w1ad0-system-path/share/applications/steam.desktop
 
 [Containments][55][Applets][59]
 immutability=1
@@ -169,4 +169,4 @@ Image=/home/moxiu/Downloads/HIRAETH.png
 
 [ScreenMapping]
 itemsOnDisabledScreens=
-screenMapping=desktop:/com.moxiu.k1ng.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/com.moxiu.k1ng.desktop,0,da47f183-1a6a-498b-9fe7-6413eb227b4c
+screenMapping=desktop:/com.moxiu.k1ng.desktop,0,da47f183-1a6a-498b-9fe7-6413eb227b4c,desktop:/com.moxiu.k1ng.desktop,0,68850996-2082-42ec-9342-9bd36031264b
