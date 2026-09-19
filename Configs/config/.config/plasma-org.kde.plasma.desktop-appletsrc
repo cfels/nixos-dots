@@ -164,9 +164,16 @@ location=0
 plugin=org.kde.plasma.folder
 wallpaperplugin=org.kde.image
 
+[Containments][82][General]
+changedPositions={"desktop:/app.twintaillauncher.ttl.desktop":["1920x1080","8","0"],"desktop:/org.prismlauncher.PrismLauncher.desktop":["1920x1080","7","0"],"desktop:/org.vinegarhq.Sober.desktop":["1920x1080","9","0"]}
+iconSize=2
+lastResolution=1920x1080
+positions={"1920x1080":["10","20","desktop:/app.twintaillauncher.ttl.desktop","8","0","desktop:/org.prismlauncher.PrismLauncher.desktop","7","0","desktop:/com.moxiu.k1ng.desktop","0","0","desktop:/org.vinegarhq.Sober.desktop","9","0","desktop:/ZenlessZoneZero 3.2.0 (Global).desktop","0","4"]}
+sortMode=-1
+
 [Containments][82][Wallpaper][org.kde.image][General]
 Image=/home/moxiu/Downloads/HIRAETH.png
 
 [ScreenMapping]
 itemsOnDisabledScreens=
-screenMapping=desktop:/com.moxiu.k1ng.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/ZenlessZoneZero 3.2.0 (Global).desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/com.moxiu.k1ng.desktop,0,da47f183-1a6a-498b-9fe7-6413eb227b4c
+screenMapping=desktop:/com.moxiu.k1ng.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/org.vinegarhq.Sober.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/org.prismlauncher.PrismLauncher.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/com.moxiu.k1ng.desktop,0,da47f183-1a6a-498b-9fe7-6413eb227b4c,desktop:/app.twintaillauncher.ttl.desktop,0,68850996-2082-42ec-9342-9bd36031264b

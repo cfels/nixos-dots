@@ -125,7 +125,6 @@ jdk21
 sl
 libva-utils
 pnpm
-steam
 depotdownloader
 ];
   programs.nix-ld.enable = true;

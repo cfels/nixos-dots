@@ -46,4 +46,12 @@
   environment.sessionVariables = {
     PKG_CONFIG_PATH = "/run/current-system/sw/lib/pkgconfig:/run/current-system/sw/share/pkgconfig";
   };
+
+  # steam millenium
+  nixpkgs.overlays = [ inputs.millennium.overlays.default ];
+
+  programs.steam = {
+    enable = true;
+    package = pkgs.millennium-steam;
+  };
 }
