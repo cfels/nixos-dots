@@ -125,6 +125,7 @@ jdk21
 sl
 libva-utils
 pnpm
+gpu-screen-recorder
 depotdownloader
 ];
   programs.nix-ld.enable = true;
