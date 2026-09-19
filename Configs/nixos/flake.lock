@@ -319,7 +319,8 @@
         "kwin-better-blur-dx": "kwin-better-blur-dx",
         "millennium": "millennium",
         "nixcord": "nixcord",
-        "nixpkgs": "nixpkgs_5"
+        "nixpkgs": "nixpkgs_5",
+        "vice": "vice"
       }
     },
     "systems": {
@@ -373,6 +374,22 @@
       "original": {
         "owner": "numtide",
         "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "vice": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789840549,
+        "narHash": "sha256-dwT0bi3pilDVb3CPIIqEyEkd7HRO87w3XJskh3UqUpI=",
+        "owner": "eklonofficial",
+        "repo": "Vice",
+        "rev": "f74256d7a23a4f98641864e95f0212957e86caaf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "eklonofficial",
+        "repo": "Vice",
         "type": "github"
       }
     }
