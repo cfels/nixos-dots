@@ -16,6 +16,8 @@
  # ];
   
   services.flatpak.enable = true;
+  
+  programs.gpu-screen-recorder.enable = true;
 
   environment.systemPackages = with pkgs; [
 vim
@@ -125,7 +127,6 @@ jdk21
 sl
 libva-utils
 pnpm
-gpu-screen-recorder
 depotdownloader
 ];
   programs.nix-ld.enable = true;
