@@ -21,6 +21,7 @@
 
   environment.systemPackages = with pkgs; [
 vim
+cloudflared
 uv
 fetch
 android-tools
