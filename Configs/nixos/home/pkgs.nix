@@ -7,7 +7,7 @@
 }: {
   home.packages = with pkgs; [
     inputs.fagram.packages.x86_64-linux.default
-    inputs.codex.packages.${pkgs.system}.default
+    inputs.codex.packages.${pkgs.stdenv.hostPlatform.system}.default
     bubblewrap
     btop
     ripgrep

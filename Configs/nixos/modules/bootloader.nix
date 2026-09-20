@@ -10,9 +10,9 @@
       efiSupport = true;
       device = "nodev";
       useOSProber = true;
-      timeout = 30;
       configurationLimit = 3;
     };
+    timeout = 30;
   };
 
   # decrypt partitions
