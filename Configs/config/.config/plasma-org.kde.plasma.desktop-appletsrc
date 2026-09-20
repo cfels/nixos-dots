@@ -108,7 +108,6 @@ immutability=1
 plugin=org.kde.plasma.volume
 
 [Containments][55][Applets][60][Applets][71][Configuration][General]
-currentTab=streams
 migrated=true
 
 [Containments][55][Applets][60][Applets][72]
@@ -170,10 +169,10 @@ plugin=org.kde.plasma.folder
 wallpaperplugin=org.kde.image
 
 [Containments][82][General]
-changedPositions={"desktop:/AnimaEngine.desktop":["1920x1080","0","1"],"desktop:/BeamNG.drive.desktop":["1920x1080","0","1"],"desktop:/Counter-Strike 2.desktop":["1920x1080","8","19"],"desktop:/Umamusume Pretty Derby.desktop":["1920x1080","9","19"],"desktop:/World of Tanks.desktop":["1920x1080","9","18"],"desktop:/app.twintaillauncher.ttl.desktop":["1920x1080","8","0"],"desktop:/org.prismlauncher.PrismLauncher.desktop":["1920x1080","7","0"],"desktop:/org.vinegarhq.Sober.desktop":["1920x1080","9","0"]}
+changedPositions={"desktop:/AnimaEngine.desktop":["1920x1080","0","1"],"desktop:/BeamNG.drive.desktop":["1920x1080","0","1"],"desktop:/Counter-Strike 2.desktop":["1920x1080","8","19"],"desktop:/Umamusume Pretty Derby.desktop":["1920x1080","9","19"],"desktop:/World of Tanks Blitz.desktop":["1920x1080","0","1"],"desktop:/World of Tanks.desktop":["1920x1080","9","18"],"desktop:/app.twintaillauncher.ttl.desktop":["1920x1080","8","0"],"desktop:/org.prismlauncher.PrismLauncher.desktop":["1920x1080","7","0"],"desktop:/org.vinegarhq.Sober.desktop":["1920x1080","9","0"]}
 iconSize=2
 lastResolution=1920x1080
-positions={"1920x1080":["10","20","desktop:/BeamNG.drive.desktop","0","1","desktop:/ZenlessZoneZero 3.2.0 (Global).desktop","0","4","desktop:/Umamusume Pretty Derby.desktop","9","19","desktop:/org.vinegarhq.Sober.desktop","9","0","desktop:/org.prismlauncher.PrismLauncher.desktop","7","0","desktop:/World of Tanks.desktop","9","18","desktop:/com.moxiu.k1ng.desktop","0","0","desktop:/Counter-Strike 2.desktop","8","19","desktop:/AnimaEngine.desktop","0","1","desktop:/app.twintaillauncher.ttl.desktop","8","0"]}
+positions={"1920x1080":["10","20","desktop:/BeamNG.drive.desktop","0","1","desktop:/ZenlessZoneZero 3.2.0 (Global).desktop","0","4","desktop:/Umamusume Pretty Derby.desktop","9","19","desktop:/org.vinegarhq.Sober.desktop","9","0","desktop:/org.prismlauncher.PrismLauncher.desktop","7","0","desktop:/World of Tanks.desktop","9","18","desktop:/com.moxiu.k1ng.desktop","0","0","desktop:/World of Tanks Blitz.desktop","0","1","desktop:/Counter-Strike 2.desktop","8","19","desktop:/AnimaEngine.desktop","0","1","desktop:/app.twintaillauncher.ttl.desktop","8","0"]}
 sortMode=-1
 
 [Containments][82][Wallpaper][org.kde.image][General]

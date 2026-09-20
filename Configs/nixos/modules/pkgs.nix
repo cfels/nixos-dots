@@ -22,6 +22,8 @@
   environment.systemPackages = with pkgs; [
 vim
 cloudflared
+unrar
+vlc
 uv
 fetch
 android-tools
