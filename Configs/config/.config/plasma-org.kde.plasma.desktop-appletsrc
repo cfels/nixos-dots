@@ -46,7 +46,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][55][Applets][58][Configuration][General]
-launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/y07bkmnf8x9ipky8bkxqnl9m3rv6pf1q-user-environment/share/applications/org.fagram.desktop,file:///nix/store/7kzk7pf9jxy6jl7g7axk3y0pmbl7kj2c-system-path/share/applications/signal.desktop,file:///nix/store/l46qwk39i7xvjcjqk496ix1ww35zczsb-system-path/share/applications/equibop.desktop,applications:kitty.desktop,file:///nix/store/cg4siaw704cz5knap3h1ma20792w1ad0-system-path/share/applications/steam.desktop,file:///nix/store/7kzk7pf9jxy6jl7g7axk3y0pmbl7kj2c-system-path/share/applications/vice.desktop
+launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/pg4z15kjfbzlv52dschhlfx15mbziz6k-user-environment/share/applications/org.fagram.desktop,file:///nix/store/7kzk7pf9jxy6jl7g7axk3y0pmbl7kj2c-system-path/share/applications/signal.desktop,file:///nix/store/l46qwk39i7xvjcjqk496ix1ww35zczsb-system-path/share/applications/equibop.desktop,applications:kitty.desktop,file:///nix/store/w6kpy4cgpk7w1ajykqj11z2x9336zzzz-system-path/share/applications/steam.desktop,file:///nix/store/7kzk7pf9jxy6jl7g7axk3y0pmbl7kj2c-system-path/share/applications/vice.desktop
 
 [Containments][55][Applets][59]
 immutability=1
@@ -169,10 +169,10 @@ plugin=org.kde.plasma.folder
 wallpaperplugin=org.kde.image
 
 [Containments][82][General]
-changedPositions={"desktop:/BeamNG.drive.desktop":["1920x1080","0","1"],"desktop:/Counter-Strike 2.desktop":["1920x1080","0","1"],"desktop:/Umamusume Pretty Derby.desktop":["1920x1080","9","19"],"desktop:/World of Tanks.desktop":["1920x1080","0","2"],"desktop:/app.twintaillauncher.ttl.desktop":["1920x1080","8","0"],"desktop:/org.prismlauncher.PrismLauncher.desktop":["1920x1080","7","0"],"desktop:/org.vinegarhq.Sober.desktop":["1920x1080","9","0"]}
+changedPositions={"desktop:/BeamNG.drive.desktop":["1920x1080","0","1"],"desktop:/Counter-Strike 2.desktop":["1920x1080","8","19"],"desktop:/Umamusume Pretty Derby.desktop":["1920x1080","9","19"],"desktop:/World of Tanks.desktop":["1920x1080","9","18"],"desktop:/app.twintaillauncher.ttl.desktop":["1920x1080","8","0"],"desktop:/org.prismlauncher.PrismLauncher.desktop":["1920x1080","7","0"],"desktop:/org.vinegarhq.Sober.desktop":["1920x1080","9","0"]}
 iconSize=2
 lastResolution=1920x1080
-positions={"1920x1080":["10","20","desktop:/app.twintaillauncher.ttl.desktop","8","0","desktop:/org.prismlauncher.PrismLauncher.desktop","7","0","desktop:/Counter-Strike 2.desktop","0","1","desktop:/com.moxiu.k1ng.desktop","0","0","desktop:/BeamNG.drive.desktop","0","1","desktop:/Umamusume Pretty Derby.desktop","9","19","desktop:/org.vinegarhq.Sober.desktop","9","0","desktop:/ZenlessZoneZero 3.2.0 (Global).desktop","0","4","desktop:/World of Tanks.desktop","0","2"]}
+positions={"1920x1080":["10","20","desktop:/app.twintaillauncher.ttl.desktop","8","0","desktop:/Counter-Strike 2.desktop","8","19","desktop:/com.moxiu.k1ng.desktop","0","0","desktop:/ZenlessZoneZero 3.2.0 (Global).desktop","0","4","desktop:/World of Tanks.desktop","9","18","desktop:/Umamusume Pretty Derby.desktop","9","19","desktop:/org.vinegarhq.Sober.desktop","9","0","desktop:/BeamNG.drive.desktop","0","1","desktop:/org.prismlauncher.PrismLauncher.desktop","7","0"]}
 sortMode=-1
 
 [Containments][82][Wallpaper][org.kde.image][General]
@@ -180,4 +180,4 @@ Image=/home/moxiu/Downloads/HIRAETH.png
 
 [ScreenMapping]
 itemsOnDisabledScreens=
-screenMapping=desktop:/Umamusume Pretty Derby.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/com.moxiu.k1ng.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/org.vinegarhq.Sober.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/org.prismlauncher.PrismLauncher.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/Counter-Strike 2.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/com.moxiu.k1ng.desktop,0,da47f183-1a6a-498b-9fe7-6413eb227b4c,desktop:/World of Tanks.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/app.twintaillauncher.ttl.desktop,0,68850996-2082-42ec-9342-9bd36031264b
+screenMapping=desktop:/app.twintaillauncher.ttl.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/Counter-Strike 2.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/com.moxiu.k1ng.desktop,0,da47f183-1a6a-498b-9fe7-6413eb227b4c,desktop:/Umamusume Pretty Derby.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/com.moxiu.k1ng.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/org.vinegarhq.Sober.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/org.prismlauncher.PrismLauncher.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/World of Tanks.desktop,0,68850996-2082-42ec-9342-9bd36031264b
