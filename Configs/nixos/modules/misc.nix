@@ -53,5 +53,9 @@
   programs.steam = {
     enable = true;
     package = pkgs.millennium-steam;
+    extraCompatPackages = [
+      inputs.proton-ge.packages.${pkgs.stdenv.hostPlatform.system}.default
+      inputs.proton-cachyos.packages.${pkgs.stdenv.hostPlatform.system}.default
+    ];
   };
 }

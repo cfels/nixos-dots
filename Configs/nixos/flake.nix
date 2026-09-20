@@ -7,6 +7,14 @@
       fagram.url = "github:cfels/fadesktop";
       codex.url = "github:SecBear/codex-nix";
       millennium.url = "github:SteamClientHomebrew/Millennium?dir=packages/nix";
+      proton-ge = {
+        url = "github:Daaboulex/proton-ge-nix";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+      proton-cachyos = {
+        url = "github:Daaboulex/proton-cachyos-nix";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
       vice = {
         url = "github:eklonofficial/Vice";
         flake = false;
