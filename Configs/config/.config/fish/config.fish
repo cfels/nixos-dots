@@ -9,6 +9,7 @@ set fish_greeting
 
 # exports
 set -gx PATH $HOME/.local/bin $PATH
+fish_add_path "/home/moxiu/.bun/bin"
 
 # aliases
 alias nixbuild="doas nixos-rebuild switch --flake /etc/nixos#moxiu"

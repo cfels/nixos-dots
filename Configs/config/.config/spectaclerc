@@ -1,5 +1,7 @@
 [Annotations]
-annotationToolType=3
+annotationToolType=8
+ellipseFillColor=255,0,0,0
+ellipseStrokeColor=221,0,4
 freehandStrokeWidth=7
 
 [ImageSave]

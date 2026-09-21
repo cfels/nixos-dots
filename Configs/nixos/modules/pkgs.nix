@@ -16,10 +16,11 @@
  # ];
   
   services.flatpak.enable = true;
-  
+  programs.hyprland.enable = true;
   programs.gpu-screen-recorder.enable = true;
 
   environment.systemPackages = with pkgs; [
+quickshell
 vim
 cloudflared
 unrar
