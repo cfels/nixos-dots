@@ -46,7 +46,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][55][Applets][58][Configuration][General]
-launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/g2ypyl0r4k8m0g8gh7mqswfsniw1lf2i-user-environment/share/applications/org.fagram.desktop,file:///nix/store/5l5f2br0zgydg11nd4km5f9lladqv47r-system-path/share/applications/equibop.desktop,applications:kitty.desktop,file:///nix/store/5l5f2br0zgydg11nd4km5f9lladqv47r-system-path/share/applications/steam.desktop,file:///nix/store/5l5f2br0zgydg11nd4km5f9lladqv47r-system-path/share/applications/vice.desktop
+launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/g2ypyl0r4k8m0g8gh7mqswfsniw1lf2i-user-environment/share/applications/org.fagram.desktop,file:///nix/store/5l5f2br0zgydg11nd4km5f9lladqv47r-system-path/share/applications/equibop.desktop,applications:code.desktop,applications:kitty.desktop,file:///nix/store/5l5f2br0zgydg11nd4km5f9lladqv47r-system-path/share/applications/steam.desktop,file:///nix/store/5l5f2br0zgydg11nd4km5f9lladqv47r-system-path/share/applications/vice.desktop
 
 [Containments][55][Applets][59]
 immutability=1
@@ -147,12 +147,19 @@ immutability=1
 plugin=plasmusic-toolbar
 
 [Containments][55][Applets][80][Configuration]
-popupHeight=314
+popupHeight=352
 popupWidth=252
 
 [Containments][55][Applets][80][Configuration][ConfigDialog]
 DialogHeight=630
 DialogWidth=810
+
+[Containments][55][Applets][80][Configuration][General]
+choosePlayerAutomatically=false
+fullViewProgressBarVisible=false
+fullViewVolumeControlVisible=false
+panelIconSizeRatio=0.8
+preferredPlayerIdentity=Mozilla librewolf
 
 [Containments][55][General]
 AppletOrder=56;57;58;80;59;60;73;74

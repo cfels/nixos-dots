@@ -27,6 +27,7 @@ vlc
 uv
 fetch
 android-tools
+vscode
 wget
 parted
 fastfetch
