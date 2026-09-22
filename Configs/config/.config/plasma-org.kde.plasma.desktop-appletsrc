@@ -46,7 +46,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][55][Applets][58][Configuration][General]
-launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/g2ypyl0r4k8m0g8gh7mqswfsniw1lf2i-user-environment/share/applications/org.fagram.desktop,file:///nix/store/5l5f2br0zgydg11nd4km5f9lladqv47r-system-path/share/applications/equibop.desktop,applications:code.desktop,applications:kitty.desktop,file:///nix/store/5l5f2br0zgydg11nd4km5f9lladqv47r-system-path/share/applications/steam.desktop,file:///nix/store/5l5f2br0zgydg11nd4km5f9lladqv47r-system-path/share/applications/vice.desktop
+launchers=applications:systemsettings.desktop,preferred://filemanager,preferred://browser,file:///nix/store/rlm9shc58hsbz0m8swlyx2vpjkbcv5cl-user-environment/share/applications/org.fagram.desktop,file:///nix/store/pfwqi8jvw9y91raafcw7zpc7rd83j4s4-system-path/share/applications/equibop.desktop,applications:code.desktop,applications:kitty.desktop,file:///nix/store/pfwqi8jvw9y91raafcw7zpc7rd83j4s4-system-path/share/applications/steam.desktop,file:///nix/store/pfwqi8jvw9y91raafcw7zpc7rd83j4s4-system-path/share/applications/vice.desktop
 
 [Containments][55][Applets][59]
 immutability=1
@@ -183,7 +183,7 @@ DialogWidth=810
 changedPositions={"desktop:/AnimaEngine.desktop":["1920x1080","0","1"],"desktop:/BeamNG.drive.desktop":["1920x1080","0","1"],"desktop:/Counter-Strike 2.desktop":["1920x1080","8","19"],"desktop:/Umamusume Pretty Derby.desktop":["1920x1080","9","19"],"desktop:/World of Tanks Blitz.desktop":["1920x1080","0","1"],"desktop:/World of Tanks.desktop":["1920x1080","9","18"],"desktop:/app.twintaillauncher.ttl.desktop":["1920x1080","8","0"],"desktop:/org.prismlauncher.PrismLauncher.desktop":["1920x1080","7","0"],"desktop:/org.vinegarhq.Sober.desktop":["1920x1080","9","0"]}
 iconSize=2
 lastResolution=1920x1080
-positions={"1920x1080":["10","20","desktop:/Umamusume Pretty Derby.desktop","9","19","desktop:/ZenlessZoneZero 3.2.0 (Global).desktop","0","4","desktop:/org.prismlauncher.PrismLauncher.desktop","7","0","desktop:/Counter-Strike 2.desktop","8","19","desktop:/World of Tanks Blitz.desktop","0","1","desktop:/AnimaEngine.desktop","0","1","desktop:/app.twintaillauncher.ttl.desktop","8","0","desktop:/com.moxiu.k1ng.desktop","0","0","desktop:/World of Tanks.desktop","9","18","desktop:/BeamNG.drive.desktop","0","1","desktop:/org.vinegarhq.Sober.desktop","9","0"]}
+positions={"1920x1080":["10","20","desktop:/World of Tanks Blitz.desktop","0","1","desktop:/org.vinegarhq.Sober.desktop","9","0","desktop:/org.prismlauncher.PrismLauncher.desktop","7","0","desktop:/ZenlessZoneZero 3.2.0 (Global).desktop","0","4","desktop:/app.twintaillauncher.ttl.desktop","8","0","desktop:/Umamusume Pretty Derby.desktop","9","19","desktop:/World of Tanks.desktop","9","18","desktop:/BeamNG.drive.desktop","0","1","desktop:/Counter-Strike 2.desktop","8","19","desktop:/com.moxiu.k1ng.desktop","0","0","desktop:/AnimaEngine.desktop","0","1"]}
 sortMode=-1
 
 [Containments][82][Wallpaper][org.kde.image][General]
@@ -192,4 +192,4 @@ SlidePaths=/nix/store/9y5r15h34ziswmnncsy5gwfnl7mbvm21-breeze-6.7.5/share/wallpa
 
 [ScreenMapping]
 itemsOnDisabledScreens=
-screenMapping=desktop:/com.moxiu.k1ng.desktop,0,da47f183-1a6a-498b-9fe7-6413eb227b4c,desktop:/app.twintaillauncher.ttl.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/World of Tanks.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/com.moxiu.k1ng.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/Umamusume Pretty Derby.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/Counter-Strike 2.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/org.vinegarhq.Sober.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/org.prismlauncher.PrismLauncher.desktop,0,68850996-2082-42ec-9342-9bd36031264b
+screenMapping=desktop:/Counter-Strike 2.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/app.twintaillauncher.ttl.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/com.moxiu.k1ng.desktop,0,da47f183-1a6a-498b-9fe7-6413eb227b4c,desktop:/org.vinegarhq.Sober.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/World of Tanks.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/org.prismlauncher.PrismLauncher.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/com.moxiu.k1ng.desktop,0,68850996-2082-42ec-9342-9bd36031264b,desktop:/Umamusume Pretty Derby.desktop,0,68850996-2082-42ec-9342-9bd36031264b

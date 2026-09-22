@@ -14,7 +14,7 @@ RefractionMode=1
 RefractionNormalPow=5
 RefractionRGBFringing=5
 RefractionStrength=7
-WindowClasses=zeditor\nzed-editor\nkitty
+WindowClasses=zeditor\nzed-editor\nkitty\nvscode\ncode
 
 [Effect-blur]
 BlurStrength=12

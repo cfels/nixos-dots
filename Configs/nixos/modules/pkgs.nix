@@ -105,7 +105,7 @@ pango
 gdk-pixbuf
 graphene
 clang-tools
-python3
+(python3.withPackages (ps: [ ps.pip ]))
 meson
 ninja
 #pipx

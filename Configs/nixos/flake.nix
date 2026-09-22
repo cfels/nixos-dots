@@ -2,6 +2,10 @@
     description = "Moxi's VacOS configuration";
 
     inputs = {
+      umadance = {
+        url = "path:/home/moxiu/projects/umadance";
+        flake = false;
+      };
       nixcord.url = "github:FlameFlag/nixcord";
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
       fagram.url = "github:cfels/fadesktop";
@@ -102,6 +106,17 @@
       viceOverlay = final: prev: {
         vice-clipper = vice-clipper prev;
       };
+
+      umadanceOverlay = final: prev: {
+        vscode = prev.vscode.overrideAttrs (old: {
+          postInstall = (old.postInstall or "") + ''
+            ${final.nodejs}/bin/node ${inputs.umadance}/overlay/apply.js \
+              --app-dir "$out/lib/vscode/resources/app" \
+              --overlay-dir ${inputs.umadance}/overlay \
+              --uma-dir ${inputs.umadance}/src/uma
+          '';
+        });
+      };
     in {
       packages.${system} = {
         vice-clipper = vice-clipper nixpkgs.legacyPackages.${system};
@@ -147,7 +162,7 @@
         specialArgs = { inherit inputs; };
         modules = [
           ./configuration.nix
-          { nixpkgs.overlays = [ viceOverlay ]; }
+          { nixpkgs.overlays = [ viceOverlay umadanceOverlay ]; }
           self.nixosModules.vice
           home-manager.nixosModules.home-manager
           {
