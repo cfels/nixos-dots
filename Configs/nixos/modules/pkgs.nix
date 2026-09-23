@@ -20,6 +20,7 @@
   programs.gpu-screen-recorder.enable = true;
 
   environment.systemPackages = with pkgs; [
+libsecret
 quickshell
 vim
 cloudflared

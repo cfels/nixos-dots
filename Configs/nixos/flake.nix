@@ -4,7 +4,7 @@
     inputs = {
       umadance = {
         url = "path:/home/moxiu/projects/umadance";
-        flake = false;
+        inputs.nixpkgs.follows = "nixpkgs";
       };
       nixcord.url = "github:FlameFlag/nixcord";
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -56,7 +56,7 @@
         in
         pkgs.python3Packages.buildPythonApplication {
           pname = "vice-clipper";
-          version = "2.13.0";
+          version = "2.13.1";
           pyproject = true;
 
           src = inputs.vice;
@@ -106,17 +106,6 @@
       viceOverlay = final: prev: {
         vice-clipper = vice-clipper prev;
       };
-
-      umadanceOverlay = final: prev: {
-        vscode = prev.vscode.overrideAttrs (old: {
-          postInstall = (old.postInstall or "") + ''
-            ${final.nodejs}/bin/node ${inputs.umadance}/overlay/apply.js \
-              --app-dir "$out/lib/vscode/resources/app" \
-              --overlay-dir ${inputs.umadance}/overlay \
-              --uma-dir ${inputs.umadance}/src/uma
-          '';
-        });
-      };
     in {
       packages.${system} = {
         vice-clipper = vice-clipper nixpkgs.legacyPackages.${system};
@@ -162,7 +151,9 @@
         specialArgs = { inherit inputs; };
         modules = [
           ./configuration.nix
-          { nixpkgs.overlays = [ viceOverlay umadanceOverlay ]; }
+          { nixpkgs.overlays = [ viceOverlay ]; }
+          inputs.umadance.nixosModules.default
+          { programs.umadance.enable = true; }
           self.nixosModules.vice
           home-manager.nixosModules.home-manager
           {
