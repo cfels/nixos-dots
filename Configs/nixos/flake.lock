@@ -245,6 +245,23 @@
         "type": "github"
       }
     },
+    "hyprglass": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788465422,
+        "narHash": "sha256-aV+++VWOpFzzA9SL8A1SVuWBxb1dS2V/e8Y/KWgWL5M=",
+        "owner": "hyprnux",
+        "repo": "hyprglass",
+        "rev": "77636c5711ed572ca199a84d06146ccac0951786",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hyprnux",
+        "repo": "hyprglass",
+        "rev": "77636c5711ed572ca199a84d06146ccac0951786",
+        "type": "github"
+      }
+    },
     "kwin-better-blur-dx": {
       "inputs": {
         "nixpkgs": [
@@ -570,6 +587,7 @@
         "codex": "codex",
         "fagram": "fagram",
         "home-manager": "home-manager",
+        "hyprglass": "hyprglass",
         "kwin-better-blur-dx": "kwin-better-blur-dx",
         "millennium": "millennium",
         "nixcord": "nixcord",

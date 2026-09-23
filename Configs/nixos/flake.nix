@@ -31,6 +31,10 @@
         url = "github:xarblu/kwin-effects-better-blur-dx";
         inputs.nixpkgs.follows = "nixpkgs";
       };
+      hyprglass = {
+        url = "github:hyprnux/hyprglass/77636c5711ed572ca199a84d06146ccac0951786";
+        flake = false;
+      };
     };
 
     outputs = inputs@{ self, nixpkgs, home-manager, kwin-better-blur-dx, ... }:
@@ -106,9 +110,36 @@
       viceOverlay = final: prev: {
         vice-clipper = vice-clipper prev;
       };
+
+      hyprglass-plugin = pkgs:
+        pkgs.hyprlandPlugins.mkHyprlandPlugin {
+          pluginName = "hyprglass";
+          version = "0.8.1";
+
+          src = inputs.hyprglass;
+
+          nativeBuildInputs = [ pkgs.gnumake ];
+
+          buildInputs = [ pkgs.pixman ];
+
+          installPhase = ''
+            runHook preInstall
+            install -Dm755 hyprglass.so $out/lib/hyprglass.so
+            runHook postInstall
+          '';
+
+          meta = {
+            description = "Apple-style Liquid Glass effect for Hyprland";
+            homepage = "https://github.com/hyprnux/hyprglass";
+            license = pkgs.lib.licenses.bsd3;
+            mainProgram = "hyprglass";
+            platforms = pkgs.lib.platforms.linux;
+          };
+        };
     in {
       packages.${system} = {
         vice-clipper = vice-clipper nixpkgs.legacyPackages.${system};
+        hyprglass = hyprglass-plugin nixpkgs.legacyPackages.${system};
         default = vice-clipper nixpkgs.legacyPackages.${system};
       };
 
@@ -156,6 +187,9 @@
           { programs.umadance.enable = true; }
           self.nixosModules.vice
           home-manager.nixosModules.home-manager
+          ({ pkgs, ... }: {
+            environment.etc."hypr/hyprglass.so".source = "${hyprglass-plugin pkgs}/lib/hyprglass.so";
+          })
           {
             home-manager = {
               useGlobalPkgs = true;
