@@ -1,4 +1,20 @@
 { inputs, pkgs, ... }:
+let
+  signal-desktop = pkgs.symlinkJoin {
+    name = "signal-desktop-kwallet6";
+
+    paths = [ pkgs.signal-desktop ];
+
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+
+    postBuild = ''
+      rm $out/bin/signal-desktop
+
+      makeWrapper ${pkgs.signal-desktop}/bin/signal-desktop $out/bin/signal-desktop \
+        --add-flags "--password-store=kwallet6"
+    '';
+  };
+in
 {
   # dildo
   #programs.fish.enable = true;
@@ -25,6 +41,7 @@ libsecret
 matugen
 gnome-keyring
 hyprlock
+signal-desktop
 quickshell
 vim
 cloudflared
