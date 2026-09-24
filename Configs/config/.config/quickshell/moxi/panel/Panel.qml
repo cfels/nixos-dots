@@ -781,25 +781,6 @@ PanelWindow {
 						}
 
 						Rectangle {
-							id: progressKnob
-
-							anchors.verticalCenter: progressRail.verticalCenter
-							x: Math.max(-width / 2, Math.min(progressRail.width - width / 2, progressFill.width - width / 2))
-							width: progressTrack.hovered ? 15 : 0
-							height: width
-							radius: width / 2
-							color: panel.accent
-							visible: panel.hasPlayer && panel.trackDuration > 0
-
-							Behavior on width {
-								NumberAnimation {
-									duration: 200
-									easing.type: Easing.OutCubic
-								}
-							}
-						}
-
-						Rectangle {
 							id: indeterminate
 
 							visible: panel.hasPlayer && panel.trackDuration <= 0

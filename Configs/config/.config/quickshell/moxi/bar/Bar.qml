@@ -33,7 +33,7 @@ PanelWindow {
 	readonly property real pillWidth: pill.width * pill.scale
 	readonly property real pillHeight: pill.height * pill.scale
 	readonly property real pillTop: pill.y - pill.height * (pill.scale - 1) / 2
-	property real blur: bar.panelOpen ? 0.55 : 0
+	property real contentBlur: bar.pillShown ? 0 : 0.62
 	property bool intro: false
 	property bool audioReady: false
 	property bool notificationsMuted: false
@@ -107,15 +107,15 @@ PanelWindow {
 
 	Behavior on dateWidth {
 		NumberAnimation {
-			duration: 320
+			duration: 160
 			easing.type: Easing.Bezier
 			easing.bezierCurve: [0.25, 1, 0.3, 1]
 		}
 	}
 
-	Behavior on blur {
+	Behavior on contentBlur {
 		NumberAnimation {
-			duration: 260
+			duration: bar.pillShown ? 200 : 150
 			easing.type: Easing.Bezier
 			easing.bezierCurve: [0.32, 0.72, 0, 1]
 		}
@@ -138,6 +138,7 @@ PanelWindow {
 
 	margins.top: 6
 	implicitHeight: 46
+	WlrLayershell.layer: WlrLayer.Overlay
 	exclusionMode: ExclusionMode.Auto
 	color: "transparent"
 	mask: Region { item: pill }
@@ -321,10 +322,17 @@ PanelWindow {
 			spacing: 7
 			scale: bar.pillShown ? 1 : 0.93
 			opacity: bar.pillShown ? 1 : 0
+			layer.enabled: bar.contentBlur > 0.004
+
+			layer.effect: MultiEffect {
+				blurEnabled: true
+				blurMax: 26
+				blur: bar.contentBlur
+			}
 
 			Behavior on scale {
 				NumberAnimation {
-					duration: bar.pillShown ? 240 : 130
+					duration: bar.pillShown ? 200 : 170
 					easing.type: Easing.Bezier
 					easing.bezierCurve: [0.32, 0.72, 0, 1]
 				}
@@ -332,7 +340,7 @@ PanelWindow {
 
 			Behavior on opacity {
 				NumberAnimation {
-					duration: bar.pillShown ? 210 : 110
+					duration: bar.pillShown ? 170 : 150
 					easing.type: Easing.Bezier
 					easing.bezierCurve: [0.32, 0.72, 0, 1]
 				}
