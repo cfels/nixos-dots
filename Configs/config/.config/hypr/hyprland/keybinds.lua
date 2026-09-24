@@ -46,6 +46,12 @@ hl.bind(
 	{ description = "Window: Fullscreen" }
 )
 
+hl.bind(
+	"SUPER + F",
+	hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }),
+	{ description = "Window: Fullscreen" }
+)
+
 -- move focus to diff window
 hl.bind(SUPER .. " + left", hl.dsp.focus({ direction = "left" }))
 hl.bind(SUPER .. " + right", hl.dsp.focus({ direction = "right" }))
