@@ -1153,8 +1153,8 @@ PanelWindow {
 						anchors.top: controls.bottom
 						anchors.topMargin: 8
 						anchors.horizontalCenter: parent.horizontalCenter
-						width: 30
-						height: 30
+						width: 35
+						height: 35
 						radius: 15
 						color: lyricsToggleArea.containsMouse
 							? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.34)
@@ -1170,8 +1170,9 @@ PanelWindow {
 
 						Image {
 							anchors.centerIn: parent
-							width: 17
-							height: 17
+							anchors.verticalCenterOffset: 0.8
+							width: 21
+							height: 21
 							source: "file://" + panel.symbolDir + "quotes-fg.svg"
 							sourceSize.width: 34
 							sourceSize.height: 34
