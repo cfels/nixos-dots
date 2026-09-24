@@ -6,50 +6,31 @@
 local terminal = "kitty"
 local fileManager = "dolphin"
 local chatapp = "equibop"
--- local menu = "rofi -show drun"
 local browser = "librewolf"
 local code = "code"
--- local lockapp = "hyprlock"
--- local logout = "wlogout"
 
 -- your "windows" key
 local SUPER = "SUPER"
-
--- autostart
---hl.on("hyprland.start", function()
---	hl.exec_cmd("waybar")
---	hl.exec_cmd("swaync")
---end)
 
 -----------------------
 --- SCREENSHOTING ---
 -----------------------
 
--- screenshoting and clearing clipboard
-hl.bind("SUPER + SHIFT + C", hl.dsp.exec_cmd("cliphist wipe && wl-copy --clear"))
+hl.bind(
+	"SUPER + SHIFT + S",
+	hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/screenshot-region.sh"),
+	{ description = "Screenshot: Region" }
+)
+hl.bind(
+	"Print",
+	hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/screenshot-full.sh"),
+	{ description = "Screenshot: Fullscreen" }
+)
 
---hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region -z -o ~/scrnsht"))
-hl.bind("Print", hl.dsp.exec_cmd("hyprshot -m output --current -o ~/scrnsht"))
-
--- emojis
---hl.bind(SUPER .. " + period", hl.dsp.exec_cmd(mojis))
-
--- lockscreen and logout
---hl.bind(SUPER .. " + SHIFT + L", hl.dsp.exec_cmd(lockapp))
---hl.bind(SUPER .. " + SHIFT + P", hl.dsp.exec_cmd(logout))
-
--- reload waybar and swaync
---hl.bind(SUPER .. " + SHIFT + R", function()
---	hl.exec_cmd("pkill waybar; waybar")
---	hl.exec_cmd("swaync-client -R && swaync-client -rs")
---end)
-
--- apps
 hl.bind(SUPER .. " + C", hl.dsp.exec_cmd(code))
 hl.bind(SUPER .. " + D", hl.dsp.exec_cmd(chatapp))
 hl.bind(SUPER .. " + W", hl.dsp.exec_cmd(browser))
 hl.bind(SUPER .. " + B", hl.dsp.exec_cmd(browser))
---hl.bind(SUPER .. " + SPACE", hl.dsp.exec_cmd(menu))
 hl.bind(SUPER .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(SUPER .. " + RETURN", hl.dsp.exec_cmd(terminal))
 
@@ -58,11 +39,6 @@ hl.bind(SUPER .. " + RETURN", hl.dsp.exec_cmd(terminal))
 -------------------------------
 
 -- fullscreen and maximize
-hl.bind(
-	"SUPER + F",
-	hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }),
-	{ description = "Window: Maximize" }
-)
 hl.bind(
 	"SUPER + SHIFT + F",
 	hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }),
@@ -120,3 +96,15 @@ hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
 hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
+
+---------------------------------\
+---------- QUICKSHELL -----------\
+---------------------------------\
+
+hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/screenshot-region.sh"), { description = "Screenshot: Region" })
+hl.bind("Print", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/screenshot-full.sh"), { description = "Screenshot: Fullscreen" })
+hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("qs -c moxi ipc call launcher toggle"), { description = "Launcher" })
+hl.bind("SUPER + ALT + C", hl.dsp.exec_cmd("qs -c moxi ipc call clipboard toggle"), { description = "Clipboard history" })
+hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd("qs -c moxi ipc call power toggle"), { description = "Power menu" })
+hl.bind("SUPER + period", hl.dsp.exec_cmd("qs -c moxi ipc call emoji toggle"), { description = "Emoji picker" })
+hl.bind("SUPER + ALT + R", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/quickshell-reload.sh"), { description = "Quickshell: Reload bar" })

@@ -1,3 +1,6 @@
+[ExtractDialog]
+1920x1080 screen: Window-Maximized=true
+
 [General]
 Version=202
 ViewPropsTimestamp=2026,7,27,0,22,17.002

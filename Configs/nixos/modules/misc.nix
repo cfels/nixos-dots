@@ -33,9 +33,16 @@
   # kde portal enable
   xdg.portal = {
    enable = true;
-   extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
+   extraPortals = [
+     pkgs.kdePackages.xdg-desktop-portal-kde
+     pkgs.xdg-desktop-portal-hyprland
+     pkgs.xdg-desktop-portal-gtk
+   ];
   };
   xdg.portal.config.common.default = [ "kde" ];
+  xdg.portal.config.hyprland.default = [ "hyprland" "gtk" ];
+  xdg.portal.config.hyprland."org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
+  xdg.portal.config.hyprland."org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
 
   environment.pathsToLink = [ "/lib/pkgconfig" "/share/pkgconfig" ];
   

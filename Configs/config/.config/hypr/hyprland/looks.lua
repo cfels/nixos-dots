@@ -2,6 +2,10 @@
 --- LOOKS AND ANIMACJI -------\
 ------------------------------\
 
+local accent = (type(colors) == "table" and colors.accent) or "#cba6f7"
+local accent2 = (type(colors) == "table" and colors.accent2) or "#f2cdcd"
+local inactive = (type(colors) == "table" and colors.bg2) or "#313244"
+
 hl.config({
 	general = {
 		gaps_in = 4,
@@ -9,8 +13,8 @@ hl.config({
 		gaps_workspaces = 50,
 		border_size = 2,
 		col = {
-			active_border = { colors = { "#cba6f7", "#f2cdcd" }, angle = 45 },
-			inactive_border = "#313244",
+			active_border = { colors = { accent, accent2 }, angle = 45 },
+			inactive_border = inactive,
 		},
 		resize_on_border = false,
 		no_focus_fallback = true,
@@ -24,8 +28,8 @@ hl.config({
 		},
 	},
 	decoration = {
-		rounding_power = 2,
-		rounding = 10,
+		rounding_power = 4,
+		rounding = 16,
 		active_opacity = 1.0,
 		inactive_opacity = 1.0,
 		blur = {
@@ -238,8 +242,8 @@ if hl.plugin.hyprglass then
 		spectacular_strength = 0.75,
 		edge_thickness = 0.05,
 		lens_distortion = 0.3,
-		dark = { brightness = 0.82, contrast = 0.90, saturation = 0.80, vibrancy = 0.15, adaptive_dim = 0.4},
-		light = { brightness = 1.12, contrast = 0.92, saturation = 0.85, vibrancy = 0.12, adaptive_boost = 0.4}
+		dark = { brightness = 0.82, contrast = 0.90, saturation = 0.80, vibrancy = 0.15, adaptive_dim = 0.4 },
+		light = { brightness = 1.12, contrast = 0.92, saturation = 0.85, vibrancy = 0.12, adaptive_boost = 0.4 },
 	})
 
 	-- Presets
@@ -267,7 +271,8 @@ if hl.plugin.hyprglass then
 	})
 end
 
-hl.plugin.load("/etc/hypr/hyprglass.so")
+-- the plugin crashes hyprland currently
+--hl.plugin.load("/etc/hypr/hyprglass.so")
 
 if hl.plugin.hyprglass then
 	hl.plugin.hyprglass.config({

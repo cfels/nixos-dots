@@ -18,9 +18,12 @@
   services.flatpak.enable = true;
   programs.hyprland.enable = true;
   programs.gpu-screen-recorder.enable = true;
+  services.gnome.gnome-keyring.enable = true;
 
   environment.systemPackages = with pkgs; [
 libsecret
+matugen
+gnome-keyring
 quickshell
 vim
 cloudflared
@@ -45,6 +48,9 @@ kitty
 nerd-fonts.symbols-only
 cliphist
 wl-clipboard
+grim
+slurp
+awww
 nerd-fonts.iosevka
 doas
 jdk25

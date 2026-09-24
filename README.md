@@ -1,3 +1,6 @@
+> ![WARNING]
+> wait i'm cooking🔥
+
 ## NixOS dots
 maybe finished dots..
 

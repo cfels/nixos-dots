@@ -1,0 +1,9 @@
+[config]
+
+[templates.quickshell]
+input_path = "~/.config/matugen/templates/quickshell.json"
+output_path = "~/.config/quickshell/moxi/colors.json"
+
+[templates.hyprland]
+input_path = "~/.config/matugen/templates/hyprland.lua"
+output_path = "~/.config/hypr/hyprland/colors.lua"
