@@ -7,12 +7,16 @@ it uses **Quickshell** + **Hyprland** also **awww**, **Hyprlock** for it's main 
 
 ### Installation
 
-just run these:
+</div>
+
 ```
 nix-shell -p stow git wget aria2
 cd ~/nixos-dots/
 bash ./installer
 ```
+
+<div align="center">
+
 for restoring ur old setup use `-h, --help` flag it'll tell u what to do
 
 ### Quick Showcase
