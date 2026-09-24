@@ -46,7 +46,8 @@ PanelWindow {
 	}
 
 	Component.onCompleted: {
-		if (catalogFile.loaded) emoji.loadCatalog()
+		emoji.loadCatalog()
+		emoji.refresh()
 	}
 
 	FontLoader {
