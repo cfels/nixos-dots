@@ -1,4 +1,4 @@
-> ![WARNING]
+> [!WARNING] 
 > wait i'm cooking🔥
 
 ## NixOS dots
