@@ -3,6 +3,9 @@
 -------------------------------\
 
 hl.on("hyprland.start", function()
+	hl.exec_cmd("dbus-update-activation-environment --systemd --all")
+	hl.exec_cmd("systemctl --user start hyprland-session.target")
+
 	-- exec aww daemon
 	hl.exec_cmd("bash -c '$HOME/.local/bin/wall'")
 

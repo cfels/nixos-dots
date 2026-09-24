@@ -38,11 +38,22 @@
      pkgs.xdg-desktop-portal-hyprland
      pkgs.xdg-desktop-portal-gtk
    ];
+   config = {
+     common.default = [ "gtk" "kde" ];
+     hyprland = {
+       default = [ "hyprland" "gtk" ];
+       "org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
+       "org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
+       "org.freedesktop.impl.portal.GlobalShortcuts" = [ "hyprland" ];
+     };
+   };
   };
-  xdg.portal.config.common.default = [ "kde" ];
-  xdg.portal.config.hyprland.default = [ "hyprland" "gtk" ];
-  xdg.portal.config.hyprland."org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
-  xdg.portal.config.hyprland."org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
+
+  systemd.user.targets.hyprland-session = {
+    bindsTo = [ "graphical-session.target" ];
+    wants = [ "graphical-session-pre.target" ];
+    after = [ "graphical-session-pre.target" ];
+  };
 
   environment.pathsToLink = [ "/lib/pkgconfig" "/share/pkgconfig" ];
   
