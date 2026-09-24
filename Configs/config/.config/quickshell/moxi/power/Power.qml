@@ -150,7 +150,7 @@ PanelWindow {
 					model: [
 						{ symbol: "suspend", command: "systemctl suspend" },
 						{ symbol: "reboot", command: "systemctl reboot" },
-						{ symbol: "shutdown", command: "systemctl poweroff" }
+						{ symbol: "power", command: "systemctl poweroff" }
 					]
 
 					delegate: Rectangle {
@@ -180,8 +180,8 @@ PanelWindow {
 
 						Image {
 							anchors.centerIn: parent
-							width: 54
-							height: 54
+							width: 52
+							height: 52
 							source: power.symbolDir + button.modelData.symbol + ".png"
 							fillMode: Image.PreserveAspectFit
 							asynchronous: true

@@ -1,26 +1,26 @@
 @import 'colors.css';
 
 window, window.background, .background, dialog, messagedialog {
-	background-color: #0e1514;
-	color: #dde4e2;
+	background-color: {{colors.surface.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 window stack, window box, window scrolledwindow, window viewport, window frame {
-	background-color: #0e1514;
-	color: #dde4e2;
+	background-color: {{colors.surface.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 headerbar, .titlebar, headerbar.default-decoration, .titlebar.default-decoration, .header-bar {
-	background-color: #1a2120;
+	background-color: {{colors.surface_container.default.hex}};
 	background-image: none;
-	color: #dde4e2;
-	border-bottom: 1px solid #3f4948;
+	color: {{colors.on_surface.default.hex}};
+	border-bottom: 1px solid {{colors.outline_variant.default.hex}};
 	box-shadow: none;
 	text-shadow: none;
 }
 
 headerbar .title, headerbar .subtitle, .titlebar .title, .titlebar .subtitle {
-	color: #dde4e2;
+	color: {{colors.on_surface.default.hex}};
 	text-shadow: none;
 }
 
@@ -29,15 +29,15 @@ headerbar button, headerbar button.flat, .titlebar button, .titlebutton {
 	background-image: none;
 	border: 1px solid transparent;
 	box-shadow: none;
-	color: #dde4e2;
+	color: {{colors.on_surface.default.hex}};
 	-gtk-icon-shadow: none;
 }
 
 button, .button, modelbutton, menubutton > button, combobox button, button.combo, dropdown button, spinbutton button, stackswitcher button {
-	background-color: #252b2b;
+	background-color: {{colors.surface_container_high.default.hex}};
 	background-image: none;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 	border-radius: 8px;
 	box-shadow: none;
 	text-shadow: none;
@@ -45,27 +45,27 @@ button, .button, modelbutton, menubutton > button, combobox button, button.combo
 }
 
 button:hover, .button:hover, button.combo:hover, combobox button:hover, dropdown button:hover, modelbutton:hover, headerbar button:hover {
-	background-color: #2f3635;
-	color: #dde4e2;
+	background-color: {{colors.surface_container_highest.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 button:active, button:checked, togglebutton:active, togglebutton:checked, stackswitcher button:checked, modelbutton:active {
-	background-color: #80d5d0;
+	background-color: {{colors.primary.default.hex}};
 	background-image: none;
-	color: #003735;
-	border-color: #80d5d0;
+	color: {{colors.on_primary.default.hex}};
+	border-color: {{colors.primary.default.hex}};
 }
 
 button:disabled, button:disabled label, modelbutton:disabled, button:disabled image {
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 	-gtk-icon-shadow: none;
 }
 
 button.suggested-action, headerbar button.suggested-action, .suggested-action {
-	background-color: #80d5d0;
+	background-color: {{colors.primary.default.hex}};
 	background-image: none;
-	color: #003735;
-	border-color: #80d5d0;
+	color: {{colors.on_primary.default.hex}};
+	border-color: {{colors.primary.default.hex}};
 	box-shadow: none;
 	text-shadow: none;
 	-gtk-icon-shadow: none;
@@ -73,30 +73,30 @@ button.suggested-action, headerbar button.suggested-action, .suggested-action {
 
 button.suggested-action label, button.suggested-action image, headerbar button.suggested-action label,
 headerbar button.suggested-action image, .suggested-action label, .suggested-action image {
-	color: #003735;
+	color: {{colors.on_primary.default.hex}};
 	text-shadow: none;
 	-gtk-icon-shadow: none;
 }
 
 button.suggested-action:hover, button.suggested-action:focus, button.suggested-action:active,
 button.suggested-action:checked, headerbar button.suggested-action:hover, .suggested-action:hover, .suggested-action:active {
-	background-color: #80d5d0;
+	background-color: {{colors.primary.default.hex}};
 	background-image: none;
-	color: #003735;
-	border-color: #80d5d0;
+	color: {{colors.on_primary.default.hex}};
+	border-color: {{colors.primary.default.hex}};
 	box-shadow: none;
 }
 
 button.suggested-action:hover label, button.suggested-action:active label, button.suggested-action:checked label,
 headerbar button.suggested-action:hover label, .suggested-action:hover label {
-	color: #003735;
+	color: {{colors.on_primary.default.hex}};
 }
 
 button.destructive-action, headerbar button.destructive-action, .destructive-action {
-	background-color: #ffb4ab;
+	background-color: {{colors.error.default.hex}};
 	background-image: none;
-	color: #690005;
-	border-color: #ffb4ab;
+	color: {{colors.on_error.default.hex}};
+	border-color: {{colors.error.default.hex}};
 	box-shadow: none;
 	text-shadow: none;
 	-gtk-icon-shadow: none;
@@ -104,7 +104,7 @@ button.destructive-action, headerbar button.destructive-action, .destructive-act
 
 button.destructive-action label, button.destructive-action image, headerbar button.destructive-action label,
 .destructive-action label, .destructive-action image {
-	color: #690005;
+	color: {{colors.on_error.default.hex}};
 	text-shadow: none;
 	-gtk-icon-shadow: none;
 }
@@ -117,141 +117,141 @@ button.flat, .flat, headerbar button.flat, headerbar button.titlebutton, popover
 }
 
 button.flat:hover, .flat:hover, headerbar button.flat:hover, popover button.flat:hover {
-	background-color: #252b2b;
+	background-color: {{colors.surface_container_high.default.hex}};
 }
 
 entry, spinbutton, searchentry, entry.search, headerbar entry, headerbar searchentry {
-	background-color: #1a2120;
+	background-color: {{colors.surface_container.default.hex}};
 	background-image: none;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 	border-radius: 8px;
 	box-shadow: none;
 	text-shadow: none;
 }
 
 headerbar entry, headerbar searchentry, entry.search {
-	background-color: #252b2b;
+	background-color: {{colors.surface_container_high.default.hex}};
 }
 
 entry:focus, entry:focus-within, spinbutton:focus-within, searchentry:focus {
-	border-color: #80d5d0;
+	border-color: {{colors.primary.default.hex}};
 	box-shadow: none;
 }
 
 entry:disabled, spinbutton:disabled {
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 }
 
 entry selection, text selection, label selection, entry:selected {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
 }
 
 entry placeholder, entry:disabled label {
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 }
 
 .view, treeview.view, textview text, iconview, list, listview, .view text, flowbox, flowboxchild {
-	background-color: #1a2120;
-	color: #dde4e2;
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 treeview.view, treeview.view cell {
-	border-color: #3f4948;
+	border-color: {{colors.outline_variant.default.hex}};
 }
 
 treeview.view:selected, treeview.view:selected:focus, row:selected, list row:selected, listbox row:selected, .view:selected, flowboxchild:selected {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
 }
 
 treeview.view:hover:not(:selected), row:hover, list row:hover, listbox row:hover, placessidebar row:hover, flowboxchild:hover {
-	background-color: #252b2b;
-	color: #dde4e2;
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 treeview header button, treeview.view header button {
-	background-color: #1a2120;
+	background-color: {{colors.surface_container.default.hex}};
 	background-image: none;
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 	border: none;
-	border-bottom: 1px solid #3f4948;
+	border-bottom: 1px solid {{colors.outline_variant.default.hex}};
 	border-radius: 0;
 	box-shadow: none;
 }
 
 treeview header button:hover, treeview.view header button:hover {
-	background-color: #252b2b;
-	color: #dde4e2;
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 .sidebar, .sidebar .view, .sidebar list, placessidebar, placessidebar list, placessidebar .view {
-	background-color: #1a2120;
-	color: #dde4e2;
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 .sidebar row:selected, placessidebar row:selected, placessidebar row:selected:focus {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
 }
 
 placessidebar row:disabled, placessidebar row:disabled image {
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 	-gtk-icon-shadow: none;
 }
 
 filechooser placessidebar, filechooser .sidebar, filechooser .view, filechooser treeview.view, filechooser entry {
-	background-color: #1a2120;
-	color: #dde4e2;
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 pathbar, .path-bar, pathbar button, .path-bar button {
 	background-color: transparent;
 	background-image: none;
-	color: #dde4e2;
+	color: {{colors.on_surface.default.hex}};
 	border: none;
 	border-radius: 6px;
 	box-shadow: none;
 }
 
 pathbar button:hover, .path-bar button:hover {
-	background-color: #252b2b;
+	background-color: {{colors.surface_container_high.default.hex}};
 }
 
 separator, .separator, paned > separator {
-	background-color: #3f4948;
-	border-color: #3f4948;
+	background-color: {{colors.outline_variant.default.hex}};
+	border-color: {{colors.outline_variant.default.hex}};
 }
 
 popover, popover.background, popover > contents, popover > arrow, menu, .context-menu, combobox popup, dropdown popover, dropdown popup > contents {
-	background-color: #252b2b;
+	background-color: {{colors.surface_container_high.default.hex}};
 	background-image: none;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 	box-shadow: none;
 }
 
 popover list, popover row, popover .view, menu menuitem, modelbutton, combobox popup row {
 	background-color: transparent;
-	color: #dde4e2;
+	color: {{colors.on_surface.default.hex}};
 }
 
 menuitem:hover, modelbutton:hover, popover row:hover, combobox popup row:hover {
-	background-color: #2f3635;
-	color: #dde4e2;
+	background-color: {{colors.surface_container_highest.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 combobox arrow, button.combo arrow, combobox button arrow {
-	color: #dde4e2;
+	color: {{colors.on_surface.default.hex}};
 	-gtk-icon-shadow: none;
 }
 
 tooltip, tooltip.background, tooltip * {
-	background-color: #2f3635;
+	background-color: {{colors.surface_container_highest.default.hex}};
 	background-image: none;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 	box-shadow: none;
 }
 
@@ -266,7 +266,7 @@ scrollbar trough {
 }
 
 scrollbar slider {
-	background-color: #3f4948;
+	background-color: {{colors.outline_variant.default.hex}};
 	background-image: none;
 	border: none;
 	border-radius: 8px;
@@ -274,77 +274,77 @@ scrollbar slider {
 }
 
 scrollbar slider:hover {
-	background-color: #bec9c7;
+	background-color: {{colors.on_surface_variant.default.hex}};
 }
 
 notebook > header, notebook > header.top, notebook > header.bottom {
-	background-color: #1a2120;
-	border-color: #3f4948;
+	background-color: {{colors.surface_container.default.hex}};
+	border-color: {{colors.outline_variant.default.hex}};
 }
 
 notebook > header tab {
 	background-color: transparent;
 	border-color: transparent;
 	box-shadow: none;
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 }
 
 notebook > header tab:hover {
-	background-color: #252b2b;
-	color: #dde4e2;
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 notebook > header tab:checked {
 	background-color: transparent;
-	color: #80d5d0;
-	box-shadow: inset 0 -2px #80d5d0;
+	color: {{colors.primary.default.hex}};
+	box-shadow: inset 0 -2px {{colors.primary.default.hex}};
 }
 
 check, radio {
-	background-color: #1a2120;
-	border: 1px solid #3f4948;
-	color: #dde4e2;
+	background-color: {{colors.surface_container.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 	-gtk-icon-shadow: none;
 }
 
 check:checked, radio:checked {
-	background-color: #80d5d0;
-	border-color: #80d5d0;
-	color: #003735;
+	background-color: {{colors.primary.default.hex}};
+	border-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
 }
 
 switch {
-	background-color: #2f3635;
-	border: 1px solid #3f4948;
+	background-color: {{colors.surface_container_highest.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 }
 
 switch:checked {
-	background-color: #80d5d0;
-	border-color: #80d5d0;
+	background-color: {{colors.primary.default.hex}};
+	border-color: {{colors.primary.default.hex}};
 }
 
 switch slider {
-	background-color: #dde4e2;
+	background-color: {{colors.on_surface.default.hex}};
 	border: none;
 	box-shadow: none;
 }
 
 scale trough, progressbar trough, levelbar trough {
-	background-color: #2f3635;
+	background-color: {{colors.surface_container_highest.default.hex}};
 	background-image: none;
 	border: none;
 	box-shadow: none;
 }
 
 scale highlight, progressbar progress, levelbar block.filled {
-	background-color: #80d5d0;
+	background-color: {{colors.primary.default.hex}};
 	background-image: none;
 	border: none;
 	box-shadow: none;
 }
 
 scale slider {
-	background-color: #80d5d0;
+	background-color: {{colors.primary.default.hex}};
 	background-image: none;
 	border: none;
 	box-shadow: none;
@@ -352,11 +352,11 @@ scale slider {
 }
 
 .dim-label, label.dim-label, headerbar .subtitle, .titlebar .subtitle, .view .dim-label {
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 }
 
 .osd, .osd .background, .app-notification {
-	background-color: #2f3635;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	background-color: {{colors.surface_container_highest.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 }

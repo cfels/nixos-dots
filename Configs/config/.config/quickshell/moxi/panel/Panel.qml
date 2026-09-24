@@ -647,7 +647,9 @@ PanelWindow {
 							radius: 12
 							color: toggleArea.containsMouse
 								? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.34)
-								: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.62)
+								: panel.showLyrics
+									? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.22)
+									: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.62)
 							visible: panel.lyrics.length > 0
 							opacity: panel.expanded ? 1 : 0
 
@@ -655,32 +657,18 @@ PanelWindow {
 								ColorAnimation { duration: 140 }
 							}
 
-							Column {
+							Image {
 								anchors.centerIn: parent
-								spacing: 2.5
-								visible: !panel.showLyrics
-
-								Repeater {
-									model: 3
-
-									delegate: Rectangle {
-										width: 12
-										height: 1.6
-										radius: 0.8
-										color: panel.accent
-									}
+								width: 15
+								height: 15
+								source: "file://" + panel.symbolDir + "quotes.png"
+								fillMode: Image.PreserveAspectFit
+								asynchronous: true
+								layer.enabled: true
+								layer.effect: MultiEffect {
+									colorization: 1
+									colorizationColor: panel.accent
 								}
-							}
-
-							Rectangle {
-								anchors.centerIn: parent
-								width: 11
-								height: 11
-								radius: 3
-								color: "transparent"
-								border.width: 1.6
-								border.color: panel.accent
-								visible: panel.showLyrics
 							}
 
 							MouseArea {
