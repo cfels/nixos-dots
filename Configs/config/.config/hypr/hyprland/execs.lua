@@ -17,6 +17,9 @@ hl.on("hyprland.start", function()
 
 	hl.exec_cmd("bash -c 'wl-paste --type image/png --watch cliphist store'")
 
+	-- secrets / keyring
+	hl.exec_cmd("bash -c 'gnome-keyring-daemon --start --components=secrets >/dev/null 2>&1'")
+
 	hl.exec_cmd("$HOME/.config/hypr/scripts/hyprglass-load.sh")
 
 	hl.exec_cmd("$HOME/.config/hypr/scripts/quickshell-reload.sh")

@@ -4,6 +4,7 @@
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
   services.printing.enable = true;
+  security.pam.services.sddm.enableGnomeKeyring = true;
 
   # x11 server
   services.xserver.enable = true;

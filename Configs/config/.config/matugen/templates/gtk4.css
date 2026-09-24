@@ -1,53 +1,53 @@
 window, window.background, window > .background, .background, window box, window scrolledwindow, window viewport, window frame, notebook, notebook > stack {
-	background-color: #0e1514;
-	color: #dde4e2;
+	background-color: {{colors.surface.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 headerbar, .titlebar, window > .titlebar {
-	background-color: #1a2120;
-	color: #dde4e2;
-	border-bottom: 1px solid #3f4948;
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	border-bottom: 1px solid {{colors.outline_variant.default.hex}};
 	box-shadow: none;
 }
 
 headerbar .title, headerbar .subtitle, headerbar label {
-	color: #dde4e2;
+	color: {{colors.on_surface.default.hex}};
 }
 
 .view, listview, list, columnview, gridview, iconview, textview > text, .view > text {
-	background-color: #1a2120;
-	color: #dde4e2;
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 listview > row, list > row, columnview > row, gridview > child {
 	background-color: transparent;
-	color: #dde4e2;
+	color: {{colors.on_surface.default.hex}};
 }
 
 listview > row:hover, list > row:hover, columnview > row:hover {
-	background-color: #252b2b;
+	background-color: {{colors.surface_container_high.default.hex}};
 }
 
 listview > row:selected, list > row:selected, columnview > row:selected, gridview > child:selected, row:selected, .view:selected {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
 }
 
 separator, .separator {
-	background-color: #3f4948;
+	background-color: {{colors.outline_variant.default.hex}};
 }
 
 button, dropdown > button, dropdown button, button.dropdown-button, combobox > box > button, combobox button, combobox > button, menubutton > button, spinbutton > button, modelbutton {
-	background-color: #252b2b;
+	background-color: {{colors.surface_container_high.default.hex}};
 	background-image: none;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 	box-shadow: none;
 }
 
 button:hover, dropdown > button:hover, dropdown button:hover, button.dropdown-button:hover, combobox > box > button:hover, combobox button:hover, combobox > button:hover, menubutton > button:hover, modelbutton:hover {
-	background-color: #2f3635;
-	color: #dde4e2;
+	background-color: {{colors.surface_container_highest.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 dropdown, combobox {
@@ -63,54 +63,54 @@ dropdown > button > box, dropdown > button > image, dropdown button > image, com
 }
 
 button:checked, button:active, togglebutton:checked, modelbutton:active, dropdown button:active {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
 }
 
 button:disabled, modelbutton:disabled {
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 }
 
 entry, spinbutton, searchentry {
-	background-color: #1a2120;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 	box-shadow: none;
 }
 
 entry:focus, entry:focus-within, spinbutton:focus-within {
-	border-color: #80d5d0;
+	border-color: {{colors.primary.default.hex}};
 }
 
 entry placeholder, entry text placeholder {
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 }
 
 popover, popover > contents, popover > arrow, menu, context-menu, dropdown > popover > contents, dropdown popover > contents {
-	background-color: #252b2b;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 	box-shadow: none;
 }
 
 popover listview, popover list, popover .view, dropdown popover listview, dropdown popover list {
-	background-color: #252b2b;
-	color: #dde4e2;
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 popover listview > row:selected, popover list > row:selected, popover .view:selected, dropdown popover listview > row:selected, dropdown popover list > row:selected {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
 }
 
 dropdown > button:focus, dropdown button:focus, dropdown > button:focus-visible, dropdown button:focus-visible {
-	border-color: #80d5d0;
+	border-color: {{colors.primary.default.hex}};
 }
 
 tooltip, tooltip * {
-	background-color: #2f3635;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	background-color: {{colors.surface_container_highest.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 }
 
 scale {
@@ -122,7 +122,7 @@ scale {
 
 scale > trough {
 	min-height: 4px;
-	background-color: #2f3635;
+	background-color: {{colors.surface_container_highest.default.hex}};
 	background-image: none;
 	border: none;
 	border-radius: 2px;
@@ -130,7 +130,7 @@ scale > trough {
 }
 
 scale > trough > highlight {
-	background-color: #80d5d0;
+	background-color: {{colors.primary.default.hex}};
 	background-image: none;
 	border: none;
 	border-radius: 2px;
@@ -142,7 +142,7 @@ scale > trough > slider, slider {
 	min-width: 14px;
 	min-height: 14px;
 	margin: -5px 0;
-	background-color: #80d5d0;
+	background-color: {{colors.primary.default.hex}};
 	background-image: none;
 	border: none;
 	border-radius: 100%;
@@ -150,43 +150,43 @@ scale > trough > slider, slider {
 }
 
 scale > value, scale > marks label {
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 }
 
 progressbar > trough {
-	background-color: #2f3635;
+	background-color: {{colors.surface_container_highest.default.hex}};
 }
 
 progressbar > trough > progress {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
 }
 
 levelbar > block.filled {
-	background-color: #80d5d0;
+	background-color: {{colors.primary.default.hex}};
 }
 
 switch {
-	background-color: #2f3635;
-	border: 1px solid #3f4948;
+	background-color: {{colors.surface_container_highest.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
 }
 
 switch:checked {
-	background-color: #80d5d0;
+	background-color: {{colors.primary.default.hex}};
 }
 
 switch > slider {
-	background-color: #dde4e2;
+	background-color: {{colors.on_surface.default.hex}};
 }
 
 check:checked, radio:checked {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
 }
 
 check, radio {
-	background-color: #1a2120;
-	border-color: #3f4948;
+	background-color: {{colors.surface_container.default.hex}};
+	border-color: {{colors.outline_variant.default.hex}};
 }
 
 scrollbar > range > trough {
@@ -194,36 +194,36 @@ scrollbar > range > trough {
 }
 
 scrollbar > range > trough > slider {
-	background-color: #3f4948;
+	background-color: {{colors.outline_variant.default.hex}};
 	background-image: none;
 	border: none;
 	box-shadow: none;
 }
 
 notebook > header {
-	background-color: #1a2120;
-	border-color: #3f4948;
+	background-color: {{colors.surface_container.default.hex}};
+	border-color: {{colors.outline_variant.default.hex}};
 }
 
 notebook > header > tabs > tab {
 	background-color: transparent;
 	border-color: transparent;
 	box-shadow: none;
-	color: #bec9c7;
+	color: {{colors.on_surface_variant.default.hex}};
 }
 
 notebook > header > tabs > tab:hover {
-	background-color: #252b2b;
-	color: #dde4e2;
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
 }
 
 notebook > header > tabs > tab:checked {
 	background-color: transparent;
-	box-shadow: inset 0 -2px #80d5d0;
-	color: #80d5d0;
+	box-shadow: inset 0 -2px {{colors.primary.default.hex}};
+	color: {{colors.primary.default.hex}};
 }
 
 windowcontrols > button {
 	background-color: transparent;
-	color: #dde4e2;
+	color: {{colors.on_surface.default.hex}};
 }

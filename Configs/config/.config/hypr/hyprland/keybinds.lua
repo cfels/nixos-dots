@@ -102,8 +102,6 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true 
 ---------- QUICKSHELL -----------\
 ---------------------------------\
 
-hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/screenshot-region.sh"), { description = "Screenshot: Region" })
-hl.bind("Print", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/screenshot-full.sh"), { description = "Screenshot: Fullscreen" })
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("qs -c moxi ipc call launcher toggle"), { description = "Launcher" })
 hl.bind("SUPER + ALT + C", hl.dsp.exec_cmd("qs -c moxi ipc call clipboard toggle"), { description = "Clipboard history" })
 hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd("qs -c moxi ipc call power toggle"), { description = "Power menu" })

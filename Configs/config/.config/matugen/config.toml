@@ -13,13 +13,13 @@ input_path = "~/.config/matugen/templates/gtk-colors.css"
 output_path = "~/.config/gtk-3.0/colors.css"
 
 [templates.gtk4]
-input_path = "~/.config/matugen/templates/gtk-colors.css"
-output_path = "~/.config/gtk-4.0/colors.css"
+input_path = "~/.config/matugen/templates/gtk4.css"
+output_path = "~/.config/gtk-4.0/gtk.css"
 
 [templates.kde]
 input_path = "~/.config/matugen/templates/kde.colors"
 output_path = "~/.local/share/color-schemes/Matugen.colors"
-post_hook = "plasma-apply-colorscheme Matugen"
+post_hook = "kwriteconfig6 --file kdeglobals --group General --key ColorScheme --delete; plasma-apply-colorscheme Matugen"
 
 [templates.kitty]
 input_path = "~/.config/matugen/templates/kitty.conf"
@@ -37,3 +37,8 @@ output_path = "~/.config/fastfetch/config.jsonc"
 [templates.hyprlock]
 input_path = "~/.config/matugen/templates/hyprlock.conf"
 output_path = "~/.config/hypr/hyprlock.conf"
+
+[templates.cava]
+input_path = "~/.config/matugen/templates/cava.conf"
+output_path = "~/.config/cava/config"
+post_hook = "pkill -USR1 -x cava || true"

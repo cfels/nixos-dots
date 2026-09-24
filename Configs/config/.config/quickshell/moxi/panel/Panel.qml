@@ -337,6 +337,8 @@ PanelWindow {
 	Process {
 		id: scan
 
+		property var found: []
+
 		command: [
 			"bash",
 			"-c",
@@ -347,12 +349,18 @@ PanelWindow {
 
 		stdout: SplitParser {
 			onRead: (line) => {
-				if (panel.wallpapers.indexOf(line) !== -1) return
+				if (scan.found.indexOf(line) !== -1) return
 
-				panel.wallpapers = panel.wallpapers.concat([line])
-
-				if (panel.previewWallpaper.length === 0) panel.previewWallpaper = line
+				scan.found = scan.found.concat([line])
 			}
+		}
+
+		onExited: {
+			panel.wallpapers = scan.found
+			scan.found = []
+
+			if (panel.wallpapers.indexOf(panel.previewWallpaper) === -1 && panel.wallpapers.length > 0)
+				panel.previewWallpaper = panel.wallpapers[0]
 		}
 	}
 

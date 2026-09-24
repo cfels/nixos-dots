@@ -26,6 +26,13 @@ resolve() {
 
 tool="$(resolve awww || resolve swww)" || exit 1
 
+case "$((RANDOM % 4))" in
+0) transition_pos="0.0,0.0" ;;
+1) transition_pos="1.0,0.0" ;;
+2) transition_pos="0.0,1.0" ;;
+3) transition_pos="1.0,1.0" ;;
+esac
+
 daemon=""
 if daemon="$(resolve awww-daemon)"; then
 	:
@@ -43,7 +50,7 @@ fi
 
 "$tool" img "$image" \
 	--transition-type grow \
-	--transition-pos center \
+	--transition-pos "$transition_pos" \
 	--transition-duration 1.2 \
 	--transition-fps 60
 
