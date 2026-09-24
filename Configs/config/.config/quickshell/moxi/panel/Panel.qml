@@ -728,12 +728,42 @@ PanelWindow {
 						anchors.topMargin: 16
 						anchors.left: parent.left
 						anchors.right: parent.right
-						height: 5
+						height: 16
+
+						property bool hovered: false
+
+						function seek(x): void {
+							if (!panel.hasPlayer || !panel.player.canSeek || panel.trackDuration <= 0) return
+
+							var ratio = Math.max(0, Math.min(1, x / width))
+
+							panel.player.position = panel.trackDuration * ratio
+							panel.trackPosition = panel.player.position
+							panel.player.positionChanged()
+							panel.updateActiveLyric()
+						}
+
+						HoverHandler {
+							id: trackHover
+							onHoveredChanged: progressTrack.hovered = trackHover.hovered
+						}
 
 						Rectangle {
-							anchors.fill: parent
-							radius: 2.5
+							id: progressRail
+
+							anchors.left: parent.left
+							anchors.right: parent.right
+							anchors.verticalCenter: parent.verticalCenter
+							height: progressTrack.hovered ? 10 : 5
+							radius: height / 2
 							color: Qt.rgba(theme.idle.r, theme.idle.g, theme.idle.b, 0.55)
+
+							Behavior on height {
+								NumberAnimation {
+									duration: 200
+									easing.type: Easing.OutCubic
+								}
+							}
 						}
 
 						Rectangle {
@@ -741,9 +771,9 @@ PanelWindow {
 
 							anchors.left: parent.left
 							anchors.verticalCenter: parent.verticalCenter
-							width: progressTrack.width * panel.progress
-							height: parent.height
-							radius: 2.5
+							width: progressRail.width * panel.progress
+							height: progressRail.height
+							radius: height / 2
 							color: panel.accent
 
 							Behavior on width {
@@ -755,12 +785,32 @@ PanelWindow {
 						}
 
 						Rectangle {
+							id: progressKnob
+
+							anchors.verticalCenter: progressRail.verticalCenter
+							x: Math.max(-width / 2, Math.min(progressRail.width - width / 2, progressFill.width - width / 2))
+							width: progressTrack.hovered ? 15 : 0
+							height: width
+							radius: width / 2
+							color: panel.accent
+							visible: panel.hasPlayer && panel.trackDuration > 0
+
+							Behavior on width {
+								NumberAnimation {
+									duration: 200
+									easing.type: Easing.OutCubic
+								}
+							}
+						}
+
+						Rectangle {
 							id: indeterminate
 
 							visible: panel.hasPlayer && panel.trackDuration <= 0
-							width: progressTrack.width * 0.25
-							height: parent.height
-							radius: 2.5
+							y: progressRail.y
+							width: progressRail.width * 0.25
+							height: progressRail.height
+							radius: height / 2
 							color: panel.accent
 							opacity: 0.6
 
@@ -790,15 +840,12 @@ PanelWindow {
 							anchors.fill: parent
 							anchors.topMargin: -6
 							anchors.bottomMargin: -6
-							enabled: panel.hasPlayer && panel.player.canSeek && panel.trackDuration > 0
-							cursorShape: Qt.PointingHandCursor
-							onClicked: (mouse) => {
-								if (!panel.hasPlayer || !panel.player.canSeek || panel.trackDuration <= 0) return
-
-								panel.player.position = panel.trackDuration * (mouse.x / width)
-								panel.trackPosition = panel.player.position
-								panel.player.positionChanged()
-								panel.updateActiveLyric()
+							enabled: panel.hasPlayer
+							hoverEnabled: true
+							cursorShape: panel.player && panel.player.canSeek && panel.trackDuration > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
+							onClicked: (mouse) => progressTrack.seek(mouse.x)
+							onPositionChanged: (mouse) => {
+								if (pressed) progressTrack.seek(mouse.x)
 							}
 						}
 					}
@@ -900,6 +947,7 @@ PanelWindow {
 
 							Image {
 								anchors.centerIn: parent
+								anchors.horizontalCenterOffset: panel.playing ? 0 : 2
 								width: 24
 								height: 24
 								source: "file://" + panel.symbolDir + (panel.playing ? "pause-accent.png" : "play-accent.png")

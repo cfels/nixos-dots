@@ -7,3 +7,33 @@ output_path = "~/.config/quickshell/moxi/colors.json"
 [templates.hyprland]
 input_path = "~/.config/matugen/templates/hyprland.lua"
 output_path = "~/.config/hypr/hyprland/colors.lua"
+
+[templates.gtk3]
+input_path = "~/.config/matugen/templates/gtk-colors.css"
+output_path = "~/.config/gtk-3.0/colors.css"
+
+[templates.gtk4]
+input_path = "~/.config/matugen/templates/gtk-colors.css"
+output_path = "~/.config/gtk-4.0/colors.css"
+
+[templates.kde]
+input_path = "~/.config/matugen/templates/kde.colors"
+output_path = "~/.local/share/color-schemes/Matugen.colors"
+post_hook = "plasma-apply-colorscheme Matugen"
+
+[templates.kitty]
+input_path = "~/.config/matugen/templates/kitty.conf"
+output_path = "~/.config/kitty/current-theme.conf"
+post_hook = "pkill -SIGUSR1 -x kitty || true"
+
+[templates.starship]
+input_path = "~/.config/matugen/templates/starship.toml"
+output_path = "~/.config/starship.toml"
+
+[templates.fastfetch]
+input_path = "~/.config/matugen/templates/fastfetch.jsonc"
+output_path = "~/.config/fastfetch/config.jsonc"
+
+[templates.hyprlock]
+input_path = "~/.config/matugen/templates/hyprlock.conf"
+output_path = "~/.config/hypr/hyprlock.conf"

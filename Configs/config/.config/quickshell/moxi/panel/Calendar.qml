@@ -289,6 +289,7 @@ Item {
 
 							Text {
 								anchors.centerIn: parent
+								anchors.horizontalCenterOffset: 0.5
 								color: cell.selected
 									? theme.background
 									: cell.today

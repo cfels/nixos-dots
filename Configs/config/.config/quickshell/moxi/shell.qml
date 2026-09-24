@@ -5,6 +5,7 @@ import "bar" as BarModule
 import "clipboard" as ClipboardModule
 import "launcher" as LauncherModule
 import "emoji" as EmojiModule
+import "notifications" as NotificationModule
 import "panel" as PanelModule
 import "power" as PowerModule
 import "screenshot" as ScreenshotModule
@@ -41,12 +42,18 @@ ShellRoot {
 
 		flash: root.shotFlash
 		panelOpen: root.panelExpanded
+		notificationsMuted: notifications.muted
 		onHoveredChanged: root.updatePanel()
 			onPanelRequested: {
 				closeTimer.stop()
 				panel.setAnchor(pill.pillWidth, pill.pillHeight, pill.pillTop)
 				root.panelExpanded = true
 			}
+		onNotificationsToggle: notifications.setMuted(!notifications.muted)
+	}
+
+	NotificationModule.Notifications {
+		id: notifications
 	}
 
 		PanelModule.Panel {

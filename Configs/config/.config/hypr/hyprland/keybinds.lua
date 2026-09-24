@@ -8,6 +8,7 @@ local fileManager = "dolphin"
 local chatapp = "equibop"
 local browser = "librewolf"
 local code = "code"
+local screenlock = "hyprlock"
 
 -- your "windows" key
 local SUPER = "SUPER"
@@ -108,3 +109,4 @@ hl.bind("SUPER + ALT + C", hl.dsp.exec_cmd("qs -c moxi ipc call clipboard toggle
 hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd("qs -c moxi ipc call power toggle"), { description = "Power menu" })
 hl.bind("SUPER + period", hl.dsp.exec_cmd("qs -c moxi ipc call emoji toggle"), { description = "Emoji picker" })
 hl.bind("SUPER + ALT + R", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/quickshell-reload.sh"), { description = "Quickshell: Reload bar" })
+hl.bind("SUPER + L", hl.dsp.exec_cmd("hyprlock"))

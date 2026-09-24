@@ -18,16 +18,8 @@ PanelWindow {
 	readonly property color accent: theme.accent
 	readonly property color foreground: theme.foreground
 	readonly property color muted: theme.muted
-	property string fontFamily: ""
-	readonly property real cornerRadius: power.open ? 34 : 19
+	readonly property real cornerRadius: 34
 	readonly property string symbolDir: Quickshell.env("HOME") + "/.config/quickshell/moxi/assets/symbols/"
-
-	FontLoader {
-		id: momo
-		source: "../fonts/momotrust.ttf"
-
-		onStatusChanged: if (status === FontLoader.Ready) power.fontFamily = name
-	}
 
 	anchors {
 		top: true
@@ -156,9 +148,9 @@ PanelWindow {
 
 				Repeater {
 					model: [
-						{ label: "Suspend", symbol: "suspend", command: "systemctl suspend" },
-						{ label: "Reboot", symbol: "reboot", command: "systemctl reboot" },
-						{ label: "Shutdown", symbol: "shutdown", command: "systemctl poweroff" }
+						{ symbol: "suspend", command: "systemctl suspend" },
+						{ symbol: "reboot", command: "systemctl reboot" },
+						{ symbol: "shutdown", command: "systemctl poweroff" }
 					]
 
 					delegate: Rectangle {
@@ -172,33 +164,32 @@ PanelWindow {
 						color: buttonMouse.containsMouse
 							? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.26)
 							: Qt.rgba(theme.idle.r, theme.idle.g, theme.idle.b, 0.35)
+						scale: buttonMouse.containsMouse ? 1.1 : 1
 
 						Behavior on color {
 							ColorAnimation { duration: 130 }
 						}
 
+						Behavior on scale {
+							NumberAnimation {
+								duration: 190
+								easing.type: Easing.Bezier
+								easing.bezierCurve: [0.22, 1.12, 0.36, 1]
+							}
+						}
+
 						Image {
-							anchors.horizontalCenter: parent.horizontalCenter
-							anchors.top: parent.top
-							anchors.topMargin: 18
-							width: 34
-							height: 34
+							anchors.centerIn: parent
+							width: 54
+							height: 54
 							source: power.symbolDir + button.modelData.symbol + ".png"
 							fillMode: Image.PreserveAspectFit
 							asynchronous: true
-						}
-
-						Text {
-							anchors.horizontalCenter: parent.horizontalCenter
-							anchors.bottom: parent.bottom
-							anchors.bottomMargin: 16
-							color: power.foreground
-							elide: Text.ElideRight
-							font.family: power.fontFamily
-							font.pixelSize: 13
-							text: button.modelData.label
-							width: parent.width - 12
-							wrapMode: Text.NoWrap
+							layer.enabled: true
+							layer.effect: MultiEffect {
+								colorization: 1
+								colorizationColor: theme.accent
+							}
 						}
 
 						MouseArea {

@@ -4,16 +4,11 @@
 
 -- extra -------------------------------------------------------------------------------
 
--- librewolf
-hl.window_rule({ match = { class = "librewolf" }, no_blur = false })
-hl.window_rule({
-	match = { class = "librewolf" },
-	opacity = "0.88 override 0.88 override 1.0 override",
-})
-
 -- quickshell bar and panel
 hl.layer_rule({
 	match = { namespace = "quickshell" },
 	blur = true,
 	ignore_alpha = 0.2,
 })
+
+hl.window_rule({ match = { class = "kitty" }, tag = "+hyprglass_enabled" })

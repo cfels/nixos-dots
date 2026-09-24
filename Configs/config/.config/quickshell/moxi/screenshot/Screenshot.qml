@@ -65,19 +65,39 @@ Item {
 		}
 	}
 
-	Timer {
-		id: settle
-		interval: 320
-		onTriggered: root.capture(captureProcess.nextGeometry, root.outputPath)
+	Process {
+		id: cropProcess
+
+		property int nextX: 0
+		property int nextY: 0
+		property int nextW: 0
+		property int nextH: 0
+
+		command: [
+			root.captureScript,
+			"frozen",
+			String(cropProcess.nextX),
+			String(cropProcess.nextY),
+			String(cropProcess.nextW),
+			String(cropProcess.nextH),
+			root.outputPath
+		]
+
+		onExited: (code, status) => {
+			if (code === 0) root.captured()
+		}
 	}
 
 	Connections {
 		target: overlay.item
 
 		function onSelected(x, y, width, height) {
-			captureProcess.nextGeometry = x + "," + y + " " + width + "x" + height
+			cropProcess.nextX = x
+			cropProcess.nextY = y
+			cropProcess.nextW = width
+			cropProcess.nextH = height
 			root.active = false
-			settle.restart()
+			cropProcess.running = true
 		}
 
 		function onCancelled() {

@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import Quickshell.Services.Mpris
 import Quickshell.Services.Pipewire
 import Quickshell.Wayland
@@ -35,6 +36,9 @@ PanelWindow {
 	property real blur: bar.panelOpen ? 0.55 : 0
 	property bool intro: false
 	property bool audioReady: false
+	property bool notificationsMuted: false
+
+	signal notificationsToggle()
 
 	Component.onCompleted: introTimer.restart()
 
@@ -52,6 +56,7 @@ PanelWindow {
 	readonly property color muted: theme.muted
 	readonly property color idle: theme.idle
 	readonly property string fontFamily: momo.status === FontLoader.Ready ? momo.name : ""
+	readonly property string glyphFont: Qt.fontFamilies().indexOf("Symbols Nerd Font") !== -1 ? "Symbols Nerd Font" : ""
 
 	readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
 	readonly property bool hasPlayer: bar.player !== null
@@ -181,6 +186,12 @@ PanelWindow {
 		onTriggered: bar.audioReady = true
 	}
 
+	Process {
+		id: volumePanel
+
+		command: ["pavucontrol"]
+	}
+
 	Connections {
 		target: bar.player
 
@@ -265,14 +276,21 @@ PanelWindow {
 
 		MouseArea {
 			anchors.fill: parent
-			acceptedButtons: Qt.LeftButton
+			acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-			onPressed: {
+			onPressed: (mouse) => {
+				if (mouse.button === Qt.RightButton) return
+
 				bar.held = false
 				holdTimer.restart()
 			}
 
-			onReleased: {
+			onReleased: (mouse) => {
+				if (mouse.button === Qt.RightButton) {
+					volumePanel.running = true
+					return
+				}
+
 				holdTimer.stop()
 
 				if (bar.held) {
@@ -281,6 +299,16 @@ PanelWindow {
 				}
 
 				if (bar.hasPlayer && bar.player.canTogglePlaying) bar.player.togglePlaying()
+			}
+
+			onWheel: (wheel) => {
+				if (!bar.sinkAudio) return
+
+				var step = wheel.angleDelta.y > 0 ? 0.05 : -0.05
+				var next = Math.max(0, Math.min(1, bar.sinkVolume + step))
+
+				bar.sinkAudio.muted = false
+				bar.sinkAudio.volume = next
 			}
 
 			onCanceled: holdTimer.stop()
@@ -372,6 +400,37 @@ PanelWindow {
 				text: Qt.formatDateTime(clock.date, "HH:mm")
 			}
 
+			Item {
+				Layout.alignment: Qt.AlignVCenter
+				Layout.preferredWidth: 16
+				Layout.preferredHeight: 16
+
+				Text {
+					anchors.centerIn: parent
+					color: bellArea.containsMouse
+						? bar.foreground
+						: bar.notificationsMuted
+							? bar.muted
+							: bar.accent
+					font.family: bar.glyphFont
+					font.pixelSize: 13
+					text: bar.notificationsMuted ? "\u{f1f6}" : "\u{f0f3}"
+
+					Behavior on color {
+						ColorAnimation { duration: 140 }
+					}
+				}
+
+				MouseArea {
+					id: bellArea
+
+					anchors.fill: parent
+					hoverEnabled: true
+					cursorShape: Qt.PointingHandCursor
+					onClicked: bar.notificationsToggle()
+				}
+			}
+
 			Rectangle {
 				Layout.alignment: Qt.AlignVCenter
 				visible: bar.hasPlayer
@@ -384,6 +443,7 @@ PanelWindow {
 				Layout.alignment: Qt.AlignVCenter
 				Layout.preferredWidth: bar.mediaWidth
 				Layout.preferredHeight: 18
+				visible: bar.mediaWidth > 0.5
 				clip: true
 
 				RowLayout {
@@ -442,6 +502,7 @@ PanelWindow {
 				Layout.alignment: Qt.AlignVCenter
 				Layout.preferredWidth: bar.volumeWidth
 				Layout.preferredHeight: 18
+				visible: bar.volumeWidth > 0.5
 				clip: true
 
 				RowLayout {
@@ -486,6 +547,7 @@ PanelWindow {
 				Layout.alignment: Qt.AlignVCenter
 				Layout.preferredWidth: bar.dateWidth
 				Layout.preferredHeight: 18
+				visible: bar.dateWidth > 0.5
 				clip: true
 
 				Text {

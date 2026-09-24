@@ -15,5 +15,9 @@ hl.on("hyprland.start", function()
 	-- clipboard history
 	hl.exec_cmd("bash -c 'wl-paste --watch cliphist store'")
 
+	hl.exec_cmd("bash -c 'wl-paste --type image/png --watch cliphist store'")
+
+	hl.exec_cmd("$HOME/.config/hypr/scripts/hyprglass-load.sh")
+
 	hl.exec_cmd("$HOME/.config/hypr/scripts/quickshell-reload.sh")
 end)

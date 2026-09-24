@@ -24,6 +24,7 @@
 libsecret
 matugen
 gnome-keyring
+hyprlock
 quickshell
 vim
 cloudflared

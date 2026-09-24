@@ -31,6 +31,37 @@ resolve() {
 	return 1
 }
 
+notify_saved() {
+	if command -v notify-send >/dev/null 2>&1; then
+		timeout 2 notify-send -a screenshot -i "$1" "Screenshot saved" "$(basename "$1")" || true
+	fi
+}
+
+if [ "$mode" = "frozen" ]; then
+	x="${2:-0}"
+	y="${3:-0}"
+	w="${4:-0}"
+	h="${5:-0}"
+	out="${6:-}"
+
+	[ -n "$out" ] || fail "no output path was given"
+	[ "$w" -gt 0 ] && [ "$h" -gt 0 ] || fail "invalid selection"
+
+	frame="${XDG_RUNTIME_DIR:-/tmp}/moxi-freeze.png"
+	[ -f "$frame" ] || fail "no frozen frame available"
+
+	crop="$(resolve magick || resolve convert)" || fail "imagemagick is not installed"
+	clip="$(resolve wl-copy)" || fail "wl-copy is not installed"
+
+	mkdir -p "$(dirname "$out")"
+
+	"$crop" "$frame" -crop "${w}x${h}+${x}+${y}" +repage "$out"
+	"$clip" -t image/png < "$out"
+
+	notify_saved "$out"
+	exit 0
+fi
+
 [ -n "$out" ] || fail "no output path was given"
 
 grim="$(resolve grim)" || fail "grim is not installed"
@@ -53,6 +84,4 @@ else
 	"$grim" - | tee "$out" | "$clip" -t image/png
 fi
 
-if command -v notify-send >/dev/null 2>&1; then
-	timeout 2 notify-send -a screenshot -i "$out" "Screenshot saved" "$(basename "$out")" || true
-fi
+notify_saved "$out"

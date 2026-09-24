@@ -264,15 +264,12 @@ if hl.plugin.hyprglass then
 	hg.layer("quickshell:bar", { exclude = true })
 
 	hg.config({
-		enabled = true,
+		enabled = false,
 		default_theme = "dark",
 		default_preset = "glass",
-		layers = { enabled = true },
+		layers = { enabled = false },
 	})
 end
-
--- the plugin crashes hyprland currently
---hl.plugin.load("/etc/hypr/hyprglass.so")
 
 if hl.plugin.hyprglass then
 	hl.plugin.hyprglass.config({
