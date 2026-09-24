@@ -83,6 +83,42 @@ if [ "$duration" = "0" ] || { [ -z "$synced" ] && [ -z "$lyrics" ]; }; then
 	fi
 fi
 
+duration_lookup() {
+	local term="$1"
+	local ms secs
+
+	ms="$(curl -sfL --max-time 6 -G --data-urlencode "term=$term" --data-urlencode "entity=song" --data-urlencode "limit=1" "https://itunes.apple.com/search" 2>/dev/null | jq -r '.results[0].trackTimeMillis // 0' 2>/dev/null || echo 0)"
+
+	if [ "${ms%.*}" -gt 0 ] 2>/dev/null; then
+		awk -v ms="$ms" 'BEGIN { printf "%d", ms / 1000 }'
+		return 0
+	fi
+
+	secs="$(curl -sfL --max-time 6 -G --data-urlencode "q=$term" --data-urlencode "limit=1" "https://api.deezer.com/search" 2>/dev/null | jq -r '.data[0].duration // 0' 2>/dev/null || echo 0)"
+
+	if [ "${secs%.*}" -gt 0 ] 2>/dev/null; then
+		printf '%d' "${secs%.*}"
+		return 0
+	fi
+
+	return 1
+}
+
+if [ "$duration" = "0" ]; then
+	for candidate in "$artist $title" "$title"; do
+		clean="$(printf '%s' "$candidate" | sed -e 's/([^)]*)//g' -e 's/\[[^]]*\]//g' | tr -s ' ' | sed -e 's/^ *//' -e 's/ *$//')"
+
+		[ -n "$clean" ] || continue
+
+		found_duration="$(duration_lookup "$clean" || true)"
+
+		if [ -n "$found_duration" ] && [ "${found_duration%.*}" -gt 0 ] 2>/dev/null; then
+			duration="${found_duration%.*}"
+			break
+		fi
+	done
+fi
+
 if [ -z "$synced" ] && [ -z "$lyrics" ]; then
 	encoded_artist="$(printf '%s' "$artist" | jq -sRr @uri)"
 	encoded_title="$(printf '%s' "$title" | jq -sRr @uri)"

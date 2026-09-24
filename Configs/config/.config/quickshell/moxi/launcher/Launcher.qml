@@ -18,6 +18,8 @@ PanelWindow {
 	property int selected: 0
 	property var index: []
 	property bool indexReady: false
+	property var iconFiles: ({})
+	property var iconPending: ({})
 	property double lastKeyNav: 0
 	readonly property int resultLimit: 200
 
@@ -26,6 +28,9 @@ PanelWindow {
 	readonly property color muted: theme.muted
 	readonly property string fontFamily: momo.status === FontLoader.Ready ? momo.name : ""
 	readonly property real cornerRadius: launcher.open ? 30 : 19
+	readonly property string iconScanScript: Quickshell.shellDir + "/launcher/icon-scan.sh"
+
+	Component.onCompleted: iconScan.running = true
 
 	FontLoader {
 		id: momo
@@ -146,6 +151,25 @@ PanelWindow {
 		entry.execute()
 	}
 
+	function collectIcon(line): void {
+		var tab = line.indexOf("\t")
+
+		if (tab < 1) return
+
+		launcher.iconPending[line.substring(0, tab)] = line.substring(tab + 1)
+	}
+
+	function iconSource(icon): string {
+		if (!icon || icon.length === 0) return ""
+		if (icon.charAt(0) === "/") return "file://" + icon
+
+		var file = launcher.iconFiles[icon]
+
+		if (file) return "file://" + file
+
+		return "image://icon/" + icon
+	}
+
 	IpcHandler {
 		target: "launcher"
 
@@ -166,6 +190,21 @@ PanelWindow {
 		id: focusTimer
 		interval: 80
 		onTriggered: input.forceActiveFocus()
+	}
+
+	Process {
+		id: iconScan
+
+		command: ["bash", launcher.iconScanScript]
+
+		stdout: SplitParser {
+			onRead: (line) => launcher.collectIcon(line)
+		}
+
+		onExited: (code, status) => {
+			launcher.iconFiles = launcher.iconPending
+			launcher.iconPending = ({})
+		}
 	}
 
 	Item {
@@ -341,7 +380,7 @@ PanelWindow {
 							height: 26
 							sourceSize.width: 52
 							sourceSize.height: 52
-							source: row.modelData.icon ? "image://icon/" + row.modelData.icon : ""
+							source: launcher.iconSource(row.modelData.icon)
 							fillMode: Image.PreserveAspectFit
 							asynchronous: true
 							visible: row.modelData.icon !== ""

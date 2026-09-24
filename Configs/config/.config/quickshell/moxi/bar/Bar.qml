@@ -138,7 +138,7 @@ PanelWindow {
 
 	margins.top: 6
 	implicitHeight: 46
-	WlrLayershell.layer: WlrLayer.Overlay
+	WlrLayershell.layer: WlrLayer.Top
 	exclusionMode: ExclusionMode.Auto
 	color: "transparent"
 	mask: Region { item: pill }
@@ -473,7 +473,9 @@ PanelWindow {
 
 						Image {
 							anchors.fill: parent
-							source: "file://" + Quickshell.env("HOME") + "/.config/quickshell/moxi/assets/symbols/" + (bar.playing ? "pause-accent.png" : "play-accent.png")
+							source: "file://" + Quickshell.env("HOME") + "/.config/quickshell/moxi/assets/symbols/" + (bar.playing ? "pause-fg.svg" : "play-fg.svg")
+							sourceSize.width: 26
+							sourceSize.height: 26
 							fillMode: Image.PreserveAspectFit
 							asynchronous: true
 						}

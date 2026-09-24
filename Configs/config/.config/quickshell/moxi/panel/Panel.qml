@@ -108,6 +108,12 @@ PanelWindow {
 		return panel.lookupDuration
 	}
 	property real trackPosition: 0
+	property bool positionFallback: false
+	property bool positionTrusted: false
+	property real trustBase: -1
+	property real lastReported: -1
+	property int stallTicks: 0
+	property bool progressFast: false
 	readonly property real progress: panel.trackDuration > 0
 		? Math.max(0, Math.min(1, panel.trackPosition / panel.trackDuration))
 		: 0
@@ -126,6 +132,16 @@ PanelWindow {
 
 	function timeText(seconds): string {
 		if (!isFinite(seconds) || seconds <= 0) return "--:--"
+
+		var total = Math.floor(seconds)
+		var minutes = Math.floor(total / 60)
+		var rest = total % 60
+
+		return minutes + ":" + (rest < 10 ? "0" : "") + rest
+	}
+
+	function positionText(seconds): string {
+		if (!isFinite(seconds) || seconds < 0) return "--:--"
 
 		var total = Math.floor(seconds)
 		var minutes = Math.floor(total / 60)
@@ -208,6 +224,25 @@ PanelWindow {
 		if (index !== panel.activeLyric) panel.activeLyric = index
 	}
 
+	function seekTo(seconds): void {
+		if (!panel.hasPlayer || !panel.player.canSeek || !(seconds >= 0)) return
+
+		panel.player.position = seconds
+		panel.trackPosition = seconds
+		panel.progressFast = true
+		progressFastTimer.restart()
+		panel.player.positionChanged()
+		lyricsView.manual = false
+		panel.updateActiveLyric()
+	}
+
+	Timer {
+		id: progressFastTimer
+
+		interval: 360
+		onTriggered: panel.progressFast = false
+	}
+
 	Timer {
 		id: lyricsDebounce
 
@@ -246,9 +281,19 @@ PanelWindow {
 
 	Timer {
 		interval: 250
-		running: panel.hasPlayer && panel.player.positionSupported && panel.playing
+		running: panel.hasPlayer && !panel.positionFallback
 		repeat: true
 		onTriggered: {
+			if (!panel.player.positionSupported) {
+				if (!panel.playing) return
+
+				panel.stallTicks += 1
+
+				if (panel.stallTicks > 8) panel.positionFallback = true
+
+				return
+			}
+
 			panel.player.positionChanged()
 
 			var reported = panel.player.position
@@ -256,7 +301,55 @@ PanelWindow {
 			if (reported < 0) return
 			if (panel.trackDuration > 0 && reported > panel.trackDuration + 1) return
 
-			panel.trackPosition = reported
+			var advanced = reported > panel.lastReported + 0.05
+
+			if (advanced) {
+				panel.stallTicks = 0
+			} else if (panel.playing) {
+				panel.stallTicks += 1
+
+				if (panel.stallTicks > 8) panel.positionFallback = true
+			}
+
+			if (panel.trustBase < 0) panel.trustBase = reported
+			else if (reported - panel.trustBase > 0.3) panel.positionTrusted = true
+
+			panel.lastReported = reported
+
+			if (!panel.positionTrusted) return
+			if (progressTrack.dragging) return
+
+			var drift = reported - panel.trackPosition
+
+			if (Math.abs(drift) > 1.5) panel.trackPosition = reported
+			else if (Math.abs(drift) > 0.35) panel.trackPosition += drift * 0.5
+		}
+	}
+
+	Timer {
+		interval: 100
+		running: panel.hasPlayer && panel.playing && !progressTrack.dragging
+		repeat: true
+
+		property double lastTick: 0
+
+		onRunningChanged: lastTick = 0
+
+		onTriggered: {
+			var now = Date.now()
+
+			if (lastTick === 0) {
+				lastTick = now
+				return
+			}
+
+			var delta = (now - lastTick) / 1000
+
+			lastTick = now
+
+			var next = panel.trackPosition + delta
+
+			panel.trackPosition = panel.trackDuration > 0 ? Math.min(panel.trackDuration, next) : next
 		}
 	}
 
@@ -269,6 +362,13 @@ PanelWindow {
 
 	onTrackKeyChanged: {
 		panel.trackPosition = 0
+		panel.positionFallback = false
+		panel.positionTrusted = false
+		panel.trustBase = -1
+		panel.lastReported = -1
+		panel.stallTicks = 0
+		panel.progressFast = true
+		progressFastTimer.restart()
 		panel.lookupDuration = 0
 		panel.lyrics = []
 		panel.syncedLyrics = false
@@ -515,8 +615,23 @@ PanelWindow {
 							power: 4
 							sourceWidth: 400
 							sourceHeight: 400
-							visible: !panel.showLyrics
-							opacity: artwork.ready ? 1 : 0
+							visible: opacity > 0.01
+							opacity: artwork.ready && !panel.showLyrics ? 1 : 0
+							scale: panel.showLyrics ? 0.94 : 1
+
+							Behavior on scale {
+								NumberAnimation {
+									duration: 320
+									easing.type: Easing.OutCubic
+								}
+							}
+
+							Behavior on opacity {
+								NumberAnimation {
+									duration: 320
+									easing.type: Easing.OutCubic
+								}
+							}
 
 							Connections {
 								target: panel
@@ -554,9 +669,24 @@ PanelWindow {
 							clip: true
 							spacing: 5
 							model: panel.lyrics
-							visible: panel.showLyrics
+							visible: opacity > 0.01
+							opacity: panel.showLyrics ? 1 : 0
 							boundsBehavior: Flickable.StopAtBounds
+							pixelAligned: false
+							cacheBuffer: 2400
 							property bool manual: false
+							layer.enabled: lyricsView.opacity > 0.01
+							layer.effect: MultiEffect {
+								maskEnabled: true
+								maskSource: lyricsSharpMask
+							}
+
+							Behavior on opacity {
+								NumberAnimation {
+									duration: 260
+									easing.type: Easing.OutCubic
+								}
+							}
 
 							function scrollToActive() {
 								if (!panel.syncedLyrics || panel.activeLyric < 0 || manual) return
@@ -564,7 +694,11 @@ PanelWindow {
 								var entry = itemAtIndex(panel.activeLyric)
 
 								if (!entry) {
-									positionViewAtIndex(panel.activeLyric, ListView.Center)
+									scrollAnimation.to = Math.max(
+										0,
+										Math.min(contentHeight - height, panel.activeLyric / Math.max(1, count) * contentHeight - height / 2)
+									)
+									scrollAnimation.restart()
 									return
 								}
 
@@ -575,9 +709,25 @@ PanelWindow {
 								scrollAnimation.restart()
 							}
 
+							function glideBy(delta): void {
+								manual = true
+								resumeTimer.restart()
+								scrollAnimation.to = Math.max(0, Math.min(contentHeight - height, contentY + delta))
+								scrollAnimation.restart()
+							}
+
 							onMovementStarted: {
 								manual = true
 								resumeTimer.restart()
+							}
+
+							WheelHandler {
+								onWheel: (event) => {
+									var delta = event.pixelDelta.y !== 0 ? event.pixelDelta.y : event.angleDelta.y / 120 * 70
+
+									lyricsView.glideBy(-delta)
+									event.accepted = true
+								}
 							}
 
 							NumberAnimation {
@@ -585,8 +735,8 @@ PanelWindow {
 
 								target: lyricsView
 								property: "contentY"
-								duration: 480
-								easing.type: Easing.OutCubic
+								duration: 620
+								easing.type: Easing.InOutCubic
 							}
 
 							Timer {
@@ -600,12 +750,16 @@ PanelWindow {
 							}
 
 							delegate: Text {
+								id: lyricLine
+
 								required property var modelData
 								required property int index
 
 								width: ListView.view.width
 								text: modelData.text
-								color: index === panel.activeLyric ? panel.accent : panel.muted
+								color: index === panel.activeLyric
+									? panel.accent
+									: lineMouse.containsMouse ? panel.foreground : panel.muted
 								font.family: panel.fontFamily
 								font.pixelSize: 12
 								font.weight: index === panel.activeLyric ? Font.DemiBold : Font.Normal
@@ -614,6 +768,34 @@ PanelWindow {
 
 								Behavior on color {
 									ColorAnimation { duration: 160 }
+								}
+
+								MouseArea {
+									id: lineMouse
+
+									anchors.fill: parent
+									enabled: modelData.time >= 0 && panel.hasPlayer && panel.player.canSeek
+									hoverEnabled: true
+									cursorShape: Qt.PointingHandCursor
+									onClicked: panel.seekTo(modelData.time)
+								}
+							}
+						}
+
+						Item {
+							id: lyricsSharpMask
+
+							anchors.fill: lyricsView
+							visible: false
+							layer.enabled: true
+
+							Rectangle {
+								anchors.fill: parent
+								gradient: Gradient {
+									GradientStop { position: 0.0; color: "#00ffffff" }
+									GradientStop { position: 0.3; color: "#ffffffff" }
+									GradientStop { position: 0.7; color: "#ffffffff" }
+									GradientStop { position: 1.0; color: "#00ffffff" }
 								}
 							}
 						}
@@ -636,50 +818,6 @@ PanelWindow {
 							text: panel.hasPlayer ? "no artwork" : "nothing playing"
 						}
 
-						Rectangle {
-							id: viewToggle
-
-							anchors.top: parent.top
-							anchors.right: parent.right
-							anchors.margins: 10
-							width: 24
-							height: 24
-							radius: 12
-							color: toggleArea.containsMouse
-								? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.34)
-								: panel.showLyrics
-									? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.22)
-									: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.62)
-							visible: panel.lyrics.length > 0
-							opacity: panel.expanded ? 1 : 0
-
-							Behavior on color {
-								ColorAnimation { duration: 140 }
-							}
-
-							Image {
-								anchors.centerIn: parent
-								width: 15
-								height: 15
-								source: "file://" + panel.symbolDir + "quotes.png"
-								fillMode: Image.PreserveAspectFit
-								asynchronous: true
-								layer.enabled: true
-								layer.effect: MultiEffect {
-									colorization: 1
-									colorizationColor: panel.accent
-								}
-							}
-
-							MouseArea {
-								id: toggleArea
-
-								anchors.fill: parent
-								hoverEnabled: true
-								cursorShape: Qt.PointingHandCursor
-								onClicked: panel.showLyrics = !panel.showLyrics
-							}
-						}
 					}
 
 					Text {
@@ -727,6 +865,7 @@ PanelWindow {
 						height: 16
 
 						property bool hovered: false
+						property bool dragging: false
 
 						function seek(x): void {
 							if (!panel.hasPlayer || !panel.player.canSeek || panel.trackDuration <= 0) return
@@ -735,6 +874,8 @@ PanelWindow {
 
 							panel.player.position = panel.trackDuration * ratio
 							panel.trackPosition = panel.player.position
+							panel.progressFast = true
+							progressFastTimer.restart()
 							panel.player.positionChanged()
 							panel.updateActiveLyric()
 						}
@@ -773,9 +914,11 @@ PanelWindow {
 							color: panel.accent
 
 							Behavior on width {
+								enabled: !progressTrack.dragging
+
 								NumberAnimation {
-									duration: 480
-									easing.type: Easing.Linear
+									duration: panel.progressFast ? 200 : 150
+									easing.type: panel.progressFast ? Easing.OutCubic : Easing.Linear
 								}
 							}
 						}
@@ -821,6 +964,12 @@ PanelWindow {
 							hoverEnabled: true
 							cursorShape: panel.player && panel.player.canSeek && panel.trackDuration > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
 							onClicked: (mouse) => progressTrack.seek(mouse.x)
+							onPressed: (mouse) => {
+								progressTrack.dragging = true
+								progressTrack.seek(mouse.x)
+							}
+							onReleased: progressTrack.dragging = false
+							onCanceled: progressTrack.dragging = false
 							onPositionChanged: (mouse) => {
 								if (pressed) progressTrack.seek(mouse.x)
 							}
@@ -838,9 +987,9 @@ PanelWindow {
 						font.pixelSize: 11
 						text: {
 							if (!panel.hasPlayer) return "--:--"
-							if (panel.trackDuration <= 0) return panel.timeText(panel.trackPosition).replace("--:--", "live")
+							if (panel.trackDuration <= 0 && panel.trackPosition <= 0) return "live"
 
-							return panel.timeText(panel.trackPosition)
+							return panel.positionText(panel.trackPosition)
 						}
 					}
 
@@ -881,7 +1030,9 @@ PanelWindow {
 								anchors.verticalCenterOffset: 1
 								width: 30
 								height: 30
-								source: "file://" + panel.symbolDir + "previous-fg.png"
+								source: "file://" + panel.symbolDir + "previous-fg.svg"
+								sourceSize.width: 60
+								sourceSize.height: 60
 									layer.enabled: true
 									layer.effect: MultiEffect {
 										colorization: 1
@@ -927,7 +1078,9 @@ PanelWindow {
 								anchors.horizontalCenterOffset: panel.playing ? 0 : 2
 								width: 24
 								height: 24
-								source: "file://" + panel.symbolDir + (panel.playing ? "pause-accent.png" : "play-accent.png")
+								source: "file://" + panel.symbolDir + (panel.playing ? "pause-fg.svg" : "play-fg.svg")
+								sourceSize.width: 48
+								sourceSize.height: 48
 									layer.enabled: true
 									layer.effect: MultiEffect {
 										colorization: 1
@@ -966,7 +1119,9 @@ PanelWindow {
 								anchors.verticalCenterOffset: 1
 								width: 30
 								height: 30
-								source: "file://" + panel.symbolDir + "next-fg.png"
+								source: "file://" + panel.symbolDir + "next-fg.svg"
+								sourceSize.width: 60
+								sourceSize.height: 60
 									layer.enabled: true
 									layer.effect: MultiEffect {
 										colorization: 1
@@ -989,6 +1144,53 @@ PanelWindow {
 								cursorShape: Qt.PointingHandCursor
 								onClicked: if (panel.hasPlayer && panel.player.canGoNext) panel.player.next()
 							}
+						}
+					}
+
+					Rectangle {
+						id: lyricsToggle
+
+						anchors.top: controls.bottom
+						anchors.topMargin: 8
+						anchors.horizontalCenter: parent.horizontalCenter
+						width: 30
+						height: 30
+						radius: 15
+						color: lyricsToggleArea.containsMouse
+							? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.34)
+							: panel.showLyrics
+								? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.22)
+								: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.78)
+						visible: panel.lyrics.length > 0
+						opacity: panel.expanded ? 1 : 0
+
+						Behavior on color {
+							ColorAnimation { duration: 140 }
+						}
+
+						Image {
+							anchors.centerIn: parent
+							width: 17
+							height: 17
+							source: "file://" + panel.symbolDir + "quotes-fg.svg"
+							sourceSize.width: 34
+							sourceSize.height: 34
+							fillMode: Image.PreserveAspectFit
+							asynchronous: true
+							layer.enabled: true
+							layer.effect: MultiEffect {
+								colorization: 1
+								colorizationColor: panel.accent
+							}
+						}
+
+						MouseArea {
+							id: lyricsToggleArea
+
+							anchors.fill: parent
+							hoverEnabled: true
+							cursorShape: Qt.PointingHandCursor
+							onClicked: panel.showLyrics = !panel.showLyrics
 						}
 					}
 				}

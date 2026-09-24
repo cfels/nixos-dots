@@ -1,53 +1,53 @@
 window, window.background, window > .background, .background, window box, window scrolledwindow, window viewport, window frame, notebook, notebook > stack {
-	background-color: #0e1514;
-	color: #dde4e2;
+	background-color: #12140e;
+	color: #e2e3d8;
 }
 
 headerbar, .titlebar, window > .titlebar {
-	background-color: #1a2120;
-	color: #dde4e2;
-	border-bottom: 1px solid #3f4948;
+	background-color: #1e201a;
+	color: #e2e3d8;
+	border-bottom: 1px solid #44483d;
 	box-shadow: none;
 }
 
 headerbar .title, headerbar .subtitle, headerbar label {
-	color: #dde4e2;
+	color: #e2e3d8;
 }
 
 .view, listview, list, columnview, gridview, iconview, textview > text, .view > text {
-	background-color: #1a2120;
-	color: #dde4e2;
+	background-color: #1e201a;
+	color: #e2e3d8;
 }
 
 listview > row, list > row, columnview > row, gridview > child {
 	background-color: transparent;
-	color: #dde4e2;
+	color: #e2e3d8;
 }
 
 listview > row:hover, list > row:hover, columnview > row:hover {
-	background-color: #252b2b;
+	background-color: #282b24;
 }
 
 listview > row:selected, list > row:selected, columnview > row:selected, gridview > child:selected, row:selected, .view:selected {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: #b1d18a;
+	color: #1f3701;
 }
 
 separator, .separator {
-	background-color: #3f4948;
+	background-color: #44483d;
 }
 
 button, dropdown > button, dropdown button, button.dropdown-button, combobox > box > button, combobox button, combobox > button, menubutton > button, spinbutton > button, modelbutton {
-	background-color: #252b2b;
+	background-color: #282b24;
 	background-image: none;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	color: #e2e3d8;
+	border: 1px solid #44483d;
 	box-shadow: none;
 }
 
 button:hover, dropdown > button:hover, dropdown button:hover, button.dropdown-button:hover, combobox > box > button:hover, combobox button:hover, combobox > button:hover, menubutton > button:hover, modelbutton:hover {
-	background-color: #2f3635;
-	color: #dde4e2;
+	background-color: #33362e;
+	color: #e2e3d8;
 }
 
 dropdown, combobox {
@@ -63,54 +63,54 @@ dropdown > button > box, dropdown > button > image, dropdown button > image, com
 }
 
 button:checked, button:active, togglebutton:checked, modelbutton:active, dropdown button:active {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: #b1d18a;
+	color: #1f3701;
 }
 
 button:disabled, modelbutton:disabled {
-	color: #bec9c7;
+	color: #c5c8ba;
 }
 
 entry, spinbutton, searchentry {
-	background-color: #1a2120;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	background-color: #1e201a;
+	color: #e2e3d8;
+	border: 1px solid #44483d;
 	box-shadow: none;
 }
 
 entry:focus, entry:focus-within, spinbutton:focus-within {
-	border-color: #80d5d0;
+	border-color: #b1d18a;
 }
 
 entry placeholder, entry text placeholder {
-	color: #bec9c7;
+	color: #c5c8ba;
 }
 
 popover, popover > contents, popover > arrow, menu, context-menu, dropdown > popover > contents, dropdown popover > contents {
-	background-color: #252b2b;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	background-color: #282b24;
+	color: #e2e3d8;
+	border: 1px solid #44483d;
 	box-shadow: none;
 }
 
 popover listview, popover list, popover .view, dropdown popover listview, dropdown popover list {
-	background-color: #252b2b;
-	color: #dde4e2;
+	background-color: #282b24;
+	color: #e2e3d8;
 }
 
 popover listview > row:selected, popover list > row:selected, popover .view:selected, dropdown popover listview > row:selected, dropdown popover list > row:selected {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: #b1d18a;
+	color: #1f3701;
 }
 
 dropdown > button:focus, dropdown button:focus, dropdown > button:focus-visible, dropdown button:focus-visible {
-	border-color: #80d5d0;
+	border-color: #b1d18a;
 }
 
 tooltip, tooltip * {
-	background-color: #2f3635;
-	color: #dde4e2;
-	border: 1px solid #3f4948;
+	background-color: #33362e;
+	color: #e2e3d8;
+	border: 1px solid #44483d;
 }
 
 scale {
@@ -122,7 +122,7 @@ scale {
 
 scale > trough {
 	min-height: 4px;
-	background-color: #2f3635;
+	background-color: #33362e;
 	background-image: none;
 	border: none;
 	border-radius: 2px;
@@ -130,7 +130,7 @@ scale > trough {
 }
 
 scale > trough > highlight {
-	background-color: #80d5d0;
+	background-color: #b1d18a;
 	background-image: none;
 	border: none;
 	border-radius: 2px;
@@ -142,7 +142,7 @@ scale > trough > slider, slider {
 	min-width: 14px;
 	min-height: 14px;
 	margin: -5px 0;
-	background-color: #80d5d0;
+	background-color: #b1d18a;
 	background-image: none;
 	border: none;
 	border-radius: 100%;
@@ -150,43 +150,43 @@ scale > trough > slider, slider {
 }
 
 scale > value, scale > marks label {
-	color: #bec9c7;
+	color: #c5c8ba;
 }
 
 progressbar > trough {
-	background-color: #2f3635;
+	background-color: #33362e;
 }
 
 progressbar > trough > progress {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: #b1d18a;
+	color: #1f3701;
 }
 
 levelbar > block.filled {
-	background-color: #80d5d0;
+	background-color: #b1d18a;
 }
 
 switch {
-	background-color: #2f3635;
-	border: 1px solid #3f4948;
+	background-color: #33362e;
+	border: 1px solid #44483d;
 }
 
 switch:checked {
-	background-color: #80d5d0;
+	background-color: #b1d18a;
 }
 
 switch > slider {
-	background-color: #dde4e2;
+	background-color: #e2e3d8;
 }
 
 check:checked, radio:checked {
-	background-color: #80d5d0;
-	color: #003735;
+	background-color: #b1d18a;
+	color: #1f3701;
 }
 
 check, radio {
-	background-color: #1a2120;
-	border-color: #3f4948;
+	background-color: #1e201a;
+	border-color: #44483d;
 }
 
 scrollbar > range > trough {
@@ -194,36 +194,37 @@ scrollbar > range > trough {
 }
 
 scrollbar > range > trough > slider {
-	background-color: #3f4948;
+	background-color: #44483d;
 	background-image: none;
 	border: none;
 	box-shadow: none;
 }
 
 notebook > header {
-	background-color: #1a2120;
-	border-color: #3f4948;
+	background-color: #1e201a;
+	border-color: #44483d;
 }
 
 notebook > header > tabs > tab {
 	background-color: transparent;
 	border-color: transparent;
 	box-shadow: none;
-	color: #bec9c7;
+	color: #c5c8ba;
 }
 
 notebook > header > tabs > tab:hover {
-	background-color: #252b2b;
-	color: #dde4e2;
+	background-color: #282b24;
+	color: #e2e3d8;
 }
 
 notebook > header > tabs > tab:checked {
 	background-color: transparent;
-	box-shadow: inset 0 -2px #80d5d0;
-	color: #80d5d0;
+	box-shadow: inset 0 -2px #b1d18a;
+	color: #b1d18a;
 }
 
 windowcontrols > button {
 	background-color: transparent;
-	color: #dde4e2;
+	color: #e2e3d8;
 }
+@import 'colors.css';
