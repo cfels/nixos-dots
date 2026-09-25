@@ -37,6 +37,7 @@ in
   services.gnome.gnome-keyring.enable = true;
 
   environment.systemPackages = with pkgs; [
+imagemagick
 libsecret
 matugen
 gnome-keyring
