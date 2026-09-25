@@ -75,7 +75,6 @@ doas
 jdk25
 fish
 tldr
-equibop
 pkg-config
 kdePackages.spectacle
 starship
