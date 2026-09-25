@@ -1,7 +1,6 @@
-# created by KDE Plasma, Fri Sep 25 19:03:08 2026
+# created by KDE Plasma, Sat Sep 26 01:54:58 2026
 #
 include "/run/current-system/sw/share/themes/Breeze/gtk-2.0/gtkrc"
 
 gtk-theme-name="Breeze"
-gtk-cursor-theme-name=Bibata-Modern-Ice
-gtk-cursor-theme-size=24
+

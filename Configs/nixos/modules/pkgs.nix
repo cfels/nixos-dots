@@ -58,6 +58,7 @@ wl-clipboard
 grim
 slurp
 awww
+mpvpaper
 nerd-fonts.iosevka
 doas
 jdk25

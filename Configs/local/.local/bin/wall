@@ -12,7 +12,7 @@ if [ -s "$current" ]; then
 fi
 
 if [ ! -f "$image" ]; then
-	mapfile -t images < <(find -L "$dir" -maxdepth 1 -type f 2>/dev/null | grep -Ei '\.(jpg|jpeg|png|webp)$' | sort)
+	mapfile -t images < <(find -L "$dir" -maxdepth 1 -type f 2>/dev/null | grep -Ei '\.(jpg|jpeg|png|webp|gif|mp4|m4v|webm|mkv|mov|avi)$' | sort)
 
 	if [ "${#images[@]}" -eq 0 ]; then
 		exit 0

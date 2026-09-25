@@ -18,6 +18,8 @@ PanelWindow {
 	property bool hovered: false
 	property bool expanded: false
 	property var wallpapers: []
+	property var wallThumbs: ({})
+	property var wallPreviews: ({})
 	property bool wallpaperTool: false
 	property string previewWallpaper: ""
 
@@ -47,6 +49,41 @@ PanelWindow {
 		panel.anchorWidth = width
 		panel.anchorHeight = height
 		panel.anchorY = y
+	}
+
+	function wallpaperIsVideo(path): bool {
+		return /\.(mp4|m4v|webm|mkv|mov|avi)$/i.test("" + path)
+	}
+
+	function wallpaperIsAnimated(path): bool {
+		return /\.gif$/i.test("" + path)
+	}
+
+	function wallpaperThumb(path): string {
+		var thumb = panel.wallThumbs["" + path]
+		return thumb === undefined ? "" : thumb
+	}
+
+	function wallpaperPreview(path): string {
+		var preview = panel.wallPreviews["" + path]
+		return preview === undefined ? "" : preview
+	}
+
+	function wallpaperSource(path): string {
+		if (("" + path).length === 0) return ""
+
+		if (panel.wallpaperIsVideo(path)) {
+			var preview = panel.wallpaperPreview(path)
+			return preview.length > 0 ? preview : panel.wallpaperThumb(path)
+		}
+
+		return "" + path
+	}
+
+	function wallpaperSourceAnimated(path): bool {
+		if (panel.wallpaperIsVideo(path)) return panel.wallpaperPreview(path).length > 0
+
+		return panel.wallpaperIsAnimated(path)
 	}
 
 	readonly property real morphSpring: panel.expanded ? 190 : 330
@@ -438,26 +475,37 @@ PanelWindow {
 		id: scan
 
 		property var found: []
+		property var thumbs: ({})
+		property var previews: ({})
 
 		command: [
 			"bash",
-			"-c",
-			"find -L \"$HOME/walls\" -maxdepth 1 -type f 2>/dev/null | grep -Ei '\\.(jpg|jpeg|png|webp)$' | sort"
+			Quickshell.env("HOME") + "/.config/hypr/scripts/wallpaper-list.sh"
 		]
 
 		running: false
 
 		stdout: SplitParser {
 			onRead: (line) => {
-				if (scan.found.indexOf(line) !== -1) return
+				const fields = line.split("\t")
+				const path = fields[0]
 
-				scan.found = scan.found.concat([line])
+				if (path.length === 0 || scan.found.indexOf(path) !== -1) return
+
+				scan.found = scan.found.concat([path])
+
+				if (fields[1] && fields[1].length > 0) scan.thumbs[path] = fields[1]
+				if (fields[2] && fields[2].length > 0) scan.previews[path] = fields[2]
 			}
 		}
 
 		onExited: {
 			panel.wallpapers = scan.found
+			panel.wallThumbs = scan.thumbs
+			panel.wallPreviews = scan.previews
 			scan.found = []
+			scan.thumbs = ({})
+			scan.previews = ({})
 
 			if (panel.wallpapers.indexOf(panel.previewWallpaper) === -1 && panel.wallpapers.length > 0)
 				panel.previewWallpaper = panel.wallpapers[0]
@@ -1230,7 +1278,8 @@ PanelWindow {
 							id: preview
 
 							anchors.fill: parent
-							source: panel.previewWallpaper.length > 0 ? "file://" + panel.previewWallpaper : ""
+							source: panel.wallpaperSource(panel.previewWallpaper).length > 0 ? "file://" + panel.wallpaperSource(panel.previewWallpaper) : ""
+							animated: panel.wallpaperSourceAnimated(panel.previewWallpaper)
 							radius: 21
 							power: 4
 							sourceWidth: 560
@@ -1305,11 +1354,49 @@ PanelWindow {
 
 								SquircleImage {
 									anchors.fill: parent
-									source: "file://" + modelData
+									source: "file://" + (panel.wallpaperIsVideo(modelData) ? panel.wallpaperThumb(modelData) : modelData)
 									radius: 11
 									power: 4
 									sourceWidth: 168
 									sourceHeight: 120
+								}
+
+								Rectangle {
+									anchors.right: parent.right
+									anchors.top: parent.top
+									anchors.margins: 5
+									width: panel.wallpaperIsVideo(modelData) ? 15 : 22
+									height: 15
+									radius: 7.5
+									color: Qt.rgba(0, 0, 0, 0.55)
+									visible: panel.wallpaperIsVideo(modelData) || panel.wallpaperIsAnimated(modelData)
+
+									Shape {
+										anchors.centerIn: parent
+										width: 7
+										height: 8
+										visible: panel.wallpaperIsVideo(modelData)
+
+										ShapePath {
+											strokeColor: "transparent"
+											fillColor: "white"
+											startX: 0
+											startY: 0
+											PathLine { x: 7; y: 4 }
+											PathLine { x: 0; y: 8 }
+											PathLine { x: 0; y: 0 }
+										}
+									}
+
+									Text {
+										anchors.centerIn: parent
+										visible: !panel.wallpaperIsVideo(modelData)
+										color: "white"
+										font.family: panel.fontFamily
+										font.pixelSize: 8
+										font.weight: Font.Bold
+										text: "GIF"
+									}
 								}
 
 								Squircle {
