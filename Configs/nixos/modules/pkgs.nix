@@ -16,21 +16,9 @@ let
   };
 in
 {
-  # dildo
-  #programs.fish.enable = true;
-  #programs.hyprland = {
-  #  enable = true;
-  #  package = pkgs.hyprland;
-  #};
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
- # nixpkgs.config.permittedInsecurePackages = [
- # "librewolf-151.0.2-1"
- # "librewolf-unwrapped-151.0.2-1"
- # ];
-  
   services.flatpak.enable = true;
   programs.hyprland.enable = true;
   programs.gpu-screen-recorder.enable = true;

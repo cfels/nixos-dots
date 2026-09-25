@@ -67,10 +67,19 @@
 
   # steam millenium
   nixpkgs.overlays = [ inputs.millennium.overlays.default ];
+  
+  environment.sessionVariables = {
+    XCURSOR_THEME = "Bibata-Modern-Ice";
+    XCURSOR_SIZE = "24";
+    HYPRCURSOR_THEME = "Bibata-Modern-Ice";
+    HYPRCURSOR_SIZE = "24";
+  };
 
   programs.steam = {
     enable = true;
-    package = pkgs.millennium-steam;
+    package = pkgs.millennium-steam.override {
+      extraPkgs = pkgs: [ pkgs.bibata-cursors ];
+    };
     extraCompatPackages = [
       inputs.proton-ge.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.proton-cachyos.packages.${pkgs.stdenv.hostPlatform.system}.default

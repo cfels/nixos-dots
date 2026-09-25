@@ -3,4 +3,5 @@
 include "/run/current-system/sw/share/themes/Breeze/gtk-2.0/gtkrc"
 
 gtk-theme-name="Breeze"
-
+gtk-cursor-theme-name=Bibata-Modern-Ice
+gtk-cursor-theme-size=24
