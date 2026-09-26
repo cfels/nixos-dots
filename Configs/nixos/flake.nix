@@ -9,7 +9,6 @@
       nixcord.url = "github:FlameFlag/nixcord";
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
       fagram.url = "github:cfels/fadesktop";
-      codex.url = "github:SecBear/codex-nix";
       millennium.url = "github:SteamClientHomebrew/Millennium?dir=packages/nix";
       proton-ge = {
         url = "github:Daaboulex/proton-ge-nix";
