@@ -463,8 +463,8 @@ PanelWindow {
 
 					Item {
 						Layout.alignment: Qt.AlignVCenter
-						Layout.preferredWidth: 13
-						Layout.preferredHeight: 13
+						Layout.preferredWidth: 16
+						Layout.preferredHeight: 16
 						layer.enabled: true
 						layer.effect: MultiEffect {
 							colorization: 1

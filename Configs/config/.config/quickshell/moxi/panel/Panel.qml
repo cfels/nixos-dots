@@ -1273,6 +1273,49 @@ PanelWindow {
 						anchors.right: parent.right
 						height: 140
 						color: "transparent"
+						clip: true
+
+						property string shownSource: ""
+						property bool shownAnimated: false
+						property string previousSource: ""
+						property bool previousAnimated: false
+						property real ghostProgress: 0
+						property bool waitingReady: false
+
+						function cross(): void {
+							const nextSource = preview.source
+							const nextAnimated = preview.animated
+
+							if (nextSource === previewFrame.shownSource && nextAnimated === previewFrame.shownAnimated) return
+
+							if (previewFrame.shownAnimated) {
+								previewFrame.previousSource = previewFrame.shownSource
+								previewFrame.previousAnimated = true
+							} else {
+								previewFrame.previousAnimated = false
+								previewFrame.previousSource = previewFrame.shownSource
+							}
+
+							previewFrame.shownSource = nextSource
+							previewFrame.shownAnimated = nextAnimated
+
+							previewCross.stop()
+
+							if (nextSource.length === 0) {
+								previewFrame.waitingReady = false
+								previewFrame.ghostProgress = 0
+								return
+							}
+
+							previewFrame.ghostProgress = 1
+
+							if (preview.ready) {
+								previewFrame.waitingReady = false
+								previewCross.restart()
+							} else {
+								previewFrame.waitingReady = true
+							}
+						}
 
 						SquircleImage {
 							id: preview
@@ -1280,35 +1323,64 @@ PanelWindow {
 							anchors.fill: parent
 							source: panel.wallpaperSource(panel.previewWallpaper).length > 0 ? "file://" + panel.wallpaperSource(panel.previewWallpaper) : ""
 							animated: panel.wallpaperSourceAnimated(panel.previewWallpaper)
-							radius: 21
+							radius: 30
 							power: 4
 							sourceWidth: 560
 							sourceHeight: 320
 
-							Connections {
-								target: panel
-
-								function onPreviewWallpaperChanged() {
-									previewFade.restart()
+							onSourceChanged: previewFrame.cross()
+							onReadyChanged: {
+								if (ready && previewFrame.waitingReady) {
+									previewFrame.waitingReady = false
+									previewCross.restart()
 								}
 							}
+							Component.onCompleted: {
+								previewFrame.shownSource = preview.source
+								previewFrame.shownAnimated = preview.animated
+							}
+						}
 
-							SequentialAnimation {
-								id: previewFade
+						SquircleImage {
+							id: previewGhost
 
-								NumberAnimation {
-									target: preview
-									property: "opacity"
-									to: 0.3
-									duration: 80
-								}
-								NumberAnimation {
-									target: preview
-									property: "opacity"
-									to: 1
-									duration: 160
-									easing.type: Easing.OutCubic
-								}
+							anchors.fill: parent
+							source: previewFrame.previousSource
+							animated: previewFrame.previousAnimated
+							radius: 30
+							power: 4
+							sourceWidth: 560
+							sourceHeight: 320
+							opacity: previewFrame.ghostProgress
+							visible: previewFrame.ghostProgress > 0.001
+							scale: 1 + (1 - previewFrame.ghostProgress) * 0.05
+							playing: visible
+							layer.enabled: visible
+							layer.effect: MultiEffect {
+								blurEnabled: true
+								blur: (1 - previewFrame.ghostProgress) * 0.85
+								blurMax: 24
+							}
+						}
+
+						ParallelAnimation {
+							id: previewCross
+
+							NumberAnimation {
+								target: previewFrame
+								property: "ghostProgress"
+								from: 1
+								to: 0
+								duration: 460
+								easing.type: Easing.OutCubic
+							}
+							NumberAnimation {
+								target: preview
+								property: "scale"
+								from: 1.02
+								to: 1
+								duration: 520
+								easing.type: Easing.OutCubic
 							}
 						}
 					}
@@ -1323,8 +1395,9 @@ PanelWindow {
 						anchors.bottom: hint.top
 						anchors.bottomMargin: 8
 						clip: true
-						cellWidth: 90
-						cellHeight: 66
+						cellWidth: Math.max(1, Math.floor(width / 2))
+						cellHeight: Math.max(1, Math.floor(height / 2))
+						boundsBehavior: Flickable.StopAtBounds
 						model: panel.wallpapers
 
 						delegate: Item {
@@ -1338,9 +1411,9 @@ PanelWindow {
 								id: thumb
 
 								anchors.centerIn: parent
-								width: parent.width - 14
-								height: parent.height - 14
-								radius: 12
+								width: parent.width - 12
+								height: parent.height - 12
+								radius: 14
 								color: "transparent"
 								scale: thumbMouse.containsMouse ? 1.1 : 1
 
@@ -1355,7 +1428,7 @@ PanelWindow {
 								SquircleImage {
 									anchors.fill: parent
 									source: "file://" + (panel.wallpaperIsVideo(modelData) ? panel.wallpaperThumb(modelData) : modelData)
-									radius: 11
+									radius: 13
 									power: 4
 									sourceWidth: 168
 									sourceHeight: 120
@@ -1408,7 +1481,7 @@ PanelWindow {
 								Squircle {
 									anchors.fill: parent
 									power: 4
-									radius: 12
+									radius: 14
 									fillColor: "transparent"
 									strokeColor: panel.accent
 									strokeWidth: thumbMouse.containsMouse || panel.previewWallpaper === modelData ? 1.4 : 0
@@ -1420,6 +1493,7 @@ PanelWindow {
 									anchors.fill: parent
 									hoverEnabled: true
 									cursorShape: Qt.PointingHandCursor
+									onWheel: (wheel) => wheel.accepted = false
 									onEntered: panel.previewWallpaper = modelData
 									onClicked: {
 										panel.previewWallpaper = modelData
