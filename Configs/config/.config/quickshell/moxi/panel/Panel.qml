@@ -1373,18 +1373,24 @@ PanelWindow {
 
 									Shape {
 										anchors.centerIn: parent
+										anchors.verticalCenterOffset: -0.5
+										anchors.horizontalCenterOffset: 0.6
 										width: 7
 										height: 8
 										visible: panel.wallpaperIsVideo(modelData)
+										preferredRendererType: Shape.CurveRenderer
 
 										ShapePath {
 											strokeColor: "transparent"
 											fillColor: "white"
 											startX: 0
-											startY: 0
-											PathLine { x: 7; y: 4 }
-											PathLine { x: 0; y: 8 }
-											PathLine { x: 0; y: 0 }
+											startY: 6.6
+											PathLine { x: 0; y: 1.4 }
+											PathQuad { controlX: 0; controlY: 0; x: 1.22; y: 0.69 }
+											PathLine { x: 5.78; y: 3.31 }
+											PathQuad { controlX: 7; controlY: 4; x: 5.78; y: 4.69 }
+											PathLine { x: 1.22; y: 7.31 }
+											PathQuad { controlX: 0; controlY: 8; x: 0; y: 6.6 }
 										}
 									}
 
