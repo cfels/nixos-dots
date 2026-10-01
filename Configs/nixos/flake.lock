@@ -253,11 +253,11 @@
       },
       "locked": {
         "dir": "packages/nix",
-        "lastModified": 1790376899,
-        "narHash": "sha256-+L6TCWddmKMbktK8e6nrgWMiZ+dlFztubmRH3pqdW3o=",
+        "lastModified": 1790520975,
+        "narHash": "sha256-kk+bzZx7d+noy1YPrbt2Z0GBUzxKykU/+1clGCIPHQ8=",
         "owner": "SteamClientHomebrew",
         "repo": "Millennium",
-        "rev": "fa5f8ac715cdbd14b9495391c203956b344a7faa",
+        "rev": "847e0dad6c33ab9f11bdd4e7ca2e90cd26aef416",
         "type": "github"
       },
       "original": {
@@ -270,17 +270,17 @@
     "millennium-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1787082953,
-        "narHash": "sha256-zgr4cdJfye4qunpD3ClNnZ9D1WPGQAXV0CnYwEbB52s=",
+        "lastModified": 1790436335,
+        "narHash": "sha256-ghYUa4gPLV/VOflM2zkl/gtdwLWHQpRxG4boQoj4yKM=",
         "owner": "SteamClientHomebrew",
         "repo": "Millennium",
-        "rev": "513b02e809b0eb120ecf0ae12e548798dd756323",
+        "rev": "765aa8802f8a4d942ad8ac8323a9e0f233a50fa8",
         "type": "github"
       },
       "original": {
         "owner": "SteamClientHomebrew",
         "repo": "Millennium",
-        "rev": "513b02e809b0eb120ecf0ae12e548798dd756323",
+        "rev": "765aa8802f8a4d942ad8ac8323a9e0f233a50fa8",
         "type": "github"
       }
     },
@@ -626,14 +626,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1790177832,
-        "narHash": "sha256-Kmb29QUiFYi6125lKUP2rbribdc/V0R/bMplaBIBZrs=",
-        "path": "/home/moxiu/projects/umadance",
-        "type": "path"
+        "lastModified": 1790177085,
+        "narHash": "sha256-4/0lXIL2dGs6xcioOcSnpH5XTiA6ikLP7/unSwK0iVA=",
+        "owner": "cfels",
+        "repo": "umadance",
+        "rev": "016e949ef01d4b49f7ef938e108275cf43efcae0",
+        "type": "github"
       },
       "original": {
-        "path": "/home/moxiu/projects/umadance",
-        "type": "path"
+        "owner": "cfels",
+        "repo": "umadance",
+        "type": "github"
       }
     },
     "utils": {

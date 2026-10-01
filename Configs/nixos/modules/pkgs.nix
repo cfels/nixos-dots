@@ -25,6 +25,9 @@ in
   services.gnome.gnome-keyring.enable = true;
 
   environment.systemPackages = with pkgs; [
+minisign
+age
+tdf
 imagemagick
 libsecret
 matugen
@@ -39,7 +42,6 @@ vlc
 uv
 fetch
 android-tools
-vscode
 wget
 parted
 fastfetch

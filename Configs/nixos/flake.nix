@@ -3,7 +3,7 @@
 
     inputs = {
       umadance = {
-        url = "path:/home/moxiu/projects/umadance";
+        url = "github:cfels/umadance";
         inputs.nixpkgs.follows = "nixpkgs";
       };
       nixcord.url = "github:FlameFlag/nixcord";
@@ -182,8 +182,6 @@
         modules = [
           ./configuration.nix
           { nixpkgs.overlays = [ viceOverlay ]; }
-          inputs.umadance.nixosModules.default
-          { programs.umadance.enable = true; }
           self.nixosModules.vice
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {

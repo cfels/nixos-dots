@@ -9,19 +9,13 @@
   # hostname
   networking.hostName = "moxiu";
   
-  # gpg
-  programs.mtr.enable = true;
-  programs.gnupg.agent = {
-    enable = true;
-    enableSSHSupport = true;
-    settings = {
-      default-cache-ttl = 34560000;
-      max-cache-ttl = 34560000;
-    };
-  };
-
+  # ssh
   services.openssh.enable = true;
-  
+  programs.ssh.startAgent = true;
+
+  # fix agent
+  services.gnome.gcr-ssh-agent.enable = false;
+
   # stuff
   programs.fish.enable = true;
   
@@ -75,6 +69,7 @@
     HYPRCURSOR_SIZE = "24";
   };
 
+  # stim
   programs.steam = {
     enable = true;
     package = pkgs.millennium-steam.override {

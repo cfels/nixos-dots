@@ -1,11 +1,11 @@
 colors = {
-	bg0 = "#131318",
-	bg1 = "#201f25",
-	bg2 = "#2a292f",
-	fg0 = "#e5e1e9",
-	fg1 = "#c8c5d0",
-	accent = "#c3c0ff",
-	accent2 = "#eab9d1",
+	bg0 = "#12140e",
+	bg1 = "#1e201a",
+	bg2 = "#282b24",
+	fg0 = "#e2e3d8",
+	fg1 = "#c5c8ba",
+	accent = "#b1d18a",
+	accent2 = "#a0d0cc",
 	urgent = "#ffb4ab",
 }
 
