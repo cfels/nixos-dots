@@ -1199,7 +1199,7 @@ PanelWindow {
 						id: lyricsToggle
 
 						anchors.top: controls.bottom
-						anchors.topMargin: 8
+						anchors.topMargin: 12
 						anchors.horizontalCenter: parent.horizontalCenter
 						width: 35
 						height: 35

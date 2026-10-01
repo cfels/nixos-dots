@@ -25,6 +25,7 @@ in
   services.gnome.gnome-keyring.enable = true;
 
   environment.systemPackages = with pkgs; [
+vscodium
 minisign
 age
 tdf
