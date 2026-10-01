@@ -2,10 +2,6 @@
     description = "Moxi's VacOS configuration";
 
     inputs = {
-      umadance = {
-        url = "github:cfels/umadance";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
       nixcord.url = "github:FlameFlag/nixcord";
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
       fagram.url = "github:cfels/fadesktop";
@@ -44,7 +40,6 @@
         let
           lib = pkgs.lib;
           tools = with pkgs; [
-            cloudflared
             ffmpeg
             gpu-screen-recorder
             systemd

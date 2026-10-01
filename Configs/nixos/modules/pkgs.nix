@@ -37,7 +37,6 @@ hyprlock
 signal-desktop
 quickshell
 vim
-cloudflared
 unrar
 vlc
 uv

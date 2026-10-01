@@ -176,7 +176,7 @@
     };
     voiceMessageTranscriber = {
       enable = true;
-      selectedModel = "Xenova/whisper-base";
+      selectedModel = "onnx-community/whisper-base";
       quantized = false;
     };
     voiceStats.enable = true;
