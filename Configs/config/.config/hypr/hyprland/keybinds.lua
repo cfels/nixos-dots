@@ -5,9 +5,9 @@
 -- programiczkus --------------
 local terminal = "kitty"
 local fileManager = "dolphin"
-local chatapp = "equibop"
+local chatapp = "discord"
 local browser = "librewolf"
-local code = "code"
+local code = "codium"
 local screenlock = "hyprlock"
 
 -- your "windows" key
