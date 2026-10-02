@@ -487,6 +487,7 @@
         "nixpkgs": "nixpkgs_3",
         "proton-cachyos": "proton-cachyos",
         "proton-ge": "proton-ge",
+        "twintail-nix": "twintail-nix",
         "vice": "vice"
       }
     },
@@ -578,6 +579,39 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "type": "github"
+      }
+    },
+    "twintail-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "twintail_x86_64": "twintail_x86_64"
+      },
+      "locked": {
+        "lastModified": 1790933890,
+        "narHash": "sha256-kj8+A3WM4rKBWxu5RMj3CnoO/24apM26cvr4AxImx6c=",
+        "owner": "madebycli",
+        "repo": "twintail-nix",
+        "rev": "d6c54177b95693e9018c69b83a693a2a0310fa42",
+        "type": "github"
+      },
+      "original": {
+        "owner": "madebycli",
+        "repo": "twintail-nix",
+        "type": "github"
+      }
+    },
+    "twintail_x86_64": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-TZMQyC0KbyGo3sYPeOyjW0jODF66hT636fb6dJSxwwA=",
+        "type": "file",
+        "url": "https://github.com/TwintailTeam/TwintailLauncher/releases/download/ttl-v2.5.1/twintaillauncher_2.5.1_amd64.deb"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://github.com/TwintailTeam/TwintailLauncher/releases/download/ttl-v2.5.1/twintaillauncher_2.5.1_amd64.deb"
       }
     },
     "utils": {

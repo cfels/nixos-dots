@@ -30,9 +30,13 @@
         url = "github:hyprnux/hyprglass/77636c5711ed572ca199a84d06146ccac0951786";
         flake = false;
       };
+      twintail-nix = {
+        url = "github:madebycli/twintail-nix";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
     };
 
-    outputs = inputs@{ self, nixpkgs, home-manager, kwin-better-blur-dx, ... }:
+    outputs = inputs@{ self, nixpkgs, home-manager, kwin-better-blur-dx, twintail-nix, ... }:
     let
       system = "x86_64-linux";
 
@@ -178,6 +182,11 @@
           ./configuration.nix
           { nixpkgs.overlays = [ viceOverlay ]; }
           self.nixosModules.vice
+          twintail-nix.nixosModules.default
+          ({ lib, ... }: {
+            programs.twintaillauncher.enable = true;
+            programs.gamescope.enable = lib.mkForce true;
+          })
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {
             environment.etc."hypr/hyprglass.so".source = "${hyprglass-plugin pkgs}/lib/hyprglass.so";
