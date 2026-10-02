@@ -60,7 +60,7 @@
   };
 
   # steam millenium
-  nixpkgs.overlays = [ inputs.millennium.overlays.default ];
+  #nixpkgs.overlays = [ inputs.millennium.overlays.default ];
   
   environment.sessionVariables = {
     XCURSOR_THEME = "Bibata-Modern-Ice";
@@ -72,7 +72,7 @@
   # stim
   programs.steam = {
     enable = true;
-    package = pkgs.millennium-steam.override {
+    package = pkgs.steam.override {
       extraPkgs = pkgs: [ pkgs.bibata-cursors ];
     };
     extraCompatPackages = [

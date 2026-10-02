@@ -854,7 +854,7 @@ PanelWindow {
 							color: panel.muted
 							font.family: panel.fontFamily
 							font.pixelSize: 12
-							text: panel.trackTitle.length > 0 ? "no lyrics found" : "nothing playing"
+							text: panel.trackTitle.length > 0 ? "no lyrics found" : "play sum shii-"
 						}
 
 						Text {
@@ -863,11 +863,11 @@ PanelWindow {
 							color: panel.muted
 							font.family: panel.fontFamily
 							font.pixelSize: 12
-							text: panel.hasPlayer ? "no artwork" : "nothing playing"
+							text: panel.hasPlayer ? "no artwork" : "play sum shii-"
 						}
 
 					}
-
+					
 					Text {
 						id: title
 
@@ -881,7 +881,7 @@ PanelWindow {
 						font.pixelSize: 15
 						font.weight: Font.DemiBold
 						horizontalAlignment: Text.AlignHCenter
-						text: panel.trackTitle.length > 0 ? panel.trackTitle : "Nothing playing"
+						text: panel.trackTitle.length > 0 ? panel.trackTitle : "play sum shii-"
 						wrapMode: Text.NoWrap
 					}
 

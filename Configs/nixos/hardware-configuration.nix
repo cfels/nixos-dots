@@ -23,6 +23,12 @@
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
+  
+  fileSystems."./stuff" = {
+      device = "dev/disk/by-uuid/9bb4d15c-a300-48a5-ac0d-ba7289299ee4";
+      fsType = "xfs";
+      options = [ "defaults" "noatime" ];
+    };
 
   swapDevices =
     [ { device = "/dev/disk/by-uuid/d9cf6885-6198-483e-a7a4-ee4fcbd5bec1"; }

@@ -26,6 +26,7 @@ in
 
   environment.systemPackages = with pkgs; [
 vscodium
+seanime
 minisign
 age
 tdf
