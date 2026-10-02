@@ -13,6 +13,7 @@
       installPackage = true;
       branches = [ "stable" ];
       equicord.enable = true;
+      krisp.enable = true;
     };
 
     config = {
