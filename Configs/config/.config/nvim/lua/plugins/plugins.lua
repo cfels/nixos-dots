@@ -104,6 +104,14 @@ return {
     },
   },
   {
+    "dont-be-evil-company/discord.nvim",
+    event = "VeryLazy",
+    opts = {
+      auto_connect = true,
+      logo = "auto",
+    },
+  },
+  {
     "nvim-tree/nvim-tree.lua",
     opts = {
       filters = {
