@@ -115,12 +115,12 @@ PanelWindow {
 		scale: power.open ? 1 : 0.94
 
 		Behavior on opacity {
-			NumberAnimation { duration: power.open ? 220 : 150 }
+			NumberAnimation { duration: power.open ? 190 : 110 }
 		}
 
 		Behavior on scale {
 			NumberAnimation {
-				duration: power.open ? 300 : 180
+				duration: power.open ? 240 : 130
 				easing.type: Easing.Bezier
 				easing.bezierCurve: [0.2, 0.9, 0.25, 1]
 			}

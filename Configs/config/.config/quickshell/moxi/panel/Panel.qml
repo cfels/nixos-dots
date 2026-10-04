@@ -25,6 +25,8 @@ PanelWindow {
 
 	property var lyrics: []
 	property bool syncedLyrics: false
+	property bool lyricsWanted: false
+	property bool artWanted: false
 	property real lookupDuration: 0
 	property int activeLyric: -1
 	property bool showLyrics: false
@@ -106,7 +108,7 @@ PanelWindow {
 
 	Behavior on cornerRadius {
 		NumberAnimation {
-			duration: panel.expanded ? 300 : 220
+			duration: panel.expanded ? 240 : 150
 			easing.type: Easing.Bezier
 			easing.bezierCurve: [0.32, 0.72, 0, 1]
 		}
@@ -145,8 +147,10 @@ PanelWindow {
 		return panel.lookupDuration
 	}
 	property real trackPosition: 0
+	property real dragPosition: 0
 	property bool positionFallback: false
 	property bool positionTrusted: false
+	property bool seekSettling: false
 	property real trustBase: -1
 	property real lastReported: -1
 	property int stallTicks: 0
@@ -266,11 +270,41 @@ PanelWindow {
 
 		panel.player.position = seconds
 		panel.trackPosition = seconds
+		panel.dragPosition = seconds
+		panel.lastReported = -1
+		panel.stallTicks = 0
 		panel.progressFast = true
 		progressFastTimer.restart()
-		panel.player.positionChanged()
+		panel.seekSettling = true
+		seekSettleTimer.restart()
 		lyricsView.manual = false
 		panel.updateActiveLyric()
+	}
+
+	function fetchLyrics(): void {
+		if (panel.trackTitle.length === 0) return
+
+		if (lyricsFetch.running) {
+			panel.lyricsWanted = true
+			lyricsFetch.running = false
+			return
+		}
+
+		panel.lyricsWanted = false
+		lyricsFetch.running = true
+	}
+
+	function fetchArtwork(): void {
+		if (panel.artUrl.length === 0) return
+
+		if (artCache.running) {
+			panel.artWanted = true
+			artCache.running = false
+			return
+		}
+
+		panel.artWanted = false
+		artCache.running = true
 	}
 
 	Timer {
@@ -281,10 +315,17 @@ PanelWindow {
 	}
 
 	Timer {
+		id: seekSettleTimer
+
+		interval: 900
+		onTriggered: panel.seekSettling = false
+	}
+
+	Timer {
 		id: lyricsDebounce
 
 		interval: 700
-		onTriggered: lyricsFetch.running = true
+		onTriggered: panel.fetchLyrics()
 	}
 
 	Timer {
@@ -353,6 +394,15 @@ PanelWindow {
 
 			panel.lastReported = reported
 
+			if (panel.seekSettling) {
+				if (Math.abs(reported - panel.trackPosition) < 1.5) {
+					panel.seekSettling = false
+					seekSettleTimer.stop()
+				}
+
+				return
+			}
+
 			if (!panel.positionTrusted) return
 			if (progressTrack.dragging) return
 
@@ -406,6 +456,8 @@ PanelWindow {
 		panel.stallTicks = 0
 		panel.progressFast = true
 		progressFastTimer.restart()
+		panel.seekSettling = false
+		seekSettleTimer.stop()
 		panel.lookupDuration = 0
 		panel.lyrics = []
 		panel.syncedLyrics = false
@@ -413,10 +465,10 @@ PanelWindow {
 		panel.showLyrics = false
 
 		if (panel.trackTitle.length > 0) lyricsDebounce.restart()
-		if (panel.artUrl.length > 0) artCache.running = true
+		if (panel.artUrl.length > 0) panel.fetchArtwork()
 	}
 
-	onArtUrlChanged: if (panel.artUrl.length > 0) artCache.running = true
+	onArtUrlChanged: if (panel.artUrl.length > 0) panel.fetchArtwork()
 
 	onActiveLyricChanged: lyricsView.scrollToActive()
 
@@ -449,6 +501,13 @@ PanelWindow {
 		stdout: SplitParser {
 			onRead: (line) => panel.applyLyrics(line)
 		}
+
+		onRunningChanged: {
+			if (running || !panel.lyricsWanted) return
+
+			panel.lyricsWanted = false
+			lyricsFetch.running = true
+		}
 	}
 
 	Process {
@@ -468,6 +527,13 @@ PanelWindow {
 
 			if (code === 0) panel.artSource = "file://" + panel.artCachePath + "?v=" + panel.artVersion
 			else panel.artSource = panel.artUrl
+		}
+
+		onRunningChanged: {
+			if (running || !panel.artWanted) return
+
+			panel.artWanted = false
+			artCache.running = true
 		}
 	}
 
@@ -598,6 +664,7 @@ PanelWindow {
 			visible: true
 			width: cardHost.width
 			height: cardHost.height
+
 
 			Squircle {
 				anchors.fill: parent
@@ -915,17 +982,18 @@ PanelWindow {
 						property bool hovered: false
 						property bool dragging: false
 
-						function seek(x): void {
+						function preview(x): void {
 							if (!panel.hasPlayer || !panel.player.canSeek || panel.trackDuration <= 0) return
 
 							var ratio = Math.max(0, Math.min(1, x / width))
 
-							panel.player.position = panel.trackDuration * ratio
-							panel.trackPosition = panel.player.position
-							panel.progressFast = true
-							progressFastTimer.restart()
-							panel.player.positionChanged()
+							panel.dragPosition = panel.trackDuration * ratio
+							panel.trackPosition = panel.dragPosition
 							panel.updateActiveLyric()
+						}
+
+						function commit(): void {
+							panel.seekTo(panel.dragPosition)
 						}
 
 						HoverHandler {
@@ -1011,15 +1079,20 @@ PanelWindow {
 							enabled: panel.hasPlayer
 							hoverEnabled: true
 							cursorShape: panel.player && panel.player.canSeek && panel.trackDuration > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
-							onClicked: (mouse) => progressTrack.seek(mouse.x)
 							onPressed: (mouse) => {
 								progressTrack.dragging = true
-								progressTrack.seek(mouse.x)
+								progressTrack.preview(mouse.x)
 							}
-							onReleased: progressTrack.dragging = false
-							onCanceled: progressTrack.dragging = false
 							onPositionChanged: (mouse) => {
-								if (pressed) progressTrack.seek(mouse.x)
+								if (pressed) progressTrack.preview(mouse.x)
+							}
+							onReleased: {
+								progressTrack.dragging = false
+								progressTrack.commit()
+							}
+							onCanceled: {
+								progressTrack.dragging = false
+								progressTrack.commit()
 							}
 						}
 					}
@@ -1521,18 +1594,19 @@ PanelWindow {
 			}
 		}
 
-		HoverHandler {
-			id: cardHover
-			onHoveredChanged: panel.hovered = cardHover.hovered
-		}
 	}
 
 	Item {
 		id: inputArea
 
 		anchors.horizontalCenter: cardHost.horizontalCenter
-		anchors.top: cardHost.top
+		anchors.top: parent.top
 		width: panel.expanded ? cardHost.width : 0
-		height: panel.expanded ? cardHost.height : 0
+		height: panel.expanded ? cardHost.y + cardHost.height : 0
+
+		HoverHandler {
+			id: cardHover
+			onHoveredChanged: panel.hovered = cardHover.hovered
+		}
 	}
 }

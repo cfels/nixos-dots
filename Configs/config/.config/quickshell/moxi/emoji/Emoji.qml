@@ -13,6 +13,10 @@ PanelWindow {
 	}
 
 	property bool open: false
+	property real anchorWidth: 210
+	property real anchorHeight: 38
+	property real anchorTop: 10
+	readonly property real surfaceTop: 6
 	property string query: ""
 	property var results: []
 	property int selected: 0
@@ -21,7 +25,7 @@ PanelWindow {
 	readonly property color foreground: theme.foreground
 	readonly property color muted: theme.muted
 	readonly property string fontFamily: momo.status === FontLoader.Ready ? momo.name : ""
-	readonly property real cornerRadius: emoji.open ? 30 : 19
+	readonly property real cornerRadius: emoji.open ? 30 : emoji.anchorHeight / 2
 
 	property var catalog: []
 
@@ -63,7 +67,7 @@ PanelWindow {
 		right: true
 	}
 
-	margins.top: 56
+	margins.top: emoji.surfaceTop
 	implicitHeight: 620
 	exclusionMode: ExclusionMode.Ignore
 	WlrLayershell.layer: WlrLayer.Overlay
@@ -144,16 +148,15 @@ PanelWindow {
 		id: cardHost
 
 		anchors.horizontalCenter: parent.horizontalCenter
-		anchors.top: parent.top
-		y: emoji.open ? 0 : -30
-		width: emoji.open ? 560 : 210
-		height: emoji.open ? 440 : 38
+		y: emoji.open ? 50 : emoji.anchorTop - emoji.surfaceTop
+		width: emoji.open ? 560 : emoji.anchorWidth
+		height: emoji.open ? 440 : emoji.anchorHeight
 		opacity: emoji.open ? 1 : 0
 		scale: emoji.open ? 1 : 0.96
 
 		Behavior on width {
 			NumberAnimation {
-				duration: emoji.open ? 300 : 200
+				duration: emoji.open ? 240 : 150
 				easing.type: Easing.Bezier
 				easing.bezierCurve: [0.2, 0.9, 0.25, 1]
 			}
@@ -161,18 +164,18 @@ PanelWindow {
 
 		Behavior on height {
 			NumberAnimation {
-				duration: emoji.open ? 300 : 200
+				duration: emoji.open ? 240 : 150
 				easing.type: Easing.Bezier
 				easing.bezierCurve: [0.2, 0.9, 0.25, 1]
 			}
 		}
 
 		Behavior on opacity {
-			NumberAnimation { duration: emoji.open ? 200 : 150 }
+			NumberAnimation { duration: emoji.open ? 140 : 110 }
 		}
 
 		Behavior on scale {
-			NumberAnimation { duration: emoji.open ? 260 : 180 }
+			NumberAnimation { duration: emoji.open ? 220 : 130 }
 		}
 
 		Item {

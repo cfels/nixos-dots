@@ -13,6 +13,15 @@ PanelWindow {
 	}
 
 	property bool open: false
+	property real anchorWidth: 210
+	property real anchorHeight: 38
+	property real anchorTop: 4
+
+	function setAnchor(width: real, height: real, y: real): void {
+		clipboard.anchorWidth = width
+		clipboard.anchorHeight = height
+		clipboard.anchorTop = y
+	}
 	property var entries: []
 	property int selected: 0
 	property int previewVersion: 0
@@ -46,8 +55,8 @@ PanelWindow {
 		right: true
 	}
 
-	margins.top: 56
-	implicitHeight: 620
+	margins.top: 6
+	implicitHeight: 530
 	exclusionMode: ExclusionMode.Ignore
 	WlrLayershell.layer: WlrLayer.Overlay
 	WlrLayershell.keyboardFocus: clipboard.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
@@ -245,9 +254,9 @@ PanelWindow {
 
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.top: parent.top
-		y: clipboard.open ? 0 : -30
-		width: clipboard.open ? 640 : 210
-		height: clipboard.open ? 460 : 38
+		y: clipboard.open ? 50 : clipboard.anchorTop
+		width: clipboard.open ? 640 : clipboard.anchorWidth
+		height: clipboard.open ? 460 : clipboard.anchorHeight
 		opacity: clipboard.open ? 1 : 0
 
 		Behavior on width {

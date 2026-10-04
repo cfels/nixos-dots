@@ -15,14 +15,51 @@ ShellRoot {
 
 	property bool shotFlash: false
 	property bool panelExpanded: false
+	property bool panelEntered: false
+	property string openOverlay: ""
 
 	function updatePanel(): void {
-		if (panel.hovered || pill.hovered) {
+		if (panel.hovered) {
+			root.panelEntered = true
 			closeTimer.stop()
 			return
 		}
 
-		if (root.panelExpanded) closeTimer.restart()
+		if (openGrace.running) return
+
+		if (root.panelExpanded && root.panelEntered) closeTimer.restart()
+	}
+
+	function closeOverlay(name): void {
+		if (name === "launcher") launcher.hide()
+		else if (name === "clipboard") clipboard.hide()
+		else if (name === "emoji") emojiPicker.hide()
+		else if (name === "power") powerMenu.hide()
+		else if (name === "panel") {
+			closeTimer.stop()
+			root.panelExpanded = false
+		}
+	}
+
+	function overlayOpened(name, opened): void {
+		if (!opened) {
+			if (root.openOverlay === name) root.openOverlay = ""
+			return
+		}
+
+		if (root.openOverlay === name) return
+
+		var previous = root.openOverlay
+
+		root.openOverlay = name
+
+		if (previous !== "") root.closeOverlay(previous)
+	}
+
+	onPanelExpandedChanged: {
+		if (root.panelExpanded) root.panelEntered = false
+
+		root.overlayOpened("panel", root.panelExpanded)
 	}
 
 	Timer {
@@ -37,19 +74,61 @@ ShellRoot {
 		onTriggered: root.panelExpanded = false
 	}
 
+	Timer {
+		id: openGrace
+		interval: 260
+	}
+
 	BarModule.Bar {
 		id: pill
 
 		flash: root.shotFlash
-		panelOpen: root.panelExpanded
+		panelOpen: root.openOverlay !== ""
 		notificationsMuted: notifications.muted
 		onHoveredChanged: root.updatePanel()
 			onPanelRequested: {
 				closeTimer.stop()
+				openGrace.restart()
 				panel.setAnchor(pill.pillWidth, pill.pillHeight, pill.pillTop)
 				root.panelExpanded = true
 			}
 		onNotificationsToggle: notifications.setMuted(!notifications.muted)
+	}
+
+	Connections {
+		target: launcher
+
+		function onOpenChanged(): void {
+			if (launcher.open) launcher.setAnchor(pill.pillWidth, pill.pillHeight, pill.pillTop)
+
+			root.overlayOpened("launcher", launcher.open)
+		}
+	}
+
+	Connections {
+		target: clipboard
+
+		function onOpenChanged(): void {
+			if (clipboard.open) clipboard.setAnchor(pill.pillWidth, pill.pillHeight, pill.pillTop)
+
+			root.overlayOpened("clipboard", clipboard.open)
+		}
+	}
+
+	Connections {
+		target: emojiPicker
+
+		function onOpenChanged(): void {
+			root.overlayOpened("emoji", emojiPicker.open)
+		}
+	}
+
+	Connections {
+		target: powerMenu
+
+		function onOpenChanged(): void {
+			root.overlayOpened("power", powerMenu.open)
+		}
 	}
 
 	NotificationModule.Notifications {
@@ -72,10 +151,12 @@ ShellRoot {
 
 	LauncherModule.Launcher {
 		id: launcher
+
 	}
 
 	ClipboardModule.Clipboard {
 		id: clipboard
+
 	}
 
 	PowerModule.Power {
@@ -84,6 +165,7 @@ ShellRoot {
 
 	EmojiModule.Emoji {
 		id: emojiPicker
+
 	}
 
 	IpcHandler {
@@ -108,6 +190,14 @@ ShellRoot {
 
 		function reload(): void {
 			Quickshell.reload(true)
+		}
+	}
+
+	IpcHandler {
+		target: "debug"
+
+		function state(): string {
+			return JSON.stringify({ overlay: root.openOverlay, panel: root.panelExpanded, entered: root.panelEntered, timer: closeTimer.running })
 		}
 	}
 }

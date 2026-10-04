@@ -23,6 +23,7 @@ PanelWindow {
 	property bool panelOpen: false
 	property bool hovered: pillHover.hovered
 	property bool held: false
+	property bool holdHandled: false
 	property bool expanded: bar.hovered || bar.flash || mediaPulse.running || volumeTimer.running
 	property bool pillShown: true
 	property bool volumeVisible: bar.audioReady && volumeTimer.running
@@ -33,6 +34,8 @@ PanelWindow {
 	readonly property real pillWidth: pill.width * pill.scale
 	readonly property real pillHeight: pill.height * pill.scale
 	readonly property real pillTop: pill.y - pill.height * (pill.scale - 1) / 2
+	readonly property real barTopMargin: 6
+	readonly property real pillScreenTop: bar.barTopMargin + bar.pillTop
 	property real contentBlur: bar.pillShown ? 0 : 0.62
 	property bool intro: false
 	property bool audioReady: false
@@ -47,6 +50,7 @@ PanelWindow {
 			pillReturn.stop()
 			bar.pillShown = false
 		} else {
+			bar.held = false
 			pillReturn.restart()
 		}
 	}
@@ -136,12 +140,12 @@ PanelWindow {
 		right: true
 	}
 
-	margins.top: 6
+	margins.top: bar.barTopMargin
 	implicitHeight: 46
 	WlrLayershell.layer: WlrLayer.Top
 	exclusionMode: ExclusionMode.Auto
 	color: "transparent"
-	mask: Region { item: pill }
+	mask: Region { item: bar.pillShown ? pill : pillHidden }
 
 	SystemClock {
 		id: clock
@@ -164,6 +168,7 @@ PanelWindow {
 
 		onTriggered: {
 			bar.held = true
+			bar.holdHandled = true
 			bar.panelRequested()
 		}
 	}
@@ -215,6 +220,13 @@ PanelWindow {
 		function onMutedChanged() {
 			if (bar.audioReady) volumeTimer.restart()
 		}
+	}
+
+	Item {
+		id: pillHidden
+
+		width: 0
+		height: 0
 	}
 
 	Rectangle {
@@ -272,17 +284,22 @@ PanelWindow {
 
 		HoverHandler {
 			id: pillHover
-			onHoveredChanged: if (!pillHover.hovered) bar.held = false
+			enabled: bar.pillShown
+			onHoveredChanged: if (!pillHover.hovered && !pillMouse.pressed) bar.held = false
 		}
 
 		MouseArea {
+			id: pillMouse
+
 			anchors.fill: parent
+			enabled: bar.pillShown
 			acceptedButtons: Qt.LeftButton | Qt.RightButton
 
 			onPressed: (mouse) => {
 				if (mouse.button === Qt.RightButton) return
 
 				bar.held = false
+				bar.holdHandled = false
 				holdTimer.restart()
 			}
 
@@ -294,7 +311,7 @@ PanelWindow {
 
 				holdTimer.stop()
 
-				if (bar.held) {
+				if (bar.held || bar.holdHandled || bar.panelOpen) {
 					bar.held = false
 					return
 				}

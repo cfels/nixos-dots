@@ -13,6 +13,15 @@ PanelWindow {
 	}
 
 	property bool open: false
+	property real anchorWidth: 210
+	property real anchorHeight: 38
+	property real anchorTop: 4
+
+	function setAnchor(width: real, height: real, y: real): void {
+		launcher.anchorWidth = width
+		launcher.anchorHeight = height
+		launcher.anchorTop = y
+	}
 	property string query: ""
 	property var results: []
 	property int selected: 0
@@ -43,8 +52,8 @@ PanelWindow {
 		right: true
 	}
 
-	margins.top: 56
-	implicitHeight: 620
+	margins.top: 6
+	implicitHeight: 530
 	exclusionMode: ExclusionMode.Ignore
 	WlrLayershell.layer: WlrLayer.Overlay
 	WlrLayershell.keyboardFocus: launcher.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
@@ -212,9 +221,9 @@ PanelWindow {
 
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.top: parent.top
-		y: launcher.open ? 0 : -30
-		width: launcher.open ? 660 : 210
-		height: launcher.open ? 460 : 38
+		y: launcher.open ? 50 : launcher.anchorTop
+		width: launcher.open ? 660 : launcher.anchorWidth
+		height: launcher.open ? 460 : launcher.anchorHeight
 		opacity: launcher.open ? 1 : 0
 
 		Behavior on width {
