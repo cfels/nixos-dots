@@ -147,11 +147,11 @@ PanelWindow {
 				spacing: 14
 
 				Repeater {
-					model: [
-						{ symbol: "suspend", command: "systemctl suspend" },
-						{ symbol: "reboot", command: "systemctl reboot" },
-						{ symbol: "power", command: "systemctl poweroff" }
-					]
+						model: [
+							{ symbol: "reboot", command: "systemctl reboot" },
+							{ symbol: "power", command: "systemctl poweroff" },
+							{ symbol: "suspend", command: "systemctl suspend" }
+						]
 
 					delegate: Rectangle {
 						id: button
