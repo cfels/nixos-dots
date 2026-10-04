@@ -31,7 +31,7 @@
         inputs.nixpkgs.follows = "nixpkgs";
       };
       hyprglass = {
-        url = "github:hyprnux/hyprglass/77636c5711ed572ca199a84d06146ccac0951786";
+        url = "github:hyprnux/hyprglass/99f30ca394bd0058ee79bf1c272c320f223e4540";
         flake = false;
       };
       twintail-nix = {
@@ -64,7 +64,7 @@
         in
         pkgs.python3Packages.buildPythonApplication {
           pname = "vice-clipper";
-          version = "2.13.1";
+          version = "2.14.1";
           pyproject = true;
 
           src = inputs.vice;
@@ -118,13 +118,13 @@
       hyprglass-plugin = pkgs:
         pkgs.hyprlandPlugins.mkHyprlandPlugin {
           pluginName = "hyprglass";
-          version = "0.8.1";
+          version = "0.9.1";
 
           src = inputs.hyprglass;
 
-          nativeBuildInputs = [ pkgs.gnumake ];
+          nativeBuildInputs = [ pkgs.gnumake pkgs.wayland-scanner ];
 
-          buildInputs = [ pkgs.pixman ];
+          buildInputs = [ pkgs.pixman pkgs.wayland ];
 
           installPhase = ''
             runHook preInstall
