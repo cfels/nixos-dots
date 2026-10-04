@@ -96,7 +96,6 @@ bat
 zoxide
 hicolor-icon-theme
 libnotify
-jq
 peaclock
 lavat
 rustup
@@ -122,7 +121,6 @@ gnumake
 deno
 dig
 go
-mpv
 nixd
 nil
 obs-studio

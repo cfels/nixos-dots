@@ -1,7 +1,6 @@
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Mpris
-import Quickshell.Wayland
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
@@ -88,8 +87,6 @@ PanelWindow {
 		return panel.wallpaperIsAnimated(path)
 	}
 
-	readonly property real morphSpring: panel.expanded ? 190 : 330
-	readonly property real morphDamping: panel.expanded ? 21 : 31
 	property int artVersion: 0
 	property string artSource: ""
 

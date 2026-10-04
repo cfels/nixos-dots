@@ -193,11 +193,4 @@ ShellRoot {
 		}
 	}
 
-	IpcHandler {
-		target: "debug"
-
-		function state(): string {
-			return JSON.stringify({ overlay: root.openOverlay, panel: root.panelExpanded, entered: root.panelEntered, timer: closeTimer.running })
-		}
-	}
 }

@@ -7,7 +7,6 @@ import Quickshell.Wayland
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
-import QtQuick.Shapes
 import "../components"
 
 PanelWindow {
