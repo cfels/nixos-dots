@@ -7,17 +7,12 @@
   programs.hyprland.enable = true;
   programs.gpu-screen-recorder.enable = true;
   services.gnome.gnome-keyring.enable = true;
-  
-  # for virtualbox
-  virtualisation.virtualbox.host.enable = true;
-  users.extraGroups.vboxusers.members = [ "moxiu" ];
 
   environment.systemPackages = with pkgs; [
 heroic
 gamemode
 gamescope
 vscodium
-virtualbox
 seanime
 minisign
 age

@@ -68,6 +68,10 @@
     HYPRCURSOR_THEME = "Bibata-Modern-Ice";
     HYPRCURSOR_SIZE = "24";
   };
+  
+  # virtualbox
+  virtualisation.virtualbox.host.enable = true;
+  users.extraGroups.vboxusers.members = [ "moxiu" ];
 
   # stim
   programs.steam = {
