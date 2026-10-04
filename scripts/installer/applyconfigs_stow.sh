@@ -38,6 +38,20 @@ sudo rm -rf "$USER_HOME/.icons"
 cd "$REPO/Configs/"
 "${stow_cmd[@]}" --target="$USER_HOME" config local walls
 
+# make baked-in author paths (/home/moxiu/...) point at this machine's user.
+# stow links these files into the repo, so replace the link with a real copy
+# first - otherwise sed would rewrite the repository file.
+for f in kscreenlockerrc plasmarc spectaclerc; do
+  target="$USER_HOME/.config/$f"
+
+  [ -e "$target" ] || continue
+  if [ -L "$target" ]; then
+    source="$(readlink -f "$target")"
+    rm -f "$target"
+    sed "s|/home/moxiu|$USER_HOME|g" "$source" > "$target"
+  fi
+done
+
 # symlnk /etc/nixos
 sudo rm -rf /etc/nixos
 sudo ln -s "$REPO/Configs/nixos" /etc/nixos
@@ -75,5 +89,9 @@ printf '"%s"\n' "$HOST_NAME" > "$REPO/Configs/nixos/hostname.nix"
 sudo git config --global --add safe.directory "$REPO"
 sudo cp -r "$REPO/Configs/config/.config/nvim/" /root/.config/
 fc-cache -f -v
-sudo nixos-rebuild switch --flake "/etc/nixos#${USER_NAME}"
+if ! sudo nixos-rebuild switch --flake "/etc/nixos#${USER_NAME}"; then
+  echo "nixos-rebuild switch failed - falling back to direct activation"
+  echo "(usually a systemd too old for 'systemd-run --output=cat', needs systemd >= 253)"
+  sudo NIXOS_INSTALL_BOOTLOADER=1 /nix/var/nix/profiles/system/bin/switch-to-configuration switch
+fi
 [ -z "${CHOWN_USER:-}" ] || sudo chown -R "$USER_NAME" "$USER_HOME"
