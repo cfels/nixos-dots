@@ -1,20 +1,4 @@
 { inputs, pkgs, ... }:
-let
-  signal-desktop = pkgs.symlinkJoin {
-    name = "signal-desktop-kwallet6";
-
-    paths = [ pkgs.signal-desktop ];
-
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-
-    postBuild = ''
-      rm $out/bin/signal-desktop
-
-      makeWrapper ${pkgs.signal-desktop}/bin/signal-desktop $out/bin/signal-desktop \
-        --add-flags "--password-store=kwallet6"
-    '';
-  };
-in
 {
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -23,9 +7,17 @@ in
   programs.hyprland.enable = true;
   programs.gpu-screen-recorder.enable = true;
   services.gnome.gnome-keyring.enable = true;
+  
+  # for virtualbox
+  virtualisation.virtualbox.host.enable = true;
+  users.extraGroups.vboxusers.members = [ "moxiu" ];
 
   environment.systemPackages = with pkgs; [
+heroic
+gamemode
+gamescope
 vscodium
+virtualbox
 seanime
 minisign
 age
@@ -35,7 +27,6 @@ libsecret
 matugen
 gnome-keyring
 hyprlock
-signal-desktop
 quickshell
 vim
 unrar
