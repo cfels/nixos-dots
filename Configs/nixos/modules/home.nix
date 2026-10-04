@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, username, hostName, ... }:
 {
   imports = [ 
     inputs.home-manager.nixosModules.home-manager
@@ -8,9 +8,9 @@
     useGlobalPkgs = true;
     useUserPackages = true;
     backupFileExtension = "backup";
-    extraSpecialArgs = { inherit inputs; };
+    extraSpecialArgs = { inherit inputs username hostName; };
     users = {
-      moxiu = import ../home/default.nix;
+      ${username} = import ../home/default.nix;
     };
   };  
 }

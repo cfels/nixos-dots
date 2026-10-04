@@ -1,4 +1,4 @@
-{ config, inputs, pkgs, lib, ... }:
+{ config, inputs, pkgs, lib, username, ... }:
 {
 # my gpu drivers
   hardware.graphics = {
@@ -13,5 +13,5 @@
 
 services.xserver.videoDrivers = [ "amdgpu" ];
 
-users.users.yourname.extraGroups = [ "video" "render" ];
+users.users.${username}.extraGroups = [ "video" "render" ];
 }

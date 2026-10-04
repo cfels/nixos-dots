@@ -1,9 +1,11 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 {
 # define user
-  users.users."moxiu" = {
+  users.mutableUsers = true;
+
+  users.users.${username} = {
     isNormalUser = true;
-    description = "moxiu";
+    description = username;
     extraGroups = [ "networkmanager" "wheel" "video" "render" ];
     shell = pkgs.fish;
   };

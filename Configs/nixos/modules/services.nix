@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 {
   # enable for kde plasma
   services.displayManager.sddm.enable = true;
@@ -33,7 +33,7 @@
 
   security.doas.extraRules = [
     {
-    users = [ "moxiu" ];
+    users = [ username ];
     keepEnv = true;
     persist = true;
   }

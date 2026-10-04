@@ -1,4 +1,4 @@
-{ config, inputs, pkgs, lib, ... }:
+{ config, inputs, pkgs, lib, username, hostName, ... }:
 {
   # kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -7,7 +7,7 @@
   boot.initrd.systemd.enable = true;
 
   # hostname
-  networking.hostName = "moxiu";
+  networking.hostName = hostName;
   
   # ssh
   services.openssh.enable = true;
@@ -33,9 +33,13 @@
      pkgs.xdg-desktop-portal-gtk
    ];
    config = {
-     common.default = [ "gtk" "kde" ];
+     common = {
+       default = [ "kde" "gtk" ];
+       "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
+     };
      hyprland = {
-       default = [ "hyprland" "gtk" ];
+       default = [ "hyprland" "kde" "gtk" ];
+       "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
        "org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
        "org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
        "org.freedesktop.impl.portal.GlobalShortcuts" = [ "hyprland" ];
@@ -67,11 +71,13 @@
     XCURSOR_SIZE = "24";
     HYPRCURSOR_THEME = "Bibata-Modern-Ice";
     HYPRCURSOR_SIZE = "24";
+    QT_QPA_PLATFORMTHEME = "kde";
+    GTK_USE_PORTAL = "1";
   };
   
   # virtualbox
   virtualisation.virtualbox.host.enable = true;
-  users.extraGroups.vboxusers.members = [ "moxiu" ];
+  users.extraGroups.vboxusers.members = [ username ];
 
   # stim
   programs.steam = {

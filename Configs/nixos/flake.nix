@@ -4,7 +4,10 @@
     inputs = {
       nixcord.url = "github:FlameFlag/nixcord";
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-      fagram.url = "github:cfels/fadesktop";
+      fagram = {
+        url = "github:cfels/fadesktop";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
       codex.url = "github:SecBear/codex-nix";
       #millennium.url = "github:SteamClientHomebrew/Millennium?dir=packages/nix";
       proton-ge = {
@@ -40,6 +43,8 @@
     outputs = inputs@{ self, nixpkgs, home-manager, kwin-better-blur-dx, twintail-nix, ... }:
     let
       system = "x86_64-linux";
+      username = import ./username.nix;
+      hostName = import ./hostname.nix;
 
       vice-clipper = pkgs:
         let
@@ -176,9 +181,9 @@
           };
         };
 
-      nixosConfigurations.moxiu = nixpkgs.lib.nixosSystem {
+      nixosConfigurations.${username} = nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs; };
+        specialArgs = { inherit inputs username hostName; };
         modules = [
           ./configuration.nix
           { nixpkgs.overlays = [ viceOverlay ]; }
@@ -197,8 +202,8 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               backupFileExtension = "backup";
-              extraSpecialArgs = { inherit inputs; };
-              users.moxiu = {
+              extraSpecialArgs = { inherit inputs username hostName; };
+              users.${username} = {
                 imports = [
                   ./home/default.nix
                 ];

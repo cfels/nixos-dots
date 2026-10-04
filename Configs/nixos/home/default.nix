@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }: 
+{ config, pkgs, lib, username, ... }: 
 {
   imports = [
     ./pkgs.nix
@@ -7,8 +7,8 @@
   ];
 
   home = {
-    username = "moxiu";
-    homeDirectory = "/home/moxiu";
+    username = username;
+    homeDirectory = "/home/${username}";
     stateVersion = "26.05";
   };
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 echo "rollingback..."
-doas nixos-rebuild switch --flake /etc/nixos#moxiu
+sudo nixos-rebuild switch --flake "/etc/nixos#${DOTS_USER:-${SUDO_USER:-$(id -un)}}"
 echo "rolled back"

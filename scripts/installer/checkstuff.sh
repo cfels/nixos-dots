@@ -9,5 +9,5 @@ fi
 echo "alr ur on nixos"
 
 ls -la ~/.config
-ls -la ~/.local
-sudo ls -la /etc/nixos
+ls -la ~/.local 2>/dev/null || true
+sudo ls -la /etc/nixos 2>/dev/null || true
