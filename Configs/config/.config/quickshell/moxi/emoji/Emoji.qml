@@ -2,6 +2,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import QtQuick
+import QtQuick.Effects
 import "../components"
 
 PanelWindow {
@@ -19,6 +20,7 @@ PanelWindow {
 	property string query: ""
 	property var results: []
 	property int selected: 0
+	property real contentBlur: 0
 
 	function setAnchor(width: real, height: real, y: real): void {
 		emoji.anchorWidth = width
@@ -99,10 +101,14 @@ PanelWindow {
 		emoji.open = true
 		emoji.query = ""
 		emoji.refresh()
+		emoji.contentBlur = 1
+		openBlur.restart()
 		focusTimer.restart()
 	}
 
 	function hide(): void {
+		openBlur.stop()
+		emoji.contentBlur = 0
 		emoji.open = false
 	}
 
@@ -147,6 +153,21 @@ PanelWindow {
 		id: focusTimer
 		interval: 70
 		onTriggered: input.forceActiveFocus()
+	}
+
+	SequentialAnimation {
+		id: openBlur
+
+		PauseAnimation { duration: 190 }
+
+		NumberAnimation {
+			target: emoji
+			property: "contentBlur"
+			from: 1
+			to: 0
+			duration: 170
+			easing.type: Easing.OutCubic
+		}
 	}
 
 	Item {
@@ -216,6 +237,13 @@ PanelWindow {
 			Item {
 				anchors.fill: parent
 				anchors.margins: 20
+				layer.enabled: emoji.contentBlur > 0.004
+
+				layer.effect: MultiEffect {
+					blurEnabled: true
+					blurMax: 34
+					blur: emoji.contentBlur
+				}
 
 				Rectangle {
 					id: searchFrame
