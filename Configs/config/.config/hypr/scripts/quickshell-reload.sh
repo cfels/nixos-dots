@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+export QT_QPA_PLATFORMTHEME="${QT_QPA_PLATFORMTHEME:-kde}"
+export QT_STYLE_OVERRIDE="${QT_STYLE_OVERRIDE:-breeze}"
+
+case ":${QT_PLUGIN_PATH:-}:" in
+*:/run/current-system/sw/lib/qt-6/plugins:*)
+	;;
+*)
+	export QT_PLUGIN_PATH="/run/current-system/sw/lib/qt-6/plugins${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}"
+	;;
+esac
+
 config="${1:-moxi}"
 state="${XDG_RUNTIME_DIR:-/tmp}/quickshell"
 

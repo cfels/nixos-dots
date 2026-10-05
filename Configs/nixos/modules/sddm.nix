@@ -47,11 +47,20 @@ in {
     extraPackages = with pkgs; [
       custom-sddm-astronaut
       kdePackages.kwin
-      bibata-cursors
+      kdePackages.breeze
+      kdePackages.breeze-icons
+      kdePackages.kirigami
+      kdePackages.libplasma
+      kdePackages.plasma5support
+      kdePackages.plasma-integration
+      kdePackages.qtsvg
+      kdePackages.qtvirtualkeyboard
       kdePackages.qtmultimedia
+      bibata-cursors
     ];
   };
   environment.systemPackages = [ custom-sddm-astronaut ];
+  fonts.packages = [ custom-sddm-astronaut ];
   environment.etc."xdg/kwinrc".text = ''
     [Plugins]
     shakecursorEnabled=false

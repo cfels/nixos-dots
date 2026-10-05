@@ -14,11 +14,17 @@ PanelWindow {
 	property bool open: false
 	property real anchorWidth: 210
 	property real anchorHeight: 38
-	property real anchorTop: 10
+	property real anchorTop: 4
 	readonly property real surfaceTop: 6
 	property string query: ""
 	property var results: []
 	property int selected: 0
+
+	function setAnchor(width: real, height: real, y: real): void {
+		emoji.anchorWidth = width
+		emoji.anchorHeight = height
+		emoji.anchorTop = y
+	}
 
 	readonly property color accent: theme.accent
 	readonly property color foreground: theme.foreground
@@ -147,34 +153,48 @@ PanelWindow {
 		id: cardHost
 
 		anchors.horizontalCenter: parent.horizontalCenter
-		y: emoji.open ? 50 : emoji.anchorTop - emoji.surfaceTop
+		anchors.top: parent.top
+		y: emoji.open ? 50 : emoji.anchorTop
 		width: emoji.open ? 560 : emoji.anchorWidth
 		height: emoji.open ? 440 : emoji.anchorHeight
 		opacity: emoji.open ? 1 : 0
-		scale: emoji.open ? 1 : 0.96
+		scale: emoji.open ? 1 : 0.94
+		transformOrigin: Item.Center
 
 		Behavior on width {
 			NumberAnimation {
-				duration: emoji.open ? 240 : 150
+				duration: emoji.open ? 300 : 210
 				easing.type: Easing.Bezier
-				easing.bezierCurve: [0.2, 0.9, 0.25, 1]
+				easing.bezierCurve: [0.16, 1, 0.3, 1]
 			}
 		}
 
 		Behavior on height {
 			NumberAnimation {
-				duration: emoji.open ? 240 : 150
+				duration: emoji.open ? 300 : 210
 				easing.type: Easing.Bezier
-				easing.bezierCurve: [0.2, 0.9, 0.25, 1]
+				easing.bezierCurve: [0.16, 1, 0.3, 1]
+			}
+		}
+
+		Behavior on y {
+			NumberAnimation {
+				duration: emoji.open ? 300 : 210
+				easing.type: Easing.Bezier
+				easing.bezierCurve: [0.16, 1, 0.3, 1]
+			}
+		}
+
+		Behavior on scale {
+			NumberAnimation {
+				duration: emoji.open ? 300 : 210
+				easing.type: Easing.Bezier
+				easing.bezierCurve: [0.16, 1, 0.3, 1]
 			}
 		}
 
 		Behavior on opacity {
-			NumberAnimation { duration: emoji.open ? 140 : 110 }
-		}
-
-		Behavior on scale {
-			NumberAnimation { duration: emoji.open ? 220 : 130 }
+			NumberAnimation { duration: emoji.open ? 220 : 160 }
 		}
 
 		Item {

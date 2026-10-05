@@ -6,10 +6,35 @@ track="${2:-}"
 artist="${3:-}"
 title="${4:-}"
 dest="${5:-}"
+current="${6:-}"
 
 [ -n "$dest" ] || exit 1
 
+[ -d "$(dirname "$dest")" ] || rm -f "$(dirname "$dest")"
 mkdir -p "$(dirname "$dest")"
+
+same_as_shown() {
+	[ -n "$current" ] && [ -f "$current" ] && [ -f "$1" ] && cmp -s "$1" "$current"
+}
+
+purge() {
+	local dir keep counter file
+
+	dir="$(dirname "$dest")"
+	keep=8
+	counter=0
+
+	while IFS= read -r file; do
+		[ -n "$file" ] || continue
+
+		counter=$((counter + 1))
+		[ "$counter" -le "$keep" ] && continue
+
+		rm -f "$file"
+	done < <(ls -1t "$dir"/art-*.img 2>/dev/null || true)
+
+	find "$dir" -maxdepth 1 -type f -name 'art-*.img' -mmin +1440 -delete 2>/dev/null || true
+}
 
 download() {
 	local url="$1"
@@ -18,7 +43,13 @@ download() {
 
 	if curl -sfL --max-time 12 -o "$dest.part" "$url"; then
 		if [ -s "$dest.part" ]; then
+			if same_as_shown "$dest.part"; then
+				rm -f "$dest.part"
+				exit 2
+			fi
+
 			mv -f "$dest.part" "$dest"
+			purge
 			return 0
 		fi
 	fi
@@ -35,8 +66,18 @@ local_image() {
 	esac
 
 	if [ -f "$src" ]; then
-		cp -f "$src" "$dest"
-		return 0
+		if cp -f "$src" "$dest.part" 2>/dev/null && [ -s "$dest.part" ]; then
+			if same_as_shown "$dest.part"; then
+				rm -f "$dest.part"
+				exit 2
+			fi
+
+			mv -f "$dest.part" "$dest"
+			purge
+			return 0
+		fi
+
+		rm -f "$dest.part"
 	fi
 
 	return 1
@@ -65,6 +106,19 @@ if [ -n "$artist" ] || [ -n "$title" ]; then
 		high="${candidate/100x100bb/1200x1200bb}"
 		download "$high" && exit 0
 	done
+fi
+
+if [ -n "$art" ]; then
+	case "$art" in
+		http*) download "$art" && exit 0 ;;
+		*)
+			src="${art#file://}"
+
+			if [ -f "$src" ] && [ "$(stat -c %s "$src" 2>/dev/null || echo 0)" -ge 8192 ]; then
+				local_image "$art" && exit 0
+			fi
+			;;
+	esac
 fi
 
 case "$art" in

@@ -14,21 +14,44 @@ PanelWindow {
 		id: theme
 	}
 
-	property bool hovered: false
+	readonly property bool hovered: cardHover.hovered || playHover.hovered
+		|| previousHover.hovered || nextHover.hovered
+		|| lyricsHover.hovered || gridHover.hovered || trackHover.hovered
 	property bool expanded: false
 	property var wallpapers: []
 	property var wallThumbs: ({})
 	property var wallPreviews: ({})
 	property bool wallpaperTool: false
 	property string previewWallpaper: ""
+	property string hoveredWallpaper: ""
 
 	property var lyrics: []
-	property bool syncedLyrics: false
+	property bool syncedLyrics: true
 	property bool lyricsWanted: false
+	property string lyricsKey: ""
+	property string lyricsFetchKey: ""
+	property string lyricsLoadedKey: ""
 	property bool artWanted: false
 	property real lookupDuration: 0
 	property int activeLyric: -1
 	property bool showLyrics: false
+	property real lyricsOffset: 0
+	property real lyricsSyncOffset: 0
+	property real lyricsMix: panel.showLyrics ? 1 : 0
+	readonly property real lyricsFade: Math.max(0, Math.min(1, panel.lyricsMix))
+	readonly property real lyricsBlur: Math.sin(Math.PI * panel.lyricsFade)
+
+	Behavior on lyricsMix {
+		SpringAnimation {
+			spring: 2.9
+			damping: 0.25
+			mass: 1
+			epsilon: 0.0008
+		}
+	}
+
+	property real playerOffsetX: 3
+	property real playerOffsetY: 0
 	property bool contentVisible: false
 	property bool surfaceVisible: false
 	property real anchorWidth: 210
@@ -42,6 +65,7 @@ PanelWindow {
 			contentTimer.restart()
 		} else {
 			panel.contentVisible = false
+			panel.hoveredWallpaper = ""
 			surfaceTimer.restart()
 		}
 	}
@@ -87,21 +111,79 @@ PanelWindow {
 		return panel.wallpaperIsAnimated(path)
 	}
 
+	function updateWallpaperHover(pos): void {
+		if (!panel.expanded || panel.wallpapers.length === 0) return
+
+		var cw = grid.cellWidth
+		var ch = grid.cellHeight
+
+		if (cw <= 0 || ch <= 0) return
+
+		var columns = Math.max(1, Math.floor(grid.width / cw))
+		var col = Math.floor((grid.contentX + pos.x) / cw)
+		var row = Math.floor((grid.contentY + pos.y) / ch)
+		var index = row * columns + col
+
+		if (col < 0 || col >= columns || index < 0 || index >= panel.wallpapers.length) {
+			panel.hoveredWallpaper = ""
+			return
+		}
+
+		var path = panel.wallpapers[index]
+
+		if (panel.hoveredWallpaper === path) return
+
+		panel.hoveredWallpaper = path
+		panel.previewWallpaper = path
+	}
+
 	property int artVersion: 0
 	property string artSource: ""
+	property string artFetchKey: ""
+	property string artShownFile: ""
+	property int artRetries: 0
 
-	readonly property string artCachePath: Quickshell.env("HOME") + "/.cache/moxi-artwork"
+	readonly property string artCachePath: Quickshell.env("HOME") + "/.cache/moxi/art"
+	readonly property string artCacheKey: {
+		var source = panel.trackArtist + "|" + panel.trackTitle + "|" + panel.trackAlbum + "|" + panel.trackUrl + "|" + panel.artUrl
+		var hash = 5381
+
+		for (var i = 0; i < source.length; ++i) hash = ((hash * 33) ^ source.charCodeAt(i)) >>> 0
+
+		return hash.toString(16)
+	}
+	readonly property string artCacheFile: panel.artCachePath + "/art-" + panel.artCacheKey + ".img"
 
 	readonly property color accent: theme.accent
 	readonly property color foreground: theme.foreground
 	readonly property color muted: theme.muted
 	readonly property color idle: theme.idle
 	readonly property string fontFamily: momo.status === FontLoader.Ready ? momo.name : ""
+	readonly property string cyrillicFont: ruFont.status === FontLoader.Ready ? ruFont.name : panel.fontFamily
+	readonly property string japaneseFont: jpFont.status === FontLoader.Ready ? jpFont.name : panel.fontFamily
+	readonly property string koreanFont: krFont.status === FontLoader.Ready ? krFont.name : panel.fontFamily
 	readonly property string symbolDir: Quickshell.env("HOME") + "/.config/quickshell/moxi/assets/symbols/"
-	readonly property string glyphFont: Qt.fontFamilies().indexOf("SF Symbols") !== -1 ? "SF Symbols" : "Symbols Nerd Font"
+
+	function lyricFont(text): string {
+		var value = "" + text
+
+		if (/[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318F]/.test(value)) return panel.koreanFont
+		if (/[\u3040-\u30FF\u31F0-\u31FF\u4E00-\u9FFF\uF900-\uFAFF]/.test(value)) return panel.japaneseFont
+		if (/[\u0400-\u04FF\u0500-\u052F]/.test(value)) return panel.cyrillicFont
+
+		return panel.fontFamily
+	}
+
+	function lyricWeight(text, active): int {
+		if (panel.lyricFont(text) !== panel.fontFamily) return Font.ExtraBold
+
+		return active ? Font.DemiBold : Font.Normal
+	}
 
 	property real cornerRadius: panel.expanded ? 30 : panel.anchorHeight / 2
 	readonly property real cornerPower: 4
+
+	readonly property real playerSideWidth: Math.max(180, Math.round((layout.width - 422) / 2))
 
 	Behavior on cornerRadius {
 		NumberAnimation {
@@ -148,6 +230,8 @@ PanelWindow {
 	property bool positionFallback: false
 	property bool positionTrusted: false
 	property bool seekSettling: false
+	property real seekTarget: -1
+	property double seekAt: 0
 	property real trustBase: -1
 	property real lastReported: -1
 	property int stallTicks: 0
@@ -207,11 +291,14 @@ PanelWindow {
 		return result
 	}
 
-	function applyLyrics(payload): void {
-		panel.lyrics = []
-		panel.syncedLyrics = false
-		panel.activeLyric = -1
+	function normKey(value): string {
+		var raw = ("" + value).toLowerCase()
+		var clean = raw.replace(/[^a-z0-9]+/g, "")
 
+		return clean.length > 0 ? clean : raw
+	}
+
+	function applyLyrics(payload): void {
 		if (!payload || payload.length === 0) return
 
 		var data = null
@@ -222,25 +309,40 @@ PanelWindow {
 		}
 
 		if (!data) return
+		if (panel.lyricsFetchKey !== panel.lyricsKey) return
 
 		if (data.duration && data.duration > 0) panel.lookupDuration = data.duration
 
-		if (data.syncedLyrics && data.syncedLyrics.length > 0) {
+		var hasSynced = data.syncedLyrics && data.syncedLyrics.length > 0
+		var hasPlain = data.plainLyrics && data.plainLyrics.length > 0
+
+		if (!hasSynced && !hasPlain) {
+			panel.lyrics = []
+			panel.lyricsLoadedKey = ""
+
+			return
+		}
+
+		if (hasSynced) {
 			var parsed = panel.parseLyrics(data.syncedLyrics)
 
 			if (parsed.length > 0) {
 				panel.lyrics = parsed
 				panel.syncedLyrics = true
+				panel.lyricsLoadedKey = panel.lyricsKey
 				panel.showLyrics = true
 				panel.updateActiveLyric()
 				return
 			}
 		}
 
-		if (data.plainLyrics && data.plainLyrics.length > 0) {
+		if (hasPlain) {
 			panel.lyrics = data.plainLyrics.split("\n").map(function(line) {
 				return { time: -1, text: line }
 			})
+			panel.syncedLyrics = false
+			panel.activeLyric = -1
+			panel.lyricsLoadedKey = panel.lyricsKey
 			panel.showLyrics = true
 		}
 	}
@@ -251,7 +353,7 @@ PanelWindow {
 			return
 		}
 
-		var position = panel.trackPosition
+		var position = panel.trackPosition + panel.lyricsSyncOffset
 		var index = -1
 
 		for (var i = 0; i < panel.lyrics.length; ++i) {
@@ -273,6 +375,8 @@ PanelWindow {
 		panel.progressFast = true
 		progressFastTimer.restart()
 		panel.seekSettling = true
+		panel.seekTarget = seconds
+		panel.seekAt = Date.now()
 		seekSettleTimer.restart()
 		lyricsView.manual = false
 		panel.updateActiveLyric()
@@ -280,6 +384,9 @@ PanelWindow {
 
 	function fetchLyrics(): void {
 		if (panel.trackTitle.length === 0) return
+		if (panel.lyrics.length > 0 && panel.lyricsLoadedKey === panel.lyricsKey) return
+
+		panel.lyricsFetchKey = panel.lyricsKey
 
 		if (lyricsFetch.running) {
 			panel.lyricsWanted = true
@@ -294,6 +401,8 @@ PanelWindow {
 	function fetchArtwork(): void {
 		if (panel.artUrl.length === 0) return
 
+		panel.artFetchKey = panel.artCacheKey
+
 		if (artCache.running) {
 			panel.artWanted = true
 			artCache.running = false
@@ -302,6 +411,11 @@ PanelWindow {
 
 		panel.artWanted = false
 		artCache.running = true
+	}
+
+	function scheduleArt(delay): void {
+		artDebounce.interval = delay
+		artDebounce.restart()
 	}
 
 	Timer {
@@ -314,8 +428,13 @@ PanelWindow {
 	Timer {
 		id: seekSettleTimer
 
-		interval: 900
-		onTriggered: panel.seekSettling = false
+		interval: 2500
+		onTriggered: {
+			panel.seekSettling = false
+			panel.seekTarget = -1
+			panel.trustBase = -1
+			panel.positionTrusted = false
+		}
 	}
 
 	Timer {
@@ -323,6 +442,13 @@ PanelWindow {
 
 		interval: 700
 		onTriggered: panel.fetchLyrics()
+	}
+
+	Timer {
+		id: artDebounce
+
+		interval: 180
+		onTriggered: panel.fetchArtwork()
 	}
 
 	Timer {
@@ -340,6 +466,21 @@ PanelWindow {
 	FontLoader {
 		id: momo
 		source: "../fonts/momotrust.ttf"
+	}
+
+	FontLoader {
+		id: ruFont
+		source: "../fonts/NotoSans-ExtraBold-RU.ttf"
+	}
+
+	FontLoader {
+		id: jpFont
+		source: "../fonts/NotoSansJP-ExtraBold.ttf"
+	}
+
+	FontLoader {
+		id: krFont
+		source: "../fonts/NotoSansKR-ExtraBold.ttf"
 	}
 
 	anchors {
@@ -391,11 +532,22 @@ PanelWindow {
 
 			panel.lastReported = reported
 
-			if (panel.seekSettling) {
-				if (Math.abs(reported - panel.trackPosition) < 1.5) {
+			if (panel.seekTarget >= 0) {
+				if (Math.abs(reported - panel.seekTarget) < 1.5) {
+					panel.seekTarget = -1
 					panel.seekSettling = false
 					seekSettleTimer.stop()
+
+					return
 				}
+
+				if (Date.now() - panel.seekAt < 2200) return
+
+				panel.seekTarget = -1
+				panel.seekSettling = false
+				seekSettleTimer.stop()
+				panel.trustBase = -1
+				panel.positionTrusted = false
 
 				return
 			}
@@ -445,6 +597,11 @@ PanelWindow {
 	}
 
 	onTrackKeyChanged: {
+		var key = panel.normKey(panel.trackKey)
+
+		if (key === panel.lyricsKey) return
+
+		panel.lyricsKey = key
 		panel.trackPosition = 0
 		panel.positionFallback = false
 		panel.positionTrusted = false
@@ -454,18 +611,21 @@ PanelWindow {
 		panel.progressFast = true
 		progressFastTimer.restart()
 		panel.seekSettling = false
+		panel.seekTarget = -1
 		seekSettleTimer.stop()
 		panel.lookupDuration = 0
-		panel.lyrics = []
 		panel.syncedLyrics = false
 		panel.activeLyric = -1
 		panel.showLyrics = false
+		panel.lyricsLoadedKey = ""
+		panel.lyricsFetchKey = ""
 
 		if (panel.trackTitle.length > 0) lyricsDebounce.restart()
-		if (panel.artUrl.length > 0) panel.fetchArtwork()
+		panel.artRetries = 0
+		if (panel.artUrl.length > 0) panel.scheduleArt(80)
 	}
 
-	onArtUrlChanged: if (panel.artUrl.length > 0) panel.fetchArtwork()
+	onArtUrlChanged: if (panel.artUrl.length > 0) panel.scheduleArt(80)
 
 	onActiveLyricChanged: lyricsView.scrollToActive()
 
@@ -503,6 +663,7 @@ PanelWindow {
 			if (running || !panel.lyricsWanted) return
 
 			panel.lyricsWanted = false
+			panel.lyricsFetchKey = panel.lyricsKey
 			lyricsFetch.running = true
 		}
 	}
@@ -516,20 +677,43 @@ PanelWindow {
 			panel.trackUrl,
 			panel.trackArtist,
 			panel.trackTitle,
-			panel.artCachePath
+			panel.artCacheFile,
+			panel.artShownFile
 		]
 
 		onExited: (code, status) => {
+			if (panel.artFetchKey !== panel.artCacheKey) return
+
+			if (code === 2) {
+				if (panel.artRetries < 6) {
+					panel.artRetries = panel.artRetries + 1
+					panel.scheduleArt(200)
+
+					return
+				}
+
+				panel.artRetries = 0
+
+				return
+			}
+
+			panel.artRetries = 0
 			panel.artVersion = panel.artVersion + 1
 
-			if (code === 0) panel.artSource = "file://" + panel.artCachePath + "?v=" + panel.artVersion
-			else panel.artSource = panel.artUrl
+			if (code === 0) {
+				panel.artShownFile = panel.artCacheFile
+				panel.artSource = "file://" + panel.artCacheFile + "?v=" + panel.artVersion
+			} else if (artwork.shown.length === 0 && panel.artUrl.length > 0) {
+				panel.artShownFile = ""
+				panel.artSource = panel.artUrl
+			}
 		}
 
 		onRunningChanged: {
 			if (running || !panel.artWanted) return
 
 			panel.artWanted = false
+			panel.artFetchKey = panel.artCacheKey
 			artCache.running = true
 		}
 	}
@@ -540,6 +724,7 @@ PanelWindow {
 		property var found: []
 		property var thumbs: ({})
 		property var previews: ({})
+		property string signature: ""
 
 		command: [
 			"bash",
@@ -563,9 +748,15 @@ PanelWindow {
 		}
 
 		onExited: {
-			panel.wallpapers = scan.found
-			panel.wallThumbs = scan.thumbs
-			panel.wallPreviews = scan.previews
+			var signature = scan.found.join("\n") + "|" + JSON.stringify(scan.thumbs) + "|" + JSON.stringify(scan.previews)
+
+			if (signature !== scan.signature) {
+				scan.signature = signature
+				panel.wallpapers = scan.found
+				panel.wallThumbs = scan.thumbs
+				panel.wallPreviews = scan.previews
+			}
+
 			scan.found = []
 			scan.thumbs = ({})
 			scan.previews = ({})
@@ -619,6 +810,11 @@ PanelWindow {
 
 	Item {
 		id: cardHost
+
+		HoverHandler {
+			id: cardHover
+			blocking: false
+		}
 
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.top: parent.top
@@ -690,7 +886,7 @@ PanelWindow {
 				Calendar {
 					id: calendar
 
-					Layout.fillWidth: true
+					Layout.preferredWidth: panel.playerSideWidth
 					Layout.fillHeight: true
 					accent: panel.accent
 					foreground: panel.foreground
@@ -717,58 +913,148 @@ PanelWindow {
 						height: 170
 						color: "transparent"
 
-						SquircleImage {
+						Item {
 							id: artwork
 
 							anchors.fill: parent
 							anchors.margins: 2
-							source: panel.artSource.length > 0 ? panel.artSource : panel.artUrl
-							radius: 26
-							power: 4
-							sourceWidth: 400
-							sourceHeight: 400
+							clip: true
 							visible: opacity > 0.01
-							opacity: artwork.ready && !panel.showLyrics ? 1 : 0
-							scale: panel.showLyrics ? 0.94 : 1
-
-							Behavior on scale {
-								NumberAnimation {
-									duration: 320
-									easing.type: Easing.OutCubic
-								}
+							opacity: artwork.ready ? 1 - panel.lyricsFade : 0
+							scale: 1 - 0.06 * panel.lyricsFade
+							layer.enabled: true
+							layer.effect: MultiEffect {
+								maskEnabled: true
+								maskSource: artworkMask
+								blurEnabled: panel.lyricsBlur > 0.01
+								blur: panel.lyricsBlur
+								blurMax: 20
+								autoPaddingEnabled: true
 							}
 
-							Behavior on opacity {
-								NumberAnimation {
-									duration: 320
-									easing.type: Easing.OutCubic
-								}
+							Squircle {
+								id: artworkMask
+
+								anchors.fill: parent
+								visible: false
+								layer.enabled: true
+								radius: 26
+								power: 4
+								fillColor: "white"
+							}
+
+							readonly property bool ready: artworkIn.ready || artworkOut.ready
+							property string shown: ""
+							property string incoming: ""
+							property bool pending: false
+							property real swapDir: 1
+
+							function artSourceNow(): string {
+								return panel.artSource.length > 0 ? panel.artSource : panel.artUrl
+							}
+
+							function swap(dir): void {
+								var next = artwork.artSourceNow()
+
+								if (next === artwork.shown && !artwork.pending) return
+								if (next === artwork.incoming) return
+
+								artwork.swapDir = dir
+								artwork.incoming = next
+								artwork.pending = true
+								artwork.maybeStart()
+							}
+
+							function maybeStart(): void {
+								if (!artwork.pending) return
+								if (artwork.incoming.length > 0 && !artworkIn.ready) return
+
+								artwork.pending = false
+								artworkOut.source = artwork.shown
+								artworkOut.x = 0
+								artworkOut.opacity = artwork.shown.length > 0 ? 1 : 0
+								artworkIn.x = 170 * artwork.swapDir
+								artSwap.restart()
+							}
+
+							function finish(): void {
+								artwork.shown = artwork.incoming
+								artworkOut.source = artwork.shown
+								artworkOut.x = 0
+								artworkOut.opacity = 1
+								artworkIn.x = 0
+								artworkIn.opacity = 1
 							}
 
 							Connections {
 								target: panel
 
 								function onArtUrlChanged() {
-									artFade.restart()
+									artwork.swap(playButton.transportDir !== 0 ? playButton.transportDir : 1)
+								}
+
+								function onArtSourceChanged() {
+									artwork.swap(playButton.transportDir !== 0 ? playButton.transportDir : 1)
 								}
 							}
 
-							SequentialAnimation {
-								id: artFade
+							Connections {
+								target: artworkIn
 
-								NumberAnimation {
-									target: artwork
-									property: "imageScale"
-									to: 0.95
-									duration: 110
+								function onReadyChanged() {
+									artwork.maybeStart()
 								}
-								NumberAnimation {
-									target: artwork
-									property: "imageScale"
-									to: 1
-									duration: 190
-									easing.type: Easing.OutCubic
+							}
+
+							SquircleImage {
+								id: artworkOut
+
+								x: 0
+								y: 0
+								width: parent.width
+								height: parent.height
+								radius: 26
+								power: 4
+								sourceWidth: 400
+								sourceHeight: 400
+							}
+
+							SquircleImage {
+								id: artworkIn
+
+								x: 0
+								y: 0
+								width: parent.width
+								height: parent.height
+								source: artwork.incoming
+								radius: 26
+								power: 4
+								sourceWidth: 400
+								sourceHeight: 400
+							}
+
+							SequentialAnimation {
+								id: artSwap
+
+								ParallelAnimation {
+									NumberAnimation {
+										target: artworkOut
+										property: "x"
+										to: -170 * artwork.swapDir
+										duration: 320
+										easing.type: Easing.OutCubic
+									}
+									NumberAnimation {
+										target: artworkIn
+										property: "x"
+										from: 170 * artwork.swapDir
+										to: 0
+										duration: 320
+										easing.type: Easing.OutCubic
+									}
 								}
+
+								onFinished: artwork.finish()
 							}
 						}
 
@@ -776,29 +1062,31 @@ PanelWindow {
 						ListView {
 							id: lyricsView
 
-							anchors.fill: parent
-							anchors.margins: 10
-							clip: true
-							spacing: 5
-							model: panel.lyrics
-							visible: opacity > 0.01
-							opacity: panel.showLyrics ? 1 : 0
-							boundsBehavior: Flickable.StopAtBounds
-							pixelAligned: false
-							cacheBuffer: 2400
-							property bool manual: false
-							layer.enabled: lyricsView.opacity > 0.01
-							layer.effect: MultiEffect {
-								maskEnabled: true
-								maskSource: lyricsSharpMask
-							}
-
-							Behavior on opacity {
-								NumberAnimation {
-									duration: 260
-									easing.type: Easing.OutCubic
-								}
-							}
+						anchors.top: parent.top
+						anchors.bottom: parent.bottom
+						anchors.topMargin: 6 + panel.lyricsOffset
+						anchors.bottomMargin: 6 - panel.lyricsOffset
+						anchors.horizontalCenter: parent.horizontalCenter
+						anchors.horizontalCenterOffset: 20 // lyricsbox left pos
+						width: 310
+						transformOrigin: Item.Center
+						scale: 0.92 + 0.08 * panel.lyricsFade
+						clip: true
+						spacing: 4
+						model: panel.lyrics
+						visible: opacity > 0.01
+						opacity: panel.lyricsFade
+						boundsBehavior: Flickable.StopAtBounds
+						pixelAligned: false
+						cacheBuffer: 2400
+						property bool manual: false
+						layer.enabled: panel.lyricsBlur > 0.01
+						layer.effect: MultiEffect {
+							blurEnabled: true
+							blur: panel.lyricsBlur
+							blurMax: 20
+							autoPaddingEnabled: true
+						}
 
 							function scrollToActive() {
 								if (!panel.syncedLyrics || panel.activeLyric < 0 || manual) return
@@ -814,11 +1102,28 @@ PanelWindow {
 									return
 								}
 
-								scrollAnimation.to = Math.max(
-									0,
-									Math.min(contentHeight - height, entry.y - (height - entry.height) / 2)
-								)
+								scrollAnimation.to = snapped(entry.y - (height - entry.height) / 2)
 								scrollAnimation.restart()
+							}
+
+							function snapped(target): real {
+								var best = target
+								var bestDelta = -1
+
+								for (var i = 0; i < count; ++i) {
+									var item = itemAtIndex(i)
+
+									if (!item) continue
+
+									var delta = Math.abs(item.y - target)
+
+									if (bestDelta < 0 || delta < bestDelta) {
+										bestDelta = delta
+										best = item.y
+									}
+								}
+
+								return Math.max(0, Math.min(contentHeight - height, best))
 							}
 
 							function glideBy(delta): void {
@@ -847,13 +1152,14 @@ PanelWindow {
 
 								target: lyricsView
 								property: "contentY"
-								duration: 620
-								easing.type: Easing.InOutCubic
+								duration: 420
+								easing.type: Easing.Bezier
+								easing.bezierCurve: [0.32, 0.72, 0, 1]
 							}
 
 							Timer {
 								id: resumeTimer
-								interval: 8000
+								interval: 3500
 
 								onTriggered: {
 									lyricsView.manual = false
@@ -867,16 +1173,38 @@ PanelWindow {
 								required property var modelData
 								required property int index
 
-								width: ListView.view.width
+								x: 20
+								width: ListView.view.width - 40
 								text: modelData.text
 								color: index === panel.activeLyric
 									? panel.accent
 									: lineMouse.containsMouse ? panel.foreground : panel.muted
-								font.family: panel.fontFamily
+								font.family: panel.lyricFont(modelData.text)
 								font.pixelSize: 12
-								font.weight: index === panel.activeLyric ? Font.DemiBold : Font.Normal
+								font.weight: panel.lyricWeight(modelData.text, false)
 								horizontalAlignment: Text.AlignHCenter
 								wrapMode: Text.WordWrap
+								transformOrigin: Item.Center
+								scale: index === panel.activeLyric ? 1.04 : 0.97
+
+								Behavior on scale {
+									NumberAnimation {
+										duration: 300
+										easing.type: Easing.Bezier
+										easing.bezierCurve: [0.32, 0.72, 0, 1]
+									}
+								}
+
+								layer.enabled: index === panel.activeLyric
+								layer.effect: MultiEffect {
+									shadowEnabled: true
+									shadowColor: panel.accent
+									shadowBlur: 0.7
+									shadowOpacity: 0.9
+									shadowHorizontalOffset: 0
+									shadowVerticalOffset: 0
+									autoPaddingEnabled: true
+								}
 
 								Behavior on color {
 									ColorAnimation { duration: 160 }
@@ -894,27 +1222,10 @@ PanelWindow {
 							}
 						}
 
-						Item {
-							id: lyricsSharpMask
-
-							anchors.fill: lyricsView
-							visible: false
-							layer.enabled: true
-
-							Rectangle {
-								anchors.fill: parent
-								gradient: Gradient {
-									GradientStop { position: 0.0; color: "#00ffffff" }
-									GradientStop { position: 0.3; color: "#ffffffff" }
-									GradientStop { position: 0.7; color: "#ffffffff" }
-									GradientStop { position: 1.0; color: "#00ffffff" }
-								}
-							}
-						}
-
 						Text {
 							anchors.centerIn: parent
-							visible: panel.showLyrics && panel.lyrics.length === 0
+							visible: opacity > 0.01
+							opacity: panel.showLyrics && panel.lyrics.length === 0 ? panel.lyricsFade : 0
 							color: panel.muted
 							font.family: panel.fontFamily
 							font.pixelSize: 12
@@ -923,7 +1234,8 @@ PanelWindow {
 
 						Text {
 							anchors.centerIn: parent
-							visible: !panel.showLyrics && !artwork.ready
+							visible: opacity > 0.01
+							opacity: artwork.ready ? 0 : 1 - panel.lyricsFade
 							color: panel.muted
 							font.family: panel.fontFamily
 							font.pixelSize: 12
@@ -941,9 +1253,9 @@ PanelWindow {
 						anchors.right: parent.right
 						color: panel.foreground
 						elide: Text.ElideRight
-						font.family: panel.fontFamily
+						font.family: panel.lyricFont(title.text)
 						font.pixelSize: 15
-						font.weight: Font.DemiBold
+						font.weight: panel.lyricWeight(title.text, true)
 						horizontalAlignment: Text.AlignHCenter
 						text: panel.trackTitle.length > 0 ? panel.trackTitle : "play sum shii-"
 						wrapMode: Text.NoWrap
@@ -958,8 +1270,9 @@ PanelWindow {
 						anchors.right: parent.right
 						color: panel.trackArtist.length > 0 ? panel.accent : panel.muted
 						elide: Text.ElideRight
-						font.family: panel.fontFamily
+						font.family: panel.lyricFont(artist.text)
 						font.pixelSize: 13
+						font.weight: panel.lyricWeight(artist.text, false)
 						horizontalAlignment: Text.AlignHCenter
 						text: panel.trackArtist.length > 0
 							? panel.trackArtist
@@ -978,9 +1291,10 @@ PanelWindow {
 
 						property bool hovered: false
 						property bool dragging: false
+						property real dragBase: 0
 
 						function preview(x): void {
-							if (!panel.hasPlayer || !panel.player.canSeek || panel.trackDuration <= 0) return
+							if (!panel.hasPlayer || panel.trackDuration <= 0) return
 
 							var ratio = Math.max(0, Math.min(1, x / width))
 
@@ -990,6 +1304,16 @@ PanelWindow {
 						}
 
 						function commit(): void {
+							if (!panel.hasPlayer || !panel.player.canSeek) {
+								panel.trackPosition = progressTrack.dragBase
+								panel.dragPosition = progressTrack.dragBase
+								panel.lastReported = -1
+								panel.trustBase = -1
+								panel.positionTrusted = false
+
+								return
+							}
+
 							panel.seekTo(panel.dragPosition)
 						}
 
@@ -1077,6 +1401,7 @@ PanelWindow {
 							hoverEnabled: true
 							cursorShape: panel.player && panel.player.canSeek && panel.trackDuration > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
 							onPressed: (mouse) => {
+								progressTrack.dragBase = panel.trackPosition
 								progressTrack.dragging = true
 								progressTrack.preview(mouse.x)
 							}
@@ -1125,64 +1450,95 @@ PanelWindow {
 						id: controls
 
 						anchors.top: elapsed.bottom
-						anchors.topMargin: 14
-						anchors.horizontalCenter: parent.horizontalCenter
-						spacing: 18
+						anchors.topMargin: 14 + panel.playerOffsetY
+						x: Math.round((parent.width - width) / 2) + panel.playerOffsetX
+						spacing: 10
 
 						Item {
-							width: 48
-							height: 48
+							id: previousButton
 
-							Rectangle {
-								anchors.fill: parent
-								radius: 24
-								color: previousArea.containsMouse ? theme.idle : "transparent"
+							width: 56
+							height: 56
 
-								Behavior on color {
-									ColorAnimation { duration: 140 }
+							property real swipe: 0
+
+							HoverHandler {
+								id: previousHover
+								cursorShape: Qt.PointingHandCursor
+							}
+
+							TapHandler {
+								onTapped: {
+									if (!panel.hasPlayer || !panel.player.canGoPrevious) return
+
+									playButton.transportDir = -1
+									playButton.transportAt = Date.now()
+									previousSwipe.restart()
+									panel.player.previous()
 								}
 							}
 
 							Image {
 								anchors.centerIn: parent
-								anchors.verticalCenterOffset: 1
-								width: 30
-								height: 30
+								anchors.horizontalCenterOffset: previousButton.swipe
+								width: 34
+								height: 34
 								source: "file://" + panel.symbolDir + "previous-fg.svg"
-								sourceSize.width: 60
-								sourceSize.height: 60
+								sourceSize.width: 68
+								sourceSize.height: 68
 									layer.enabled: true
 									layer.effect: MultiEffect {
 										colorization: 1
 										colorizationColor: theme.accent
-									}
+										autoPaddingEnabled: false
+								}
 								fillMode: Image.PreserveAspectFit
 								asynchronous: true
-								opacity: panel.hasPlayer && panel.player.canGoPrevious ? 1 : 0.4
-
-								Behavior on opacity {
-									NumberAnimation { duration: 140 }
-								}
+								opacity: (panel.hasPlayer && panel.player.canGoPrevious ? 1 : 0.4)
+									* (1 - Math.min(1, Math.abs(previousButton.swipe) / 20))
 							}
 
-							MouseArea {
-								id: previousArea
+							SequentialAnimation {
+								id: previousSwipe
 
-								anchors.fill: parent
-								hoverEnabled: true
-								cursorShape: Qt.PointingHandCursor
-								onClicked: if (panel.hasPlayer && panel.player.canGoPrevious) panel.player.previous()
+								NumberAnimation {
+									target: previousButton
+									property: "swipe"
+									to: -20
+									duration: 180
+									easing.type: Easing.OutBack
+								}
+								PropertyAction {
+									target: previousButton
+									property: "swipe"
+									value: 20
+								}
+								NumberAnimation {
+									target: previousButton
+									property: "swipe"
+									to: 0
+									duration: 300
+									easing.type: Easing.OutBack
+								}
+								onFinished: previousButton.swipe = 0
 							}
 						}
 
 						Item {
-							width: 48
-							height: 48
+							id: playButton
+
+							width: 56
+							height: 56
+
+							property real swipe: 0
+							property real swipeDir: 1
+							property int transportDir: 0
+							property double transportAt: 0
 
 							Rectangle {
 								anchors.fill: parent
-								radius: 24
-								color: playArea.containsMouse
+								radius: 28
+								color: playHover.hovered
 									? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.3)
 									: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.18)
 
@@ -1191,76 +1547,172 @@ PanelWindow {
 								}
 							}
 
+							HoverHandler {
+								id: playHover
+								cursorShape: Qt.PointingHandCursor
+							}
+
+							TapHandler {
+								onTapped: panel.togglePlayback()
+							}
+
+							Connections {
+								target: panel
+
+								function onPlayingChanged(): void {
+									var recent = Date.now() - playButton.transportAt < 900
+
+									playButton.swipeDir = (recent && playButton.transportDir !== 0)
+										? playButton.transportDir
+										: (panel.playing ? 1 : -1)
+									playSwipe.restart()
+								}
+							}
+
+							SequentialAnimation {
+								id: playSwipe
+
+								NumberAnimation {
+									target: playButton
+									property: "swipe"
+									to: playButton.swipeDir * 20
+									duration: 180
+									easing.type: Easing.OutBack
+								}
+								PropertyAction {
+									target: playButton
+									property: "swipe"
+									value: -playButton.swipeDir * 20
+								}
+								NumberAnimation {
+									target: playButton
+									property: "swipe"
+									to: 0
+									duration: 300
+									easing.type: Easing.OutBack
+								}
+								onFinished: playButton.swipe = 0
+							}
+
 							Image {
+								id: playIcon
+
 								anchors.centerIn: parent
-								anchors.horizontalCenterOffset: panel.playing ? 0 : 2
-								width: 24
-								height: 24
-								source: "file://" + panel.symbolDir + (panel.playing ? "pause-fg.svg" : "play-fg.svg")
-								sourceSize.width: 48
-								sourceSize.height: 48
+								anchors.horizontalCenterOffset: playButton.swipe + 2.4
+								opacity: 1 - Math.min(1, Math.abs(playButton.swipe) / 20)
+								width: 28
+								height: 28
+								visible: !panel.playing
+								source: "file://" + panel.symbolDir + "play-fg.svg"
+								sourceSize.width: 56
+								sourceSize.height: 56
 									layer.enabled: true
 									layer.effect: MultiEffect {
 										colorization: 1
 										colorizationColor: theme.accent
+										autoPaddingEnabled: false
 									}
 								fillMode: Image.PreserveAspectFit
 								asynchronous: true
 							}
 
-							MouseArea {
-								id: playArea
+							Item {
+								id: pauseIcon
 
-								anchors.fill: parent
-								hoverEnabled: true
-								cursorShape: Qt.PointingHandCursor
-								onClicked: panel.togglePlayback()
+								anchors.centerIn: parent
+								anchors.horizontalCenterOffset: playButton.swipe
+								width: 22
+								height: 30
+								visible: panel.playing
+								opacity: 1 - Math.min(1, Math.abs(playButton.swipe) / 20)
+
+								Rectangle {
+									anchors.left: parent.left
+									anchors.verticalCenter: parent.verticalCenter
+									width: 9
+									height: 30
+									radius: 2
+									color: theme.accent
+								}
+
+								Rectangle {
+									anchors.right: parent.right
+									anchors.verticalCenter: parent.verticalCenter
+									width: 9
+									height: 30
+									radius: 2
+									color: theme.accent
+								}
 							}
 						}
 
 						Item {
-							width: 48
-							height: 48
+							id: nextButton
 
-							Rectangle {
-								anchors.fill: parent
-								radius: 24
-								color: nextArea.containsMouse ? theme.idle : "transparent"
+							width: 56
+							height: 56
 
-								Behavior on color {
-									ColorAnimation { duration: 140 }
+							property real swipe: 0
+
+							HoverHandler {
+								id: nextHover
+								cursorShape: Qt.PointingHandCursor
+							}
+
+							TapHandler {
+								onTapped: {
+									if (!panel.hasPlayer || !panel.player.canGoNext) return
+
+									playButton.transportDir = 1
+									playButton.transportAt = Date.now()
+									nextSwipe.restart()
+									panel.player.next()
 								}
 							}
 
 							Image {
 								anchors.centerIn: parent
-								anchors.verticalCenterOffset: 1
-								width: 30
-								height: 30
+								anchors.horizontalCenterOffset: nextButton.swipe
+								width: 34
+								height: 34
 								source: "file://" + panel.symbolDir + "next-fg.svg"
-								sourceSize.width: 60
-								sourceSize.height: 60
+								sourceSize.width: 68
+								sourceSize.height: 68
 									layer.enabled: true
 									layer.effect: MultiEffect {
 										colorization: 1
 										colorizationColor: theme.accent
-									}
+										autoPaddingEnabled: false
+								}
 								fillMode: Image.PreserveAspectFit
 								asynchronous: true
-								opacity: panel.hasPlayer && panel.player.canGoNext ? 1 : 0.4
-
-								Behavior on opacity {
-									NumberAnimation { duration: 140 }
-								}
+								opacity: (panel.hasPlayer && panel.player.canGoNext ? 1 : 0.4)
+									* (1 - Math.min(1, Math.abs(nextButton.swipe) / 20))
 							}
 
-							MouseArea {
-								id: nextArea
+							SequentialAnimation {
+								id: nextSwipe
 
-								anchors.fill: parent
-								hoverEnabled: true
-								cursorShape: Qt.PointingHandCursor
-								onClicked: if (panel.hasPlayer && panel.player.canGoNext) panel.player.next()
+								NumberAnimation {
+									target: nextButton
+									property: "swipe"
+									to: 20
+									duration: 180
+									easing.type: Easing.OutBack
+								}
+								PropertyAction {
+									target: nextButton
+									property: "swipe"
+									value: -20
+								}
+								NumberAnimation {
+									target: nextButton
+									property: "swipe"
+									to: 0
+									duration: 300
+									easing.type: Easing.OutBack
+								}
+								onFinished: nextButton.swipe = 0
 							}
 						}
 					}
@@ -1269,29 +1721,103 @@ PanelWindow {
 						id: lyricsToggle
 
 						anchors.top: controls.bottom
-						anchors.topMargin: 12
-						anchors.horizontalCenter: parent.horizontalCenter
-						width: 35
-						height: 35
+						anchors.topMargin: 8.5
+						x: controls.x + Math.round((controls.width - width) / 2)
+						width: 36
+						height: 36
 						radius: 15
-						color: lyricsToggleArea.containsMouse
+						readonly property bool loading: panel.hasPlayer && panel.lyrics.length === 0 && (lyricsFetch.running || panel.lyricsWanted)
+						property bool pulseOn: false
+						transformOrigin: Item.Center
+						border.width: 1
+						border.color: Qt.rgba(theme.foreground.r, theme.foreground.g, theme.foreground.b, 0.08)
+						color: lyricsHover.hovered
 							? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.34)
-							: panel.showLyrics
+							: panel.showLyrics && panel.lyrics.length > 0
 								? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.22)
-								: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.78)
-						visible: panel.lyrics.length > 0
-						opacity: panel.expanded ? 1 : 0
+								: "transparent"
+						visible: panel.hasPlayer && (panel.lyrics.length > 0 || lyricsToggle.loading)
+						opacity: panel.expanded ? (lyricsToggle.loading ? 0.75 : 1) : 0
+
+						Behavior on opacity {
+							NumberAnimation {
+								duration: 260
+								easing.type: Easing.OutCubic
+							}
+						}
 
 						Behavior on color {
-							ColorAnimation { duration: 140 }
+							ColorAnimation { duration: 160 }
+						}
+
+						Behavior on border.color {
+							ColorAnimation { duration: 160 }
+						}
+
+						Timer {
+							interval: 700
+							repeat: true
+							running: lyricsToggle.loading
+							onTriggered: lyricsToggle.pulseOn = !lyricsToggle.pulseOn
+						}
+
+						NumberAnimation {
+							id: lyricsReveal
+
+							target: lyricsToggle
+							property: "scale"
+							from: 0.55
+							to: 1
+							duration: 460
+							easing.type: Easing.OutBack
+							easing.overshoot: 1.1
+						}
+
+						Connections {
+							target: panel
+
+							function onLyricsChanged(): void {
+								if (panel.lyrics.length > 0) lyricsReveal.restart()
+							}
+						}
+
+						SequentialAnimation {
+							id: lyricsPop
+
+							NumberAnimation {
+								target: lyricsToggle
+								property: "scale"
+								to: 1.08
+								duration: 140
+								easing.type: Easing.OutBack
+								easing.overshoot: 1.1
+							}
+							NumberAnimation {
+								target: lyricsToggle
+								property: "scale"
+								to: 1
+								duration: 300
+								easing.type: Easing.OutBack
+								easing.overshoot: 1.1
+							}
 						}
 
 						Image {
 							anchors.centerIn: parent
-							anchors.verticalCenterOffset: 0.8
-							width: 21
-							height: 21
+							anchors.horizontalCenterOffset: 0
+							anchors.verticalCenterOffset: 2
+							width: 24
+							height: 24
 							source: "file://" + panel.symbolDir + "quotes-fg.svg"
+							opacity: lyricsToggle.loading ? (lyricsToggle.pulseOn ? 0.35 : 0.85) : 1
+
+							Behavior on opacity {
+								NumberAnimation {
+									duration: 680
+									easing.type: Easing.InOutSine
+								}
+							}
+
 							sourceSize.width: 34
 							sourceSize.height: 34
 							fillMode: Image.PreserveAspectFit
@@ -1299,17 +1825,21 @@ PanelWindow {
 							layer.enabled: true
 							layer.effect: MultiEffect {
 								colorization: 1
-								colorizationColor: panel.accent
+								colorizationColor: panel.showLyrics && panel.lyrics.length > 0 ? panel.accent : panel.muted
+								autoPaddingEnabled: false
 							}
 						}
 
-						MouseArea {
-							id: lyricsToggleArea
-
-							anchors.fill: parent
-							hoverEnabled: true
+						HoverHandler {
+							id: lyricsHover
 							cursorShape: Qt.PointingHandCursor
-							onClicked: panel.showLyrics = !panel.showLyrics
+						}
+
+						TapHandler {
+							onTapped: {
+								lyricsPop.restart()
+								panel.showLyrics = !panel.showLyrics
+							}
 						}
 					}
 				}
@@ -1321,7 +1851,7 @@ PanelWindow {
 				}
 
 				Item {
-					Layout.preferredWidth: 250
+					Layout.preferredWidth: panel.playerSideWidth
 					Layout.fillHeight: true
 
 					Text {
@@ -1423,7 +1953,6 @@ PanelWindow {
 							sourceHeight: 320
 							opacity: previewFrame.ghostProgress
 							visible: previewFrame.ghostProgress > 0.001
-							scale: 1 + (1 - previewFrame.ghostProgress) * 0.05
 							playing: visible
 							layer.enabled: visible
 							layer.effect: MultiEffect {
@@ -1441,7 +1970,7 @@ PanelWindow {
 								property: "ghostProgress"
 								from: 1
 								to: 0
-								duration: 460
+								duration: 430
 								easing.type: Easing.OutCubic
 							}
 							NumberAnimation {
@@ -1449,7 +1978,7 @@ PanelWindow {
 								property: "scale"
 								from: 1.02
 								to: 1
-								duration: 520
+								duration: 430
 								easing.type: Easing.OutCubic
 							}
 						}
@@ -1468,14 +1997,53 @@ PanelWindow {
 						cellWidth: Math.max(1, Math.floor(width / 2))
 						cellHeight: Math.max(1, Math.floor(height / 2))
 						boundsBehavior: Flickable.StopAtBounds
+						flickDeceleration: 1400
+						maximumFlickVelocity: 2600
 						model: panel.wallpapers
+
+						HoverHandler {
+							id: gridHover
+
+							onPointChanged: panel.updateWallpaperHover(gridHover.point.position)
+							onHoveredChanged: if (!hovered) panel.hoveredWallpaper = ""
+						}
+
+						function glideBy(delta): void {
+							var maximum = Math.max(0, contentHeight - height)
+							var base = gridScrollAnimation.running ? gridScrollAnimation.to : contentY
+
+							gridScrollAnimation.to = Math.max(0, Math.min(maximum, base + delta))
+							gridScrollAnimation.restart()
+						}
+
+						NumberAnimation {
+							id: gridScrollAnimation
+
+							target: grid
+							property: "contentY"
+							duration: 300
+							easing.type: Easing.OutCubic
+						}
+
+						WheelHandler {
+							onWheel: (wheel) => {
+								var step = wheel.pixelDelta.y !== 0
+									? wheel.pixelDelta.y * 2
+									: wheel.angleDelta.y / 120 * grid.cellHeight
+
+								if (step === 0) return
+
+								grid.glideBy(-step)
+								wheel.accepted = true
+							}
+						}
 
 						delegate: Item {
 							required property var modelData
 
 							width: grid.cellWidth
 							height: grid.cellHeight
-							z: thumbMouse.containsMouse ? 2 : 1
+							z: panel.hoveredWallpaper === modelData ? 2 : 1
 
 							Rectangle {
 								id: thumb
@@ -1485,13 +2053,13 @@ PanelWindow {
 								height: parent.height - 12
 								radius: 14
 								color: "transparent"
-								scale: thumbMouse.containsMouse ? 1.1 : 1
+								scale: panel.hoveredWallpaper === modelData ? 1.06 : 1
 
 								Behavior on scale {
 									NumberAnimation {
-										duration: 190
-										easing.type: Easing.Bezier
-										easing.bezierCurve: [0.22, 1.12, 0.36, 1]
+										duration: 340
+										easing.type: Easing.OutBack
+										easing.overshoot: 1.4
 									}
 								}
 
@@ -1553,26 +2121,23 @@ PanelWindow {
 									power: 4
 									radius: 14
 									fillColor: "transparent"
-									strokeColor: panel.accent
-									strokeWidth: thumbMouse.containsMouse || panel.previewWallpaper === modelData ? 1.4 : 0
-								}
+								strokeColor: panel.accent
+								strokeWidth: panel.hoveredWallpaper === modelData || panel.previewWallpaper === modelData ? 1.4 : 0
+							}
 
-								MouseArea {
-									id: thumbMouse
-
-									anchors.fill: parent
-									hoverEnabled: true
-									cursorShape: Qt.PointingHandCursor
-									onWheel: (wheel) => wheel.accepted = false
-									onEntered: panel.previewWallpaper = modelData
-									onClicked: {
-										panel.previewWallpaper = modelData
-										setter.target = modelData
-										setter.running = true
-									}
+							TapHandler {
+								onTapped: {
+									panel.previewWallpaper = modelData
+									setter.target = modelData
+									setter.running = true
 								}
 							}
+
+							WheelHandler {
+								onWheel: (wheel) => wheel.accepted = false
+							}
 						}
+					}
 					}
 
 					Text {
@@ -1600,10 +2165,5 @@ PanelWindow {
 		anchors.top: parent.top
 		width: panel.expanded ? cardHost.width : 0
 		height: panel.expanded ? cardHost.y + cardHost.height : 0
-
-		HoverHandler {
-			id: cardHover
-			onHoveredChanged: panel.hovered = cardHover.hovered
-		}
 	}
 }

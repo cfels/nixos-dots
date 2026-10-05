@@ -3,6 +3,7 @@
     ./sddm.nix
     ./bootloader.nix
     ./locales.nix
+    ./kde.nix
     ./misc.nix
     ./network.nix
     ./pkgs.nix

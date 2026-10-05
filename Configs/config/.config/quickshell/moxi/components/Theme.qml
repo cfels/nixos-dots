@@ -21,6 +21,9 @@ Item {
 		path: Quickshell.shellDir + "/colors.json"
 		blockLoading: true
 		printErrors: false
+		watchChanges: true
+
+		onFileChanged: theme.reload()
 	}
 
 	Component.onCompleted: theme.reload()

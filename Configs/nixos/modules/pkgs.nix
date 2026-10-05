@@ -14,6 +14,9 @@ gamemode
 gamescope
 vscodium
 seanime
+tokei
+kdePackages.ark
+kdePackages.dolphin
 minisign
 age
 tdf
@@ -54,7 +57,6 @@ jdk25
 fish
 tldr
 pkg-config
-kdePackages.spectacle
 starship
 docker
 unzip

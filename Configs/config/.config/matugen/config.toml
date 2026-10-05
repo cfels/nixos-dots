@@ -24,7 +24,7 @@ output_path = "~/.config/gtk-4.0/gtk.css"
 [templates.kde]
 input_path = "~/.config/matugen/templates/kde.colors"
 output_path = "~/.local/share/color-schemes/Matugen.colors"
-post_hook = "kwriteconfig6 --file kdeglobals --group General --key ColorScheme --delete; plasma-apply-colorscheme Matugen"
+post_hook = "kde-colors-apply"
 
 [templates.kitty]
 input_path = "~/.config/matugen/templates/kitty.conf"

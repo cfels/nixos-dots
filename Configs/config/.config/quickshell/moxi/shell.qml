@@ -13,6 +13,8 @@ import "screenshot" as ScreenshotModule
 ShellRoot {
 	id: root
 
+	ReloadPopup {}
+
 	property bool shotFlash: false
 	property bool panelExpanded: false
 	property bool panelEntered: false
@@ -119,6 +121,8 @@ ShellRoot {
 		target: emojiPicker
 
 		function onOpenChanged(): void {
+			if (emojiPicker.open) emojiPicker.setAnchor(pill.pillWidth, pill.pillHeight, pill.pillTop)
+
 			root.overlayOpened("emoji", emojiPicker.open)
 		}
 	}

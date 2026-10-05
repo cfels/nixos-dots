@@ -59,7 +59,24 @@ PanelWindow {
 	readonly property color muted: theme.muted
 	readonly property color idle: theme.idle
 	readonly property string fontFamily: momo.status === FontLoader.Ready ? momo.name : ""
+	readonly property string cyrillicFont: ruFont.status === FontLoader.Ready ? ruFont.name : bar.fontFamily
+	readonly property string japaneseFont: jpFont.status === FontLoader.Ready ? jpFont.name : bar.fontFamily
+	readonly property string koreanFont: krFont.status === FontLoader.Ready ? krFont.name : bar.fontFamily
 	readonly property string glyphFont: Qt.fontFamilies().indexOf("Symbols Nerd Font") !== -1 ? "Symbols Nerd Font" : ""
+
+	function songFont(text): string {
+		var value = "" + text
+
+		if (/[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318F]/.test(value)) return bar.koreanFont
+		if (/[\u3040-\u30FF\u31F0-\u31FF\u4E00-\u9FFF\uF900-\uFAFF]/.test(value)) return bar.japaneseFont
+		if (/[\u0400-\u04FF\u0500-\u052F]/.test(value)) return bar.cyrillicFont
+
+		return bar.fontFamily
+	}
+
+	function songWeight(text): int {
+		return bar.songFont(text) !== bar.fontFamily ? Font.ExtraBold : Font.Normal
+	}
 
 	readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
 	readonly property bool hasPlayer: bar.player !== null
@@ -127,6 +144,21 @@ PanelWindow {
 	FontLoader {
 		id: momo
 		source: "../fonts/momotrust.ttf"
+	}
+
+	FontLoader {
+		id: ruFont
+		source: "../fonts/NotoSans-ExtraBold-RU.ttf"
+	}
+
+	FontLoader {
+		id: jpFont
+		source: "../fonts/NotoSansJP-ExtraBold.ttf"
+	}
+
+	FontLoader {
+		id: krFont
+		source: "../fonts/NotoSansKR-ExtraBold.ttf"
 	}
 
 	PwObjectTracker {
@@ -243,7 +275,7 @@ PanelWindow {
 
 			Behavior on y {
 				NumberAnimation {
-					duration: 340
+					duration: 280
 					easing.type: Easing.Bezier
 					easing.bezierCurve: [0.32, 0.72, 0, 1]
 			}
@@ -252,7 +284,7 @@ PanelWindow {
 
 		Behavior on opacity {
 			NumberAnimation {
-				duration: 340
+				duration: 280
 				easing.type: Easing.Bezier
 				easing.bezierCurve: [0.32, 0.72, 0, 1]
 			}
@@ -478,22 +510,66 @@ PanelWindow {
 					spacing: 8
 
 					Item {
+						id: barPlayButton
+
 						Layout.alignment: Qt.AlignVCenter
 						Layout.preferredWidth: 16
 						Layout.preferredHeight: 16
-						layer.enabled: true
-						layer.effect: MultiEffect {
-							colorization: 1
-							colorizationColor: bar.accent
+
+						property real swipe: 0
+						property real swipeDir: 1
+
+						Connections {
+							target: bar
+
+							function onPlayingChanged(): void {
+								barPlayButton.swipeDir = bar.playing ? 1 : -1
+								barPlaySwipe.restart()
+							}
+						}
+
+						SequentialAnimation {
+							id: barPlaySwipe
+
+							NumberAnimation {
+								target: barPlayButton
+								property: "swipe"
+								to: barPlayButton.swipeDir * 9
+								duration: 165
+								easing.type: Easing.OutBack
+							}
+							PropertyAction {
+								target: barPlayButton
+								property: "swipe"
+								value: -barPlayButton.swipeDir * 9
+							}
+							NumberAnimation {
+								target: barPlayButton
+								property: "swipe"
+								to: 0
+								duration: 280
+								easing.type: Easing.OutBack
+							}
+							onFinished: barPlayButton.swipe = 0
 						}
 
 						Image {
-							anchors.fill: parent
+							anchors.centerIn: parent
+							anchors.horizontalCenterOffset: barPlayButton.swipe
+							width: 16
+							height: 16
+							opacity: 1 - Math.min(1, Math.abs(barPlayButton.swipe) / 9)
 							source: "file://" + Quickshell.env("HOME") + "/.config/quickshell/moxi/assets/symbols/" + (bar.playing ? "pause-fg.svg" : "play-fg.svg")
 							sourceSize.width: 26
 							sourceSize.height: 26
 							fillMode: Image.PreserveAspectFit
 							asynchronous: true
+							layer.enabled: true
+							layer.effect: MultiEffect {
+								colorization: 1
+								colorizationColor: bar.accent
+								autoPaddingEnabled: false
+							}
 						}
 					}
 
@@ -502,8 +578,9 @@ PanelWindow {
 						Layout.preferredWidth: Math.min(implicitWidth, bar.titleWidth)
 						color: bar.foreground
 						elide: Text.ElideRight
-						font.family: bar.fontFamily
+						font.family: bar.songFont(bar.track)
 						font.pixelSize: 13
+						font.weight: bar.songWeight(bar.track)
 						text: bar.track
 						wrapMode: Text.NoWrap
 					}
@@ -514,8 +591,9 @@ PanelWindow {
 						visible: bar.artist.length > 0
 						elide: Text.ElideRight
 						color: bar.muted
-						font.family: bar.fontFamily
+						font.family: bar.songFont(bar.artist)
 						font.pixelSize: 13
+						font.weight: bar.songWeight(bar.artist)
 						text: bar.artist
 						wrapMode: Text.NoWrap
 					}

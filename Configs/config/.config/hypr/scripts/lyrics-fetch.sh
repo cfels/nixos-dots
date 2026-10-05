@@ -31,6 +31,51 @@ track="${5:-}"
 
 UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
 QUERY="$(printf '%s %s' "$artist" "$title" | sed -e 's/  */ /g' -e 's/^ *//' -e 's/ *$//')"
+WANT_SECS="$(printf '%s' "${length%%.*}" | sed -e 's/[^0-9]//g')"
+[ -n "$WANT_SECS" ] || WANT_SECS=0
+
+JQ_MATCH='
+def norm: ascii_downcase | gsub("[^\\p{L}\\p{N}]+"; " ") | gsub("^ +| +$"; "");
+def toks: norm | split(" ") | map(select(length > 0));
+def strip: gsub("\\([^)]*\\)|\\[[^\\]]*\\]"; " ") | gsub(" +"; " ") | gsub("^ +| +$"; "");
+def jac($a; $b):
+	($a - ($a - $b) | length) as $hit
+	| (($a | length) + ($b | length) - $hit) as $all
+	| if $all <= 0 then 0 else $hit / $all end;
+def shared($a; $b): ($a - ($a - $b) | length);
+def adiff: if . < 0 then -. else . end;
+($title | strip | toks) as $wantT
+| ($artist | toks) as $wantA
+| (($dur // 0) | if . < 0 then 0 else . end) as $wantD
+| [ .[]
+	| . as $c
+	| (($c.title // "") | strip | toks) as $ct
+	| (($c.artist // "") | strip | toks) as $ca
+	| ($ct == $wantT) as $sameTitle
+	| (($wantT | length) >= 2 and ($wantT - $ct | length) == 0) as $wantSub
+	| (($ct | length) >= 2 and ($ct - $wantT | length) == 0) as $ctSub
+	| jac($ct; $wantT) as $ts
+	| shared($ca; $wantA) as $as
+	| select(($wantT | length) > 0 and ($sameTitle or $wantSub or $ctSub or $ts >= 0.6))
+	| select(($wantA | length) == 0 or $as >= 1)
+	| $c + {
+		score: (($ts * 3)
+			+ (if $sameTitle then 1 else 0 end)
+			+ (if $as >= 1 then 0.6 else 0 end)
+			+ (if (($c.synced // "") | length) > 0 then 0.4 else 0 end)
+			+ (if ($wantD > 0 and ($c.duration // 0) > 0)
+				then ((($c.duration // 0) - $wantD) | adiff) as $dd
+					| if $dd <= 3 then 1 elif $dd <= 10 then 0.2 else -1 end
+				else 0 end))
+	}
+]
+| sort_by(-.score)
+| .[0] // {}
+'
+
+pick() {
+	jq -c --arg title "$title" --arg artist "$artist" --argjson dur "$WANT_SECS" "$JQ_MATCH" 2>/dev/null || printf '{}'
+}
 
 duration=0
 synced=""
@@ -75,18 +120,22 @@ prov_lrclib() {
 
 prov_lrclib_search() {
 	net -G --data-urlencode "q=$QUERY" "https://lrclib.net/api/search" |
-		jq -c 'if type == "array" then (sort_by(if (.syncedLyrics // "") != "" then 0 else 1 end) | first // {}) else {} end' 2>/dev/null |
-		jq -c '{duration: (.duration // 0), syncedLyrics: (.syncedLyrics // ""), plainLyrics: (.plainLyrics // "")}' 2>/dev/null || true
+		jq -c 'if type == "array" then [ .[] | {title: (.trackName // ""), artist: (.artistName // ""), duration: (.duration // 0), synced: (.syncedLyrics // ""), plain: (.plainLyrics // "")} ] else [] end' 2>/dev/null |
+		pick |
+		jq -c '{duration: (.duration // 0), syncedLyrics: (.synced // ""), plainLyrics: (.plain // "")}' 2>/dev/null || true
 }
 
 prov_netease() {
-	local search id ms lyric
+	local search picked id ms lyric
 
-	search="$(net -G --data-urlencode "s=$QUERY" --data-urlencode "type=1" --data-urlencode "limit=1" "https://music.163.com/api/search/get")"
-	id="$(printf '%s' "$search" | jq -r '.result.songs[0].id // empty' 2>/dev/null || true)"
+	search="$(net -G --data-urlencode "s=$QUERY" --data-urlencode "type=1" --data-urlencode "limit=8" "https://music.163.com/api/search/get")"
+	search="$(printf '%s' "$search" | jq -c '[(.result.songs // [])[] | {id: .id, title: (.name // ""), artist: ([.artists[]?.name] | join(" ")), duration: (((.duration // 0) / 1000) | floor)}]' 2>/dev/null || printf '[]')"
+
+	picked="$(printf '%s' "$search" | pick)"
+	id="$(printf '%s' "$picked" | jq -r '.id // empty' 2>/dev/null || true)"
 	[ -n "$id" ] || return 0
 
-	ms="$(printf '%s' "$search" | jq -r '.result.songs[0].duration // 0' 2>/dev/null || true)"
+	ms="$(printf '%s' "$picked" | jq -r '((.duration // 0) * 1000) | floor' 2>/dev/null || true)"
 	lyric="$(net "https://music.163.com/api/song/lyric?id=${id}&lv=1&kv=1&tv=-1")"
 
 	printf '%s' "$lyric" | jq -c --argjson ms "${ms:-0}" '{
@@ -97,13 +146,16 @@ prov_netease() {
 }
 
 prov_qq() {
-	local search mid secs lyric
+	local search picked mid secs lyric
 
-	search="$(net -H 'Referer: https://y.qq.com/' -G --data-urlencode "w=$QUERY" --data-urlencode "p=1" --data-urlencode "n=3" --data-urlencode "format=json" "https://c.y.qq.com/soso/fcgi-bin/client_search_cp")"
-	mid="$(printf '%s' "$search" | jq -r '.data.song.list[0].songmid // empty' 2>/dev/null || true)"
+	search="$(net -H 'Referer: https://y.qq.com/' -G --data-urlencode "w=$QUERY" --data-urlencode "p=1" --data-urlencode "n=8" --data-urlencode "format=json" "https://c.y.qq.com/soso/fcgi-bin/client_search_cp")"
+	search="$(printf '%s' "$search" | jq -c '[(.data.song.list // [])[] | {mid: .songmid, title: (.songname // ""), artist: ([.singer[]?.name] | join(" ")), duration: (.interval // 0)}]' 2>/dev/null || printf '[]')"
+
+	picked="$(printf '%s' "$search" | pick)"
+	mid="$(printf '%s' "$picked" | jq -r '.mid // empty' 2>/dev/null || true)"
 	[ -n "$mid" ] || return 0
 
-	secs="$(printf '%s' "$search" | jq -r '.data.song.list[0].interval // 0' 2>/dev/null || true)"
+	secs="$(printf '%s' "$picked" | jq -r '.duration // 0' 2>/dev/null || true)"
 	lyric="$(net -H 'Referer: https://y.qq.com/' -G --data-urlencode "songmid=$mid" --data-urlencode "format=json" --data-urlencode "nobase64=1" --data-urlencode "g_tk=5381" "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg")"
 
 	printf '%s' "$lyric" | jq -c --argjson secs "${secs:-0}" '{
@@ -114,13 +166,16 @@ prov_qq() {
 }
 
 prov_kugou() {
-	local search hash secs kr id key dl b64
+	local search picked hash secs kr id key dl b64
 
-	search="$(net "http://mobilecdn.kugou.com/api/v3/search/song?format=json&keyword=$(printf '%s' "$QUERY" | jq -sRr @uri)&page=1&pagesize=3")"
-	hash="$(printf '%s' "$search" | jq -r '.data.info[0].hash // empty' 2>/dev/null || true)"
+	search="$(net "http://mobilecdn.kugou.com/api/v3/search/song?format=json&keyword=$(printf '%s' "$QUERY" | jq -sRr @uri)&page=1&pagesize=8")"
+	search="$(printf '%s' "$search" | jq -c '[(.data.info // [])[] | {hash: .hash, title: (.songname // ""), artist: (.singername // ""), duration: (.duration // 0)}]' 2>/dev/null || printf '[]')"
+
+	picked="$(printf '%s' "$search" | pick)"
+	hash="$(printf '%s' "$picked" | jq -r '.hash // empty' 2>/dev/null || true)"
 	[ -n "$hash" ] || return 0
 
-	secs="$(printf '%s' "$search" | jq -r '.data.info[0].duration // 0' 2>/dev/null || true)"
+	secs="$(printf '%s' "$picked" | jq -r '.duration // 0' 2>/dev/null || true)"
 	kr="$(net "https://krcs.kugou.com/search?ver=1&man=yes&client=mobi&keyword=&duration=${secs:-0}&hash=$hash")"
 	id="$(printf '%s' "$kr" | jq -r '.candidates[0].id // empty' 2>/dev/null || true)"
 	key="$(printf '%s' "$kr" | jq -r '.candidates[0].accesskey // empty' 2>/dev/null || true)"
@@ -145,15 +200,93 @@ prov_lyricsovh() {
 	printf '%s' "$body" | jq -c '{duration: 0, syncedLyrics: "", plainLyrics: (.lyrics // "")}' 2>/dev/null || true
 }
 
+genius_search() {
+	net -G --data-urlencode "q=$1" "https://genius.com/api/search/multi" |
+		jq -c '[.response.sections[]? | select(.type == "song") | .hits[]?.result | {url: (.url // ""), title: (.title // ""), artist: (.artist_names // .primary_artist.name // ""), duration: 0}]' 2>/dev/null || true
+}
+
+prov_genius() {
+	local first_artist candidates url plain
+
+	first_artist="$(printf '%s' "$artist" | sed -e 's/[[:space:]].*$//' -e 's/[^[:alnum:]]//g')"
+
+	candidates="$(
+		{
+			[ -n "$first_artist" ] && genius_search "$title $first_artist"
+			genius_search "$title"
+		} | jq -c -s 'add // [] | unique_by(.url)' 2>/dev/null || true
+	)"
+	[ -n "$candidates" ] || return 0
+
+	url="$(printf '%s' "$candidates" | pick | jq -r '.url // empty' 2>/dev/null || true)"
+	[ -n "$url" ] || return 0
+
+	plain="$(net "$url" | python3 -c '
+import sys
+from html.parser import HTMLParser
+
+class LyricsParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.inside = False
+        self.depth = 0
+        self.exclude = None
+        self.parts = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        if not self.inside:
+            if tag == "div" and attributes.get("data-lyrics-container") == "true":
+                self.inside = True
+                self.depth = 0
+            return
+        if tag == "div":
+            self.depth += 1
+            if self.exclude is None and attributes.get("data-exclude-from-selection") is not None:
+                self.exclude = self.depth
+        if tag == "br":
+            self.parts.append("\n")
+
+    def handle_startendtag(self, tag, attrs):
+        if self.inside and tag == "br":
+            self.parts.append("\n")
+        else:
+            self.handle_starttag(tag, attrs)
+
+    def handle_endtag(self, tag):
+        if not self.inside or tag != "div":
+            return
+        if self.exclude is not None and self.depth == self.exclude:
+            self.exclude = None
+        if self.depth == 0:
+            self.inside = False
+            return
+        self.depth -= 1
+
+    def handle_data(self, data):
+        if self.inside and self.exclude is None:
+            self.parts.append(data)
+
+parser = LyricsParser()
+parser.feed(sys.stdin.read())
+print("\n".join(line.strip() for line in "".join(parser.parts).split("\n") if line.strip()))
+' 2>/dev/null || true)"
+	[ -n "$plain" ] || return 0
+
+	jq -cn --arg p "$plain" '{duration: 0, syncedLyrics: "", plainLyrics: $p}' 2>/dev/null || true
+}
+
 prov_apple() {
 	[ -n "${APPLE_MUSIC_TOKEN:-}" ] || return 0
 
 	local store="${APPLE_MUSIC_STOREFRONT:-us}" id body
 
 	id="$(net -H "Authorization: Bearer $APPLE_MUSIC_TOKEN" -H 'Origin: https://music.apple.com' \
-		-G --data-urlencode "term=$QUERY" --data-urlencode "types=songs" --data-urlencode "limit=1" \
+		-G --data-urlencode "term=$QUERY" --data-urlencode "types=songs" --data-urlencode "limit=8" \
 		"https://amp-api.music.apple.com/v1/catalog/$store/search" |
-		jq -r '.results.songs.data[0].id // empty' 2>/dev/null || true)"
+		jq -c '[(.results.songs.data // [])[] | {id: .id, title: (.attributes.name // ""), artist: (.attributes.artistName // ""), duration: (((.attributes.durationInMillis // 0) / 1000) | floor)}]' 2>/dev/null |
+		pick |
+		jq -r '.id // empty' 2>/dev/null || true)"
 	[ -n "$id" ] || return 0
 
 	body="$(net -H "Authorization: Bearer $APPLE_MUSIC_TOKEN" -H 'Origin: https://music.apple.com' \
@@ -185,23 +318,34 @@ if [ -z "$synced" ]; then
 fi
 
 if [ -z "$synced" ]; then
-	take "$(prov_lyricsovh)"
+	take "$(prov_genius)"
+	[ -n "$plain" ] || take "$(prov_lyricsovh)"
 	[ -n "$synced" ] || take "$(prov_apple)"
 fi
 
 if [ "$duration" = "0" ]; then
-	iTunes_ms="$(net -G --data-urlencode "term=$QUERY" --data-urlencode "entity=song" --data-urlencode "limit=1" "https://itunes.apple.com/search" | jq -r '.results[0].trackTimeMillis // 0' 2>/dev/null || echo 0)"
+	iTunes_ms="$(net -G --data-urlencode "term=$QUERY" --data-urlencode "entity=song" --data-urlencode "limit=8" "https://itunes.apple.com/search" |
+		jq -c '[(.results // [])[] | {title: (.trackName // ""), artist: (.artistName // ""), duration: (((.trackTimeMillis // 0) / 1000) | floor)}]' 2>/dev/null |
+		pick |
+		jq -r '((.duration // 0) * 1000) | floor' 2>/dev/null || echo 0)"
 
 	if [ "${iTunes_ms%.*}" -gt 0 ] 2>/dev/null; then
 		duration="$(awk -v ms="$iTunes_ms" 'BEGIN { printf "%d", ms / 1000 }')"
 	else
-		deezer_secs="$(net -G --data-urlencode "q=$QUERY" --data-urlencode "limit=1" "https://api.deezer.com/search" | jq -r '.data[0].duration // 0' 2>/dev/null || echo 0)"
+		deezer_secs="$(net -G --data-urlencode "q=$QUERY" --data-urlencode "limit=8" "https://api.deezer.com/search" |
+			jq -c '[(.data // [])[] | {title: (.title // ""), artist: (.artist.name // ""), duration: (.duration // 0)}]' 2>/dev/null |
+			pick |
+			jq -r '.duration // 0' 2>/dev/null || echo 0)"
 
 		if [ "${deezer_secs%.*}" -gt 0 ] 2>/dev/null; then
 			duration="${deezer_secs%.*}"
 		fi
 	fi
 fi
+
+CREDITS='(作词|作詞|作曲|编曲|編曲|produced by|written by|lyrics by)[[:space:]]*[:：]'
+[ -n "$synced" ] && synced="$(printf '%s\n' "$synced" | grep -vE "$CREDITS" || true)"
+[ -n "$plain" ] && plain="$(printf '%s\n' "$plain" | grep -vE "$CREDITS" || true)"
 
 jq -cn --argjson d "${duration:-0}" --arg s "$synced" --arg p "$plain" \
 	'{duration: $d, syncedLyrics: $s, plainLyrics: $p}'

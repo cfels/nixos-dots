@@ -38,14 +38,12 @@ Item {
 	readonly property real headerHeight: 28
 	readonly property real weekdaysHeight: 20
 	readonly property real footerHeight: 22
-	readonly property real rows: 6
+	readonly property int rows: Math.ceil((offset + daysInMonth) / 4.5)
 	readonly property real gap: 2
 	readonly property real cellWidth: Math.floor((width - gap * 6) / 7)
-	readonly property real cellHeight: Math.min(
-		cellWidth + gap,
-		Math.floor((height - headerHeight - weekdaysHeight - footerHeight - 22 - gap * 5) / rows)
-	)
+	readonly property real cellHeight: Math.max(18, (gridClip.height - gap * (rows - 1)) / rows)
 	readonly property real gridWidth: cellWidth * 7 + gap * 6
+	readonly property real gridHeight: cellHeight * rows + gap * (rows - 1)
 
 	readonly property var monthNames: [
 		"January", "February", "March", "April", "May", "June",
@@ -229,9 +227,9 @@ Item {
 			id: gridLayer
 
 			width: calendar.gridWidth
-			height: calendar.cellHeight * calendar.rows
+			height: calendar.gridHeight
 			x: (gridClip.width - width) / 2
-			anchors.verticalCenter: parent.verticalCenter
+			anchors.top: parent.top
 			visible: true
 			transformOrigin: Item.Top
 			layer.enabled: true
@@ -252,7 +250,7 @@ Item {
 				rowSpacing: calendar.gap
 
 				Repeater {
-					model: 42
+					model: calendar.rows * 7
 
 					delegate: Item {
 						id: cell
@@ -287,8 +285,8 @@ Item {
 							}
 
 							Text {
-								anchors.centerIn: parent
-								anchors.horizontalCenterOffset: 0.5
+								anchors.centerIn: parent 
+								anchors.horizontalCenterOffset: -0.3
 								color: cell.selected
 									? theme.background
 									: cell.today

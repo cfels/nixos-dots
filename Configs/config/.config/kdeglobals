@@ -63,8 +63,8 @@ ForegroundPositive=160,208,204
 ForegroundVisited=160,208,204
 
 [Colors:Header][Inactive]
-BackgroundAlternate=30,32,26
-BackgroundNormal=18,20,14
+BackgroundAlternate=40,43,36
+BackgroundNormal=30,32,26
 DecorationFocus=177,209,138
 DecorationHover=177,209,138
 ForegroundActive=177,209,138
@@ -134,7 +134,7 @@ ForegroundVisited=160,208,204
 
 [General]
 ColorScheme=Matugen
-ColorSchemeHash=ba0000baced7ff869ee32f9a1ad7b97c16c8635c
+ColorSchemeHash=1791223181
 UseSystemBell=true
 XftAntialias=true
 XftHintStyle=hintslight
