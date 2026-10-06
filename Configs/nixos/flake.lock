@@ -212,11 +212,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791163078,
-        "narHash": "sha256-DiuwfdoZtEqVRsWuAhXcHa+cfvkr0t/xWW8ugkcxNyI=",
+        "lastModified": 1791227480,
+        "narHash": "sha256-+lrD+sxc2RKUWXRBAcggn7uBCFeJgnV75jD/cz7gJRA=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "f53f3267f5d009dd8f99443505e609389d7ff267",
+        "rev": "aa23f720d022187228bc264f759aef6b80233bcf",
         "type": "github"
       },
       "original": {
@@ -534,6 +534,7 @@
         "proton-cachyos": "proton-cachyos",
         "proton-ge": "proton-ge",
         "twintail-nix": "twintail-nix",
+        "umadance": "umadance",
         "vice": "vice"
       }
     },
@@ -658,6 +659,26 @@
       "original": {
         "type": "file",
         "url": "https://github.com/TwintailTeam/TwintailLauncher/releases/download/ttl-v2.5.1/twintaillauncher_2.5.1_amd64.deb"
+      }
+    },
+    "umadance": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791237326,
+        "narHash": "sha256-t4QJAXsgwdNuIEdmgkQoWho7G33IWrYzMzaBEWbdx3w=",
+        "owner": "cfels",
+        "repo": "umadance",
+        "rev": "cf92cd9f15cafb0734b3b8eb27d9375b53ae1cb6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cfels",
+        "repo": "umadance",
+        "type": "github"
       }
     },
     "utils": {

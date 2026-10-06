@@ -38,9 +38,13 @@
         url = "github:madebycli/twintail-nix";
         inputs.nixpkgs.follows = "nixpkgs";
       };
+      umadance = {
+        url = "github:cfels/umadance";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
     };
 
-    outputs = inputs@{ self, nixpkgs, home-manager, kwin-better-blur-dx, twintail-nix, ... }:
+    outputs = inputs@{ self, nixpkgs, home-manager, kwin-better-blur-dx, twintail-nix, umadance, ... }:
     let
       system = "x86_64-linux";
       username = import ./username.nix;
@@ -188,10 +192,12 @@
           ./configuration.nix
           { nixpkgs.overlays = [ viceOverlay ]; }
           self.nixosModules.vice
+          umadance.nixosModules.default
           twintail-nix.nixosModules.default
           ({ lib, ... }: {
             programs.twintaillauncher.enable = true;
             programs.gamescope.enable = lib.mkForce true;
+            programs.umadance.enable = true;
           })
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {
