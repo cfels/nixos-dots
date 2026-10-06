@@ -134,7 +134,7 @@ in {
     emoji = [ "Noto Color Emoji" ];
   };
 
-  xdg.icons.fallbackCursorThemes = lib.mkDefault [ "breeze_cursors" ];
+  xdg.icons.fallbackCursorThemes = lib.mkDefault [ "Bibata-Modern-Ice" "breeze_cursors" ];
 
   systemd.user.services.plasma-xdg-desktop-portal-kde = {
     description = "Xdg Desktop Portal For KDE";

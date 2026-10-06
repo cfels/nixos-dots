@@ -1,4 +1,14 @@
 { config, inputs, pkgs, lib, username, hostName, ... }:
+let
+  bibataDefaultCursor = pkgs.writeTextFile {
+    name = "bibata-default-cursor";
+    destination = "/share/icons/default/index.theme";
+    text = ''
+      [Icon Theme]
+      Inherits=Bibata-Modern-Ice
+    '';
+  };
+in
 {
   # kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -93,7 +103,7 @@
   programs.steam = {
     enable = true;
     package = pkgs.millennium-steam.override {
-      extraPkgs = pkgs: [ pkgs.bibata-cursors ];
+      extraPkgs = pkgs: [ pkgs.bibata-cursors bibataDefaultCursor ];
     };
     extraCompatPackages = [
       inputs.proton-ge.packages.${pkgs.stdenv.hostPlatform.system}.default
