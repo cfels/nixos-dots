@@ -11,7 +11,6 @@
   
   # ssh
   services.openssh.enable = true;
-  programs.ssh.startAgent = true;
 
   # fix agent
   services.gnome.gcr-ssh-agent.enable = false;
@@ -64,7 +63,7 @@
   };
 
   # steam millenium
-  #nixpkgs.overlays = [ inputs.millennium.overlays.default ];
+  nixpkgs.overlays = [ inputs.millennium.overlays.default ];
   
   environment.sessionVariables = {
     XCURSOR_THEME = "Bibata-Modern-Ice";
@@ -74,7 +73,18 @@
     QT_QPA_PLATFORMTHEME = "kde";
     GTK_USE_PORTAL = "1";
   };
-  
+
+  # gpg
+  programs.mtr.enable = true;
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = true;
+    settings = {
+      default-cache-ttl = 34560000;
+      max-cache-ttl = 34560000;
+    };
+  };
+
   # virtualbox
   virtualisation.virtualbox.host.enable = true;
   users.extraGroups.vboxusers.members = [ username ];
@@ -82,7 +92,7 @@
   # stim
   programs.steam = {
     enable = true;
-    package = pkgs.steam.override {
+    package = pkgs.millennium-steam.override {
       extraPkgs = pkgs: [ pkgs.bibata-cursors ];
     };
     extraCompatPackages = [

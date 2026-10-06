@@ -9,7 +9,7 @@
         inputs.nixpkgs.follows = "nixpkgs";
       };
       codex.url = "github:SecBear/codex-nix";
-      #millennium.url = "github:SteamClientHomebrew/Millennium?dir=packages/nix";
+      millennium.url = "github:SteamClientHomebrew/Millennium?dir=packages/nix";
       proton-ge = {
         url = "github:Daaboulex/proton-ge-nix";
         inputs.nixpkgs.follows = "nixpkgs";

@@ -17,8 +17,6 @@ seanime
 tokei
 kdePackages.ark
 kdePackages.dolphin
-minisign
-age
 tdf
 imagemagick
 libsecret
