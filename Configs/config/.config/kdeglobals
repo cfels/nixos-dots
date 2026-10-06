@@ -134,7 +134,7 @@ ForegroundVisited=160,208,204
 
 [General]
 ColorScheme=Matugen
-ColorSchemeHash=1791223181
+ColorSchemeHash=1791297675
 UseSystemBell=true
 XftAntialias=true
 XftHintStyle=hintslight
@@ -181,3 +181,4 @@ activeForeground=226,227,216
 inactiveBackground=30,32,26
 inactiveBlend=197,200,186
 inactiveForeground=197,200,186
+
