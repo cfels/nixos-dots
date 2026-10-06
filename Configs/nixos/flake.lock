@@ -356,11 +356,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1791287407,
-        "narHash": "sha256-7sLCUHaGjVLpwT2dg/4HGmISIOS+xAPC3cW0dUyXNQY=",
+        "lastModified": 1791309541,
+        "narHash": "sha256-6vAkP//3NUhwlkwPLvo5AwDOGYVevXW5goOEaPQH6jw=",
         "owner": "FlameFlag",
         "repo": "nixcord",
-        "rev": "37ba1c92cd276d30576b2896ebe2565f63ff92f3",
+        "rev": "e6ad001b2e9d8722803d229af17df55041915415",
         "type": "github"
       },
       "original": {

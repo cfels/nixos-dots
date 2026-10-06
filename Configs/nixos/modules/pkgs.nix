@@ -9,6 +9,9 @@
   services.gnome.gnome-keyring.enable = true;
 
   environment.systemPackages = with pkgs; [
+mangohud
+goverlay
+rocmPackages.rocm-smi # for btop to show gpu stats
 heroic
 gamemode
 gamescope

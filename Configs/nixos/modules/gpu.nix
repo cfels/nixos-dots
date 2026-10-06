@@ -8,6 +8,7 @@
     amdvlk
     vaapiVdpau
     libvdpau-va-gl
+    rocmPackages.rocm-smi
   ];
 };
 

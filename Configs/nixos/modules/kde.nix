@@ -98,13 +98,16 @@ let
 in {
   qt = {
     enable = true;
-    platformTheme = "kde";
     style = "breeze";
   };
 
+  environment.variables.QT_QPA_PLATFORMTHEME = "kde";
+
   environment.systemPackages = with pkgs; [
     kdeColorsApply
+    kdePackages.plasma-integration
     kdePackages.plasma-integration.qt5
+    kdePackages.kio
     kdePackages.breeze-icons
     kdePackages.breeze-gtk
     kdePackages.qqc2-desktop-style
