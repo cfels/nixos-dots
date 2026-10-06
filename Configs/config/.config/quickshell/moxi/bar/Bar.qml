@@ -27,7 +27,7 @@ PanelWindow {
 	property bool pillShown: true
 	property bool volumeVisible: bar.audioReady && volumeTimer.running
 	property real titleWidth: 170
-	property real mediaWidth: bar.hasPlayer ? mediaRow.implicitWidth : 0
+	property real mediaWidth: bar.hasPlayer && (bar.track.length > 0 || bar.playing) ? mediaRow.implicitWidth : 0
 	property real volumeWidth: bar.volumeVisible ? volumeRow.implicitWidth : 0
 	property real dateWidth: bar.hovered ? dateLabel.implicitWidth : 0
 	readonly property real pillWidth: pill.width * pill.scale
@@ -78,16 +78,30 @@ PanelWindow {
 		return bar.songFont(text) !== bar.fontFamily ? Font.ExtraBold : Font.Normal
 	}
 
-	readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
+	readonly property var player: bar.pickPlayer()
 	readonly property bool hasPlayer: bar.player !== null
+
+	function pickPlayer(): var {
+		var list = Mpris.players.values
+
+		for (var i = 0; i < list.length; ++i) {
+			var candidate = list[i]
+
+			if (!candidate) continue
+			if (("" + candidate.dbusName + " " + candidate.identity).toLowerCase().indexOf("playerctld") !== -1) continue
+			if (("" + candidate.trackTitle).trim().length === 0 && candidate.playbackState !== MprisPlaybackState.Playing) continue
+
+			return candidate
+		}
+
+		return null
+	}
+
 	readonly property bool playing: bar.hasPlayer && bar.player.playbackState === MprisPlaybackState.Playing
 	readonly property string track: {
 		if (!bar.hasPlayer) return ""
 
-		var title = (bar.player.trackTitle || "").trim()
-		if (title.length > 0) return title
-
-		return (bar.player.identity || "unknown").trim()
+		return (bar.player.trackTitle || "").trim()
 	}
 
 	readonly property string artist: {
@@ -489,7 +503,7 @@ PanelWindow {
 
 			Rectangle {
 				Layout.alignment: Qt.AlignVCenter
-				visible: bar.hasPlayer
+				visible: bar.mediaWidth > 0.5
 				width: 1
 				height: 15
 				color: Qt.rgba(theme.foreground.r, theme.foreground.g, theme.foreground.b, 0.16)

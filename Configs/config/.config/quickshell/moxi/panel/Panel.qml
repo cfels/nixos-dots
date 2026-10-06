@@ -71,6 +71,8 @@ PanelWindow {
 			surfaceTimer.stop()
 			panel.surfaceVisible = true
 			contentTimer.restart()
+
+			panel.rollEmptyPhrase()
 		} else {
 			panel.contentVisible = false
 			panel.hoveredWallpaper = ""
@@ -201,8 +203,25 @@ PanelWindow {
 		}
 	}
 
-	readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
+	readonly property var player: panel.pickPlayer()
 	readonly property bool hasPlayer: panel.player !== null
+
+	function pickPlayer(): var {
+		var list = Mpris.players.values
+
+		for (var i = 0; i < list.length; ++i) {
+			var candidate = list[i]
+
+			if (!candidate) continue
+			if (("" + candidate.dbusName + " " + candidate.identity).toLowerCase().indexOf("playerctld") !== -1) continue
+			if (("" + candidate.trackTitle).trim().length === 0 && candidate.playbackState !== MprisPlaybackState.Playing) continue
+
+			return candidate
+		}
+
+		return null
+	}
+
 	property bool locallyPlaying: false
 	property bool hasLocalOverride: false
 	readonly property bool playing: panel.hasLocalOverride
@@ -220,6 +239,29 @@ PanelWindow {
 	readonly property string trackArtist: panel.hasPlayer && panel.player.trackArtist ? panel.player.trackArtist : ""
 	readonly property string trackAlbum: panel.hasPlayer && panel.player.trackAlbum ? panel.player.trackAlbum : ""
 	readonly property string trackKey: panel.trackArtist + " — " + panel.trackTitle
+
+	property var emptyPhrases: [
+		"play sum shii-",
+		"where the beats at?",
+		"you hate music? don't ya?",
+		"umapyoi",
+		"nga where da ound's at",
+		"play smth or i'll crash qs"
+	]
+	property int emptyPhraseIndex: 0
+	readonly property string emptyPhrase: panel.emptyPhrases.length > 0
+		? panel.emptyPhrases[Math.max(0, Math.min(panel.emptyPhrases.length - 1, panel.emptyPhraseIndex))]
+		: "play sum shii-, where the beats at?"
+
+	function rollEmptyPhrase(): void {
+		if (panel.emptyPhrases.length <= 1) return
+
+		var next = panel.emptyPhraseIndex
+
+		while (next === panel.emptyPhraseIndex) next = Math.floor(Math.random() * panel.emptyPhrases.length)
+
+		panel.emptyPhraseIndex = next
+	}
 
 	readonly property real metadataLength: {
 		if (!panel.hasPlayer) return 0
@@ -1116,15 +1158,40 @@ PanelWindow {
 								artworkIn.opacity = 1
 							}
 
+							function reset(): void {
+								artSwap.stop()
+								artwork.pending = false
+								artwork.shown = ""
+								artwork.incoming = ""
+								artworkOut.source = ""
+								artworkOut.x = 0
+								artworkOut.opacity = 0
+								artworkIn.x = 0
+								panel.artSource = ""
+								panel.artShownFile = ""
+							}
+
 							Connections {
 								target: panel
 
 								function onArtUrlChanged() {
+									if (panel.artUrl.length === 0) {
+										artwork.reset()
+
+										return
+									}
+
 									artwork.swap(playButton.transportDir !== 0 ? playButton.transportDir : 1)
 								}
 
 								function onArtSourceChanged() {
 									artwork.swap(playButton.transportDir !== 0 ? playButton.transportDir : 1)
+								}
+
+								function onHasPlayerChanged() {
+									if (panel.hasPlayer) return
+
+									artwork.reset()
 								}
 							}
 
@@ -1359,17 +1426,20 @@ PanelWindow {
 							color: panel.muted
 							font.family: panel.fontFamily
 							font.pixelSize: 12
-							text: panel.trackTitle.length > 0 ? "no lyrics found" : "play sum shii-"
+							text: panel.trackTitle.length > 0 ? "no lyrics found" : panel.emptyPhrase
 						}
 
 						Text {
 							anchors.centerIn: parent
 							visible: opacity > 0.01
 							opacity: artwork.ready ? 0 : 1 - panel.lyricsFade
+							width: parent.width - 16
 							color: panel.muted
 							font.family: panel.fontFamily
 							font.pixelSize: 12
-							text: panel.hasPlayer ? "no artwork" : "play sum shii-"
+							horizontalAlignment: Text.AlignHCenter
+							wrapMode: Text.WordWrap
+							text: panel.emptyPhrase
 						}
 
 					}
@@ -1387,7 +1457,7 @@ PanelWindow {
 						font.pixelSize: 15
 						font.weight: panel.lyricWeight(title.text, true)
 						horizontalAlignment: Text.AlignHCenter
-						text: panel.trackTitle.length > 0 ? panel.trackTitle : "play sum shii-"
+						text: panel.trackTitle.length > 0 ? panel.trackTitle : panel.emptyPhrase
 						wrapMode: Text.NoWrap
 					}
 
