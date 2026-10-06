@@ -1,6 +1,0 @@
-[Daemon]
-Timeout=120
-
-[Greeter][Wallpaper][org.kde.image][General]
-Image=/home/moxiu/Downloads/HIRAETH.png
-PreviewImage=/home/moxiu/Downloads/HIRAETH.png

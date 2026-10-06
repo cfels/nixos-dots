@@ -58,7 +58,7 @@ PanelWindow {
 		}
 	}
 
-	property real playerOffsetX: 3
+	property real playerOffsetX: -1
 	property real playerOffsetY: 0
 	property bool contentVisible: false
 	property bool surfaceVisible: false
@@ -1636,9 +1636,9 @@ PanelWindow {
 
 							Image {
 								anchors.centerIn: parent
-								anchors.horizontalCenterOffset: previousButton.swipe
-								width: 34
-								height: 34
+								anchors.horizontalCenterOffset: previousButton.swipe // prev button
+								width: 48
+								height: 48
 								source: "file://" + panel.symbolDir + "previous-fg.svg"
 								sourceSize.width: 68
 								sourceSize.height: 68
@@ -1828,9 +1828,9 @@ PanelWindow {
 
 							Image {
 								anchors.centerIn: parent
-								anchors.horizontalCenterOffset: nextButton.swipe
-								width: 34
-								height: 34
+								anchors.horizontalCenterOffset: nextButton.swipe // next button
+								width: 48
+								height: 48
 								source: "file://" + panel.symbolDir + "next-fg.svg"
 								sourceSize.width: 68
 								sourceSize.height: 68
