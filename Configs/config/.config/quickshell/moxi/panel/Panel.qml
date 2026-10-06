@@ -58,8 +58,8 @@ PanelWindow {
 		}
 	}
 
-	property real playerOffsetX: -1
-	property real playerOffsetY: 0
+	property real playerOffsetX: 0.6
+	property real playerOffsetY: -3 // -3
 	property bool contentVisible: false
 	property bool surfaceVisible: false
 	property real anchorWidth: 210
