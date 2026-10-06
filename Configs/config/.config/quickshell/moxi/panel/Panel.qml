@@ -149,9 +149,9 @@ PanelWindow {
 
 	property int artVersion: 0
 	property string artSource: ""
+	property string artSourceKey: ""
 	property string artFetchKey: ""
 	property string artShownFile: ""
-	property int artRetries: 0
 
 	readonly property string artCachePath: Quickshell.env("HOME") + "/.cache/moxi/art"
 	readonly property string artCacheKey: {
@@ -541,8 +541,6 @@ PanelWindow {
 	}
 
 	function fetchArtwork(): void {
-		if (panel.artUrl.length === 0) return
-
 		panel.artFetchKey = panel.artCacheKey
 
 		if (artCache.running) {
@@ -784,11 +782,10 @@ PanelWindow {
 		panel.forgetMissingLyrics()
 
 		if (panel.trackTitle.length > 0) lyricsDebounce.restart()
-		panel.artRetries = 0
-		if (panel.artUrl.length > 0) panel.scheduleArt(80)
+		panel.scheduleArt(80)
 	}
 
-	onArtUrlChanged: if (panel.artUrl.length > 0) panel.scheduleArt(80)
+	onArtUrlChanged: panel.scheduleArt(80)
 
 	onTrackDurationChanged: if (panel.lyricsEstimated && panel.trackDuration > 0 && panel.trackDuration !== panel.lyricsPlainDuration) panel.applyPlainLyrics()
 
@@ -855,30 +852,12 @@ PanelWindow {
 
 		onExited: (code, status) => {
 			if (panel.artFetchKey !== panel.artCacheKey) return
+			if (code !== 0) return
 
-			if (code === 2) {
-				if (panel.artRetries < 6) {
-					panel.artRetries = panel.artRetries + 1
-					panel.scheduleArt(200)
-
-					return
-				}
-
-				panel.artRetries = 0
-
-				return
-			}
-
-			panel.artRetries = 0
 			panel.artVersion = panel.artVersion + 1
-
-			if (code === 0) {
-				panel.artShownFile = panel.artCacheFile
-				panel.artSource = "file://" + panel.artCacheFile + "?v=" + panel.artVersion
-			} else if (artwork.shown.length === 0 && panel.artUrl.length > 0) {
-				panel.artShownFile = ""
-				panel.artSource = panel.artUrl
-			}
+			panel.artShownFile = panel.artCacheFile
+			panel.artSourceKey = panel.artCacheKey
+			panel.artSource = "file://" + panel.artCacheFile + "?v=" + panel.artVersion
 		}
 
 		onRunningChanged: {
@@ -1122,29 +1101,41 @@ PanelWindow {
 							property real swapDir: 1
 
 							function artSourceNow(): string {
-								return panel.artSource.length > 0 ? panel.artSource : panel.artUrl
+								if (panel.artSource.length > 0 && panel.artSourceKey === panel.artCacheKey) return panel.artSource
+
+								return artwork.shown
 							}
 
 							function swap(dir): void {
 								var next = artwork.artSourceNow()
 
+								if (next.length === 0) return
 								if (next === artwork.shown && !artwork.pending) return
 								if (next === artwork.incoming) return
+
+								if (artwork.pending) {
+									artSwap.stop()
+									artwork.pending = false
+									artwork.finish()
+								}
 
 								artwork.swapDir = dir
 								artwork.incoming = next
 								artwork.pending = true
+								artReadyTimer.restart()
 								artwork.maybeStart()
 							}
 
-							function maybeStart(): void {
+							function maybeStart(force): void {
 								if (!artwork.pending) return
-								if (artwork.incoming.length > 0 && !artworkIn.ready) return
+								if (!force && artwork.incoming.length > 0 && !artworkIn.ready) return
 
+								artReadyTimer.stop()
 								artwork.pending = false
 								artworkOut.source = artwork.shown
 								artworkOut.x = 0
 								artworkOut.opacity = artwork.shown.length > 0 ? 1 : 0
+								artworkIn.opacity = 1
 								artworkIn.x = 170 * artwork.swapDir
 								artSwap.restart()
 							}
@@ -1160,6 +1151,7 @@ PanelWindow {
 
 							function reset(): void {
 								artSwap.stop()
+								artReadyTimer.stop()
 								artwork.pending = false
 								artwork.shown = ""
 								artwork.incoming = ""
@@ -1168,21 +1160,19 @@ PanelWindow {
 								artworkOut.opacity = 0
 								artworkIn.x = 0
 								panel.artSource = ""
+								panel.artSourceKey = ""
 								panel.artShownFile = ""
+							}
+
+							Timer {
+								id: artReadyTimer
+
+								interval: 800
+								onTriggered: artwork.maybeStart(true)
 							}
 
 							Connections {
 								target: panel
-
-								function onArtUrlChanged() {
-									if (panel.artUrl.length === 0) {
-										artwork.reset()
-
-										return
-									}
-
-									artwork.swap(playButton.transportDir !== 0 ? playButton.transportDir : 1)
-								}
 
 								function onArtSourceChanged() {
 									artwork.swap(playButton.transportDir !== 0 ? playButton.transportDir : 1)

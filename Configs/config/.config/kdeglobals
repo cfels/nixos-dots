@@ -10,7 +10,7 @@ IntensityAmount=0.1
 IntensityEffect=2
 
 [ColorEffects:Inactive]
-ChangeSelectionColor=true
+ChangeSelectionColor=false
 Color=30,32,26
 ColorAmount=0.025
 ColorEffect=2
@@ -90,6 +90,20 @@ ForegroundNormal=31,55,1
 ForegroundPositive=0,55,53
 ForegroundVisited=160,208,204
 
+[Colors:Selection][Inactive]
+BackgroundAlternate=40,43,36
+BackgroundNormal=40,43,36
+DecorationFocus=177,209,138
+DecorationHover=177,209,138
+ForegroundActive=177,209,138
+ForegroundInactive=197,200,186
+ForegroundLink=177,209,138
+ForegroundNegative=255,180,171
+ForegroundNeutral=226,227,216
+ForegroundNormal=226,227,216
+ForegroundPositive=160,208,204
+ForegroundVisited=160,208,204
+
 [Colors:Tooltip]
 BackgroundAlternate=30,32,26
 BackgroundNormal=40,43,36
@@ -134,7 +148,7 @@ ForegroundVisited=160,208,204
 
 [General]
 ColorScheme=Matugen
-ColorSchemeHash=1791297675
+ColorSchemeHash=1791306607
 UseSystemBell=true
 XftAntialias=true
 XftHintStyle=hintslight
@@ -181,4 +195,3 @@ activeForeground=226,227,216
 inactiveBackground=30,32,26
 inactiveBlend=197,200,186
 inactiveForeground=197,200,186
-

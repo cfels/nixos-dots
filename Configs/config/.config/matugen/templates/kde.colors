@@ -8,7 +8,7 @@ IntensityAmount=0.1
 IntensityEffect=2
 
 [ColorEffects:Inactive]
-ChangeSelectionColor=true
+ChangeSelectionColor=false
 Color={{colors.surface_container.default.red}},{{colors.surface_container.default.green}},{{colors.surface_container.default.blue}}
 ColorAmount=0.025
 ColorEffect=2
@@ -86,6 +86,20 @@ ForegroundNegative={{colors.on_error.default.red}},{{colors.on_error.default.gre
 ForegroundNeutral={{colors.on_secondary.default.red}},{{colors.on_secondary.default.green}},{{colors.on_secondary.default.blue}}
 ForegroundNormal={{colors.on_primary.default.red}},{{colors.on_primary.default.green}},{{colors.on_primary.default.blue}}
 ForegroundPositive={{colors.on_tertiary.default.red}},{{colors.on_tertiary.default.green}},{{colors.on_tertiary.default.blue}}
+ForegroundVisited={{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}}
+
+[Colors:Selection][Inactive]
+BackgroundAlternate={{colors.surface_container_high.default.red}},{{colors.surface_container_high.default.green}},{{colors.surface_container_high.default.blue}}
+BackgroundNormal={{colors.surface_container_high.default.red}},{{colors.surface_container_high.default.green}},{{colors.surface_container_high.default.blue}}
+DecorationFocus={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
+DecorationHover={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
+ForegroundActive={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
+ForegroundInactive={{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}}
+ForegroundLink={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
+ForegroundNegative={{colors.error.default.red}},{{colors.error.default.green}},{{colors.error.default.blue}}
+ForegroundNeutral={{colors.on_surface.default.red}},{{colors.on_surface.default.green}},{{colors.on_surface.default.blue}}
+ForegroundNormal={{colors.on_surface.default.red}},{{colors.on_surface.default.green}},{{colors.on_surface.default.blue}}
+ForegroundPositive={{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}}
 ForegroundVisited={{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}}
 
 [Colors:Tooltip]

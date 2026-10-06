@@ -36,6 +36,7 @@ in {
         DisplayServer = "wayland";
         CursorTheme = "Bibata-Modern-Ice";
         CursorSize = "24";
+        GreeterEnvironment = "QT_QUICK_CONTROLS_STYLE=Basic QT_WAYLAND_SHELL_INTEGRATION=layer-shell";
       };
       Theme = {
         Current = "sddm-astronaut-theme";

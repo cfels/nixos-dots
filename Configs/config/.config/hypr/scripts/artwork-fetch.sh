@@ -83,6 +83,12 @@ local_image() {
 	return 1
 }
 
+if [ -s "$dest" ]; then
+	same_as_shown "$dest" && exit 2
+
+	exit 0
+fi
+
 case "$track" in
 	*"youtube.com/watch?v="*|*"youtu.be/"*|*"music.youtube.com/watch?v="*)
 		id="$(printf '%s' "$track" | sed -n 's/.*[?&]v=\([A-Za-z0-9_-]\{6,\}\).*/\1/p')"
