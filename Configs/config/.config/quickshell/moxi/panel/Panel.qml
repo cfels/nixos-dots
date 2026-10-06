@@ -28,9 +28,17 @@ PanelWindow {
 	property var lyrics: []
 	property bool syncedLyrics: true
 	property bool lyricsWanted: false
+	property bool lyricsEstimated: false
+	property var lyricsPlain: []
+	property real lyricsPlainDuration: -1
 	property string lyricsKey: ""
 	property string lyricsFetchKey: ""
 	property string lyricsLoadedKey: ""
+	property var lyricsMissing: ({})
+	readonly property bool lyricsUnavailable: panel.lyricsMissing[panel.lyricsKey] === true
+	property var lyricsDurations: ({})
+	readonly property bool lyricsSearching: panel.hasPlayer && panel.lyrics.length === 0 && !panel.lyricsUnavailable
+		&& (lyricsFetch.running || panel.lyricsWanted || lyricsDebounce.running)
 	property bool artWanted: false
 	property real lookupDuration: 0
 	property int activeLyric: -1
@@ -255,7 +263,7 @@ PanelWindow {
 	function timeText(seconds): string {
 		if (!isFinite(seconds) || seconds <= 0) return "--:--"
 
-		var total = Math.floor(seconds)
+		var total = Math.round(seconds)
 		var minutes = Math.floor(total / 60)
 		var rest = total % 60
 
@@ -298,6 +306,87 @@ PanelWindow {
 		return clean.length > 0 ? clean : raw
 	}
 
+	function lyricHeader(text): bool {
+		return /^\[[^\]]*\]$/.test(("" + text).trim())
+	}
+
+	function noteMissingLyrics(): void {
+		var key = panel.lyricsKey
+
+		if (key.length === 0) return
+
+		var map = {}
+		var known = Object.keys(panel.lyricsMissing)
+
+		for (var i = 0; i < known.length && i < 128; ++i) map[known[i]] = true
+
+		map[key] = true
+		panel.lyricsMissing = map
+	}
+
+	function forgetMissingLyrics(): void {
+		var key = panel.lyricsKey
+
+		if (key.length === 0 || panel.lyricsMissing[key] !== true) return
+
+		var map = {}
+		var known = Object.keys(panel.lyricsMissing)
+
+		for (var i = 0; i < known.length; ++i) {
+			if (known[i] !== key) map[known[i]] = true
+		}
+
+		panel.lyricsMissing = map
+	}
+
+	function rememberDuration(seconds): void {
+		var key = panel.lyricsKey
+
+		if (!(seconds > 0) || key.length === 0) return
+		if (panel.lyricsDurations[key] === seconds) return
+
+		var map = {}
+		var known = Object.keys(panel.lyricsDurations)
+
+		for (var i = 0; i < known.length && i < 256; ++i) map[known[i]] = panel.lyricsDurations[known[i]]
+
+		map[key] = seconds
+		panel.lyricsDurations = map
+	}
+
+	function applyPlainLyrics(): void {
+		var raw = panel.lyricsPlain
+		var duration = panel.trackDuration
+		var timed = duration > 0
+		var content = []
+		var result = []
+		var i
+
+		for (i = 0; i < raw.length; ++i) {
+			var text = ("" + raw[i]).trim()
+			var entry = { time: -1, text: text }
+
+			result.push(entry)
+
+			if (text.length > 0 && !panel.lyricHeader(text)) content.push(entry)
+		}
+
+		if (timed) {
+			for (i = 0; i < content.length; ++i) {
+				content[i].time = duration * (i + 1) / (content.length + 1)
+			}
+		}
+
+		panel.lyricsPlainDuration = timed ? duration : 0
+		panel.lyrics = result
+		panel.syncedLyrics = timed
+		panel.activeLyric = -1
+		panel.lyricsLoadedKey = panel.lyricsKey
+		panel.showLyrics = true
+
+		panel.updateActiveLyric()
+	}
+
 	function applyLyrics(payload): void {
 		if (!payload || payload.length === 0) return
 
@@ -311,14 +400,23 @@ PanelWindow {
 		if (!data) return
 		if (panel.lyricsFetchKey !== panel.lyricsKey) return
 
-		if (data.duration && data.duration > 0) panel.lookupDuration = data.duration
+		if (data.duration && data.duration > 0) {
+			panel.lookupDuration = data.duration
+			panel.rememberDuration(data.duration)
+		}
 
 		var hasSynced = data.syncedLyrics && data.syncedLyrics.length > 0
 		var hasPlain = data.plainLyrics && data.plainLyrics.length > 0
 
 		if (!hasSynced && !hasPlain) {
+			if (panel.lyrics.length > 0 && panel.lyricsLoadedKey === panel.lyricsKey) return
+
 			panel.lyrics = []
+			panel.lyricsPlain = []
+			panel.lyricsEstimated = false
+			panel.lyricsPlainDuration = -1
 			panel.lyricsLoadedKey = ""
+			panel.noteMissingLyrics()
 
 			return
 		}
@@ -328,6 +426,8 @@ PanelWindow {
 
 			if (parsed.length > 0) {
 				panel.lyrics = parsed
+				panel.lyricsPlain = []
+				panel.lyricsEstimated = false
 				panel.syncedLyrics = true
 				panel.lyricsLoadedKey = panel.lyricsKey
 				panel.showLyrics = true
@@ -337,13 +437,9 @@ PanelWindow {
 		}
 
 		if (hasPlain) {
-			panel.lyrics = data.plainLyrics.split("\n").map(function(line) {
-				return { time: -1, text: line }
-			})
-			panel.syncedLyrics = false
-			panel.activeLyric = -1
-			panel.lyricsLoadedKey = panel.lyricsKey
-			panel.showLyrics = true
+			panel.lyricsPlain = data.plainLyrics.split("\n")
+			panel.lyricsEstimated = true
+			panel.applyPlainLyrics()
 		}
 	}
 
@@ -357,6 +453,7 @@ PanelWindow {
 		var index = -1
 
 		for (var i = 0; i < panel.lyrics.length; ++i) {
+			if (panel.lyrics[i].time < 0) continue
 			if (panel.lyrics[i].time <= position) index = i
 			else break
 		}
@@ -385,15 +482,18 @@ PanelWindow {
 	function fetchLyrics(): void {
 		if (panel.trackTitle.length === 0) return
 		if (panel.lyrics.length > 0 && panel.lyricsLoadedKey === panel.lyricsKey) return
-
-		panel.lyricsFetchKey = panel.lyricsKey
+		if (panel.lyricsUnavailable) return
+		if (panel.trackDuration > 0 && panel.trackDuration < 30) return
 
 		if (lyricsFetch.running) {
+			if (panel.lyricsFetchKey === panel.lyricsKey) return
+
 			panel.lyricsWanted = true
 			lyricsFetch.running = false
 			return
 		}
 
+		panel.lyricsFetchKey = panel.lyricsKey
 		panel.lyricsWanted = false
 		lyricsFetch.running = true
 	}
@@ -440,8 +540,22 @@ PanelWindow {
 	Timer {
 		id: lyricsDebounce
 
-		interval: 700
+		interval: 1800
 		onTriggered: panel.fetchLyrics()
+	}
+
+	Timer {
+		id: lyricsWatchdog
+
+		interval: 11000
+		running: lyricsFetch.running
+		onTriggered: {
+			if (!lyricsFetch.running) return
+
+			panel.lyricsWanted = false
+			lyricsFetch.running = false
+			panel.noteMissingLyrics()
+		}
 	}
 
 	Timer {
@@ -599,6 +713,7 @@ PanelWindow {
 	onTrackKeyChanged: {
 		var key = panel.normKey(panel.trackKey)
 
+		if (key.length === 0) return
 		if (key === panel.lyricsKey) return
 
 		panel.lyricsKey = key
@@ -613,12 +728,18 @@ PanelWindow {
 		panel.seekSettling = false
 		panel.seekTarget = -1
 		seekSettleTimer.stop()
-		panel.lookupDuration = 0
+		panel.lookupDuration = panel.lyricsDurations[key] > 0 ? panel.lyricsDurations[key] : 0
 		panel.syncedLyrics = false
+		panel.lyrics = []
+		panel.lyricsEstimated = false
+		panel.lyricsPlain = []
+		panel.lyricsPlainDuration = -1
 		panel.activeLyric = -1
 		panel.showLyrics = false
 		panel.lyricsLoadedKey = ""
 		panel.lyricsFetchKey = ""
+		lyricsView.manual = false
+		panel.forgetMissingLyrics()
 
 		if (panel.trackTitle.length > 0) lyricsDebounce.restart()
 		panel.artRetries = 0
@@ -626,6 +747,8 @@ PanelWindow {
 	}
 
 	onArtUrlChanged: if (panel.artUrl.length > 0) panel.scheduleArt(80)
+
+	onTrackDurationChanged: if (panel.lyricsEstimated && panel.trackDuration > 0 && panel.trackDuration !== panel.lyricsPlainDuration) panel.applyPlainLyrics()
 
 	onActiveLyricChanged: lyricsView.scrollToActive()
 
@@ -657,6 +780,13 @@ PanelWindow {
 
 		stdout: SplitParser {
 			onRead: (line) => panel.applyLyrics(line)
+		}
+
+		onExited: (code, status) => {
+			if (panel.lyricsFetchKey !== panel.lyricsKey) return
+			if (panel.lyricsLoadedKey === panel.lyricsKey) return
+
+			panel.noteMissingLyrics()
 		}
 
 		onRunningChanged: {
@@ -1292,13 +1422,17 @@ PanelWindow {
 						property bool hovered: false
 						property bool dragging: false
 						property real dragBase: 0
+						property real dragBaseX: 0
 
 						function preview(x): void {
-							if (!panel.hasPlayer || panel.trackDuration <= 0) return
+							if (!panel.hasPlayer || !panel.player.canSeek) return
 
-							var ratio = Math.max(0, Math.min(1, x / width))
+							if (panel.trackDuration > 0) {
+								panel.dragPosition = panel.trackDuration * Math.max(0, Math.min(1, x / width))
+							} else {
+								panel.dragPosition = Math.max(0, progressTrack.dragBase + (x - progressTrack.dragBaseX) / width * 180)
+							}
 
-							panel.dragPosition = panel.trackDuration * ratio
 							panel.trackPosition = panel.dragPosition
 							panel.updateActiveLyric()
 						}
@@ -1314,7 +1448,20 @@ PanelWindow {
 								return
 							}
 
-							panel.seekTo(panel.dragPosition)
+							if (panel.trackDuration > 0) {
+								panel.seekTo(panel.dragPosition)
+
+								return
+							}
+
+							if (Math.abs(panel.dragPosition - progressTrack.dragBase) >= 0.5) {
+								panel.seekTo(panel.dragPosition)
+
+								return
+							}
+
+							panel.trackPosition = progressTrack.dragBase
+							panel.dragPosition = progressTrack.dragBase
 						}
 
 						HoverHandler {
@@ -1330,7 +1477,9 @@ PanelWindow {
 							anchors.verticalCenter: parent.verticalCenter
 							height: progressTrack.hovered ? 10 : 5
 							radius: height / 2
-							color: Qt.rgba(theme.idle.r, theme.idle.g, theme.idle.b, 0.55)
+							color: panel.trackDuration > 0
+								? Qt.rgba(theme.idle.r, theme.idle.g, theme.idle.b, progressTrack.hovered ? 0.95 : 0.7)
+								: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, progressTrack.hovered ? 0.5 : 0.3)
 
 							Behavior on height {
 								NumberAnimation {
@@ -1363,7 +1512,7 @@ PanelWindow {
 						Rectangle {
 							id: indeterminate
 
-							visible: panel.hasPlayer && panel.trackDuration <= 0
+							visible: panel.hasPlayer && panel.trackDuration <= 0 && panel.lyricsSearching
 							y: progressRail.y
 							width: progressRail.width * 0.25
 							height: progressRail.height
@@ -1399,8 +1548,11 @@ PanelWindow {
 							anchors.bottomMargin: -6
 							enabled: panel.hasPlayer
 							hoverEnabled: true
-							cursorShape: panel.player && panel.player.canSeek && panel.trackDuration > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
+							cursorShape: panel.player && panel.player.canSeek ? Qt.PointingHandCursor : Qt.ArrowCursor
 							onPressed: (mouse) => {
+								if (!panel.hasPlayer || !panel.player.canSeek) return
+
+								progressTrack.dragBaseX = mouse.x
 								progressTrack.dragBase = panel.trackPosition
 								progressTrack.dragging = true
 								progressTrack.preview(mouse.x)
@@ -1409,10 +1561,14 @@ PanelWindow {
 								if (pressed) progressTrack.preview(mouse.x)
 							}
 							onReleased: {
+								if (!progressTrack.dragging) return
+
 								progressTrack.dragging = false
 								progressTrack.commit()
 							}
 							onCanceled: {
+								if (!progressTrack.dragging) return
+
 								progressTrack.dragging = false
 								progressTrack.commit()
 							}
@@ -1425,7 +1581,7 @@ PanelWindow {
 						anchors.top: progressTrack.bottom
 						anchors.topMargin: 6
 						anchors.left: parent.left
-						color: panel.muted
+						color: progressTrack.dragging ? panel.accent : panel.muted
 						font.family: panel.fontFamily
 						font.pixelSize: 11
 						text: {
@@ -1726,7 +1882,7 @@ PanelWindow {
 						width: 36
 						height: 36
 						radius: 15
-						readonly property bool loading: panel.hasPlayer && panel.lyrics.length === 0 && (lyricsFetch.running || panel.lyricsWanted)
+						readonly property bool loading: panel.lyricsSearching
 						property bool pulseOn: false
 						transformOrigin: Item.Center
 						border.width: 1
