@@ -23,6 +23,8 @@ output_path = "~/.cache/moxi-theme/gtk-4.0/gtk.css"
 [templates.gtk4_colors]
 input_path = "~/.config/matugen/templates/gtk-colors.css"
 output_path = "~/.config/gtk-4.0/colors.css"
+index = 1
+post_hook = '"$HOME/.config/hypr/scripts/desktop-theme-apply.py"'
 
 [templates.kde]
 input_path = "~/.config/matugen/templates/kde.colors"

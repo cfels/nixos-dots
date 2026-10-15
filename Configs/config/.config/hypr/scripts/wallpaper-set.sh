@@ -194,8 +194,6 @@ if command -v matugen >/dev/null 2>&1; then
 	fi
 
 	if [ "$matugen_ok" -eq 1 ]; then
-		# Refresh apps only after every palette file has been generated.
-		"${HOME}/.config/hypr/scripts/desktop-theme-apply.py"
 		"${HOME}/.config/hypr/scripts/quickshell-reload.sh" >/dev/null 2>&1 || true
 		command -v hyprctl >/dev/null 2>&1 && hyprctl reload >/dev/null 2>&1 || true
 	fi
