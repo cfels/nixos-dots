@@ -1,0 +1,17 @@
+\.git
+\.gitignore
+\.stowrc
+README.*
+nixos
+shell
+kwinoutputconfig.json
+kglobalshortcutsrc
+sessionData
+Code Cache
+Cache
+storage
+Singleton
+*.log
+*.ldb
+LOCK
+LOG

@@ -1,0 +1,106 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+      //"type": "kitty-icat",
+      //"source": "$HOME/nixos-dots/Configs/config/fastfetch/larpchyon.gif",
+      //"width": 46,
+      //"height": 46
+      //"color": {
+       // "1": "38;2;179;197;255",
+      //}
+    },
+    "modules": [
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[38;2;179;197;255m╭──────────────────────Hardware──────────────────────╮"
+        },
+        {
+            "type": "host",
+            "key": "  󰇄  PC",
+            "keyColor": "38;2;226;187;220"
+        },
+        {
+            "type": "cpu",
+            "key": "  ├  ",
+            "showPeCoreCount": true,
+            "keyColor": "38;2;226;187;220"
+        },
+        {
+            "type": "gpu",
+            "key": "  ├ 󰢮 ",
+            "keyColor": "38;2;226;187;220"
+        },
+        {
+            "type": "memory",
+            "key": "  ├  ",
+            "keyColor": "38;2;226;187;220"
+        },
+        {
+            "type": "disk",
+            "key": "  ╰  ",
+            "folders": "/",
+            "keyColor": "38;2;226;187;220"
+        },
+        {
+            "type": "custom",
+            "format": "\u001b[38;2;179;197;255m╰────────────────────────────────────────────────────╯"
+        },
+        "break",
+        {
+            "type": "custom",
+            "format": "\u001b[38;2;179;197;255m╭──────────────────────Software──────────────────────╮"
+        },
+        {
+            "type": "os",
+            "key": "   OS",
+            "keyColor": "38;2;193;198;221"
+        },
+        {
+            "type": "kernel",
+            "key": "  ├  ",
+            "keyColor": "38;2;193;198;221"
+        },
+        {
+            "type": "packages",
+            "key": "  ├  ",
+            "keyColor": "38;2;193;198;221"
+        },
+        {
+            "type": "shell",
+            "key": "  ╰  ",
+            "keyColor": "38;2;193;198;221"
+        },
+        "break",
+        {
+            "type": "de",
+            "key": "  ╭  ",
+            "keyColor": "38;2;179;197;255"
+        },
+        {
+            "type": "lm",
+            "key": "  ├ 󰍂 ",
+            "keyColor": "38;2;179;197;255"
+        },
+        {
+            "type": "wm",
+            "key": "  ├  ",
+            "keyColor": "38;2;179;197;255"
+        },
+        {
+            "type": "gpu",
+            "key": "  ├ 󰾲 ",
+            "format": "{3}",
+            "keyColor": "38;2;179;197;255"
+        },
+        {
+            "type": "custom",
+            "format": "\u001b[38;2;179;197;255m  ╰────────────────────────────────────────╯"
+        },
+        {
+            "type": "custom",
+            "format": "\u001b[38;2;179;197;255m╰────────────────────────────────────────────────────╯"
+        },
+        "break"
+    ]
+}

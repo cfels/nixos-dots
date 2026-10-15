@@ -1,0 +1,325 @@
+window, window.background, window > .background, .background, notebook > stack {
+	background-color: {{colors.surface.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+headerbar, .titlebar, window > .titlebar {
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	border-bottom: 1px solid {{colors.outline_variant.default.hex}};
+	box-shadow: none;
+}
+
+headerbar .title, headerbar .subtitle, headerbar label {
+	color: {{colors.on_surface.default.hex}};
+}
+
+.view, listview, list, columnview, gridview, iconview, textview > text, .view > text {
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+listview > row, list > row, columnview > row, gridview > child {
+	background-color: transparent;
+	color: {{colors.on_surface.default.hex}};
+}
+
+listview > row:hover, list > row:hover, columnview > row:hover {
+	background-color: {{colors.surface_container_high.default.hex}};
+}
+
+listview > row:selected, list > row:selected, columnview > row:selected, gridview > child:selected, row:selected, .view:selected {
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+separator, .separator {
+	background-color: {{colors.outline_variant.default.hex}};
+}
+
+button, dropdown > button, dropdown button, button.dropdown-button, combobox > box > button, combobox button, combobox > button, menubutton > button, spinbutton > button, modelbutton {
+	background-color: {{colors.surface_container_high.default.hex}};
+	background-image: none;
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+	box-shadow: none;
+}
+
+button:hover, dropdown > button:hover, dropdown button:hover, button.dropdown-button:hover, combobox > box > button:hover, combobox button:hover, combobox > button:hover, menubutton > button:hover, modelbutton:hover {
+	background-color: {{colors.surface_container_highest.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+dropdown, combobox {
+	background-color: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+dropdown > button > box, dropdown > button > image, dropdown button > image, combobox > button > box, combobox > box > button > box {
+	background-color: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+button:checked, button:active, togglebutton:checked, modelbutton:active, dropdown button:active {
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+button:disabled, modelbutton:disabled {
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+entry, spinbutton, searchentry {
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+	box-shadow: none;
+}
+
+entry:focus, entry:focus-within, spinbutton:focus-within {
+	border-color: {{colors.primary.default.hex}};
+}
+
+entry placeholder, entry text placeholder {
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+popover, popover > contents, popover > arrow, menu, context-menu, dropdown > popover > contents, dropdown popover > contents {
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+	box-shadow: none;
+}
+
+popover listview, popover list, popover .view, dropdown popover listview, dropdown popover list {
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+popover listview > row:selected, popover list > row:selected, popover .view:selected, dropdown popover listview > row:selected, dropdown popover list > row:selected {
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+dropdown > button:focus, dropdown button:focus, dropdown > button:focus-visible, dropdown button:focus-visible {
+	border-color: {{colors.primary.default.hex}};
+}
+
+tooltip, tooltip * {
+	background-color: {{colors.surface_container_highest.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+}
+
+scale {
+	background: none;
+	border: none;
+	box-shadow: none;
+	padding: 0;
+}
+
+scale > trough {
+	min-height: 4px;
+	background-color: {{colors.surface_container_highest.default.hex}};
+	background-image: none;
+	border: none;
+	border-radius: 2px;
+	box-shadow: none;
+}
+
+scale > trough > highlight {
+	min-width: 0;
+	min-height: 4px;
+	margin: 0;
+	background-color: {{colors.primary.default.hex}};
+	background-image: none;
+	border: none;
+	border-radius: 2px;
+	box-shadow: none;
+}
+
+scale > trough > slider {
+	-gtk-icon-source: none;
+	min-width: 14px;
+	min-height: 14px;
+	margin: -5px 0;
+	background-color: {{colors.primary.default.hex}};
+	background-image: none;
+	border: none;
+	border-radius: 100%;
+	box-shadow: none;
+}
+
+scale > value, scale > marks label {
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+scale slider:backdrop, scale slider:hover, scale slider:active {
+	background-color: {{colors.primary.default.hex}};
+	background-image: none;
+}
+
+progressbar > trough {
+	background-color: {{colors.surface_container_highest.default.hex}};
+}
+
+progressbar > trough > progress {
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+levelbar > block.filled {
+	background-color: {{colors.primary.default.hex}};
+}
+
+switch {
+	background-color: {{colors.surface_container_highest.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+}
+
+switch:checked {
+	background-color: {{colors.primary.default.hex}};
+}
+
+switch > slider {
+	background-color: {{colors.on_surface.default.hex}};
+}
+
+row:selected label, row:selected image, row:selected .dim-label,
+gridview > child:selected label, gridview > child:selected image,
+placessidebar row:selected label, placessidebar row:selected image {
+	color: {{colors.on_primary.default.hex}};
+}
+
+button:checked:not(.suggested-action):not(.destructive-action),
+button:active:not(.suggested-action):not(.destructive-action) {
+	background-color: {{colors.primary.default.hex}};
+	background-image: none;
+	border-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+button:checked:not(.suggested-action):not(.destructive-action) label,
+button:checked:not(.suggested-action):not(.destructive-action) image,
+button:active:not(.suggested-action):not(.destructive-action) label,
+button:active:not(.suggested-action):not(.destructive-action) image {
+	color: {{colors.on_primary.default.hex}};
+}
+
+check:checked, radio:checked {
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+check, radio {
+	background-color: {{colors.surface_container.default.hex}};
+	border-color: {{colors.outline_variant.default.hex}};
+}
+
+scrollbar > range > trough {
+	background-color: transparent;
+}
+
+scrollbar > range > trough > slider {
+	min-width: 6px;
+	min-height: 30px;
+	margin: 0;
+	background-color: {{colors.outline_variant.default.hex}};
+	background-image: none;
+	border: none;
+	box-shadow: none;
+}
+
+scrollbar.horizontal > range > trough > slider {
+	min-width: 30px;
+	min-height: 6px;
+	margin: 0;
+}
+
+notebook > header:not(.top) {
+	background-color: {{colors.surface_container.default.hex}};
+	border-color: {{colors.outline_variant.default.hex}};
+}
+
+notebook > header:not(.top) > tabs > tab {
+	background-color: transparent;
+	border-color: transparent;
+	box-shadow: none;
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+notebook > header:not(.top) > tabs > tab:hover {
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+notebook > header:not(.top) > tabs > tab:checked {
+	background-color: transparent;
+	box-shadow: inset 0 -2px {{colors.primary.default.hex}};
+	color: {{colors.primary.default.hex}};
+}
+
+notebook > header.top {
+	background-color: {{colors.surface_container.default.hex}};
+	background-image: none;
+	border: none;
+	border-bottom: 1px solid {{colors.outline_variant.default.hex}};
+	padding: 6px;
+	box-shadow: none;
+}
+
+notebook > header.top > tabs > tab {
+	min-height: 18px;
+	padding: 6px 12px;
+	margin: 0 2px;
+	background-color: transparent;
+	background-image: none;
+	border: none;
+	border-radius: 8px;
+	box-shadow: none;
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+notebook > header.top > tabs > tab:first-child,
+notebook > header.top > tabs > tab:last-child,
+notebook > header.top > tabs > tab:checked:first-child,
+notebook > header.top > tabs > tab:checked:not(:first-child),
+notebook > header.top > tabs > tab:checked:not(:last-child),
+notebook > header.top > tabs > tab:checked + tab {
+	padding: 6px 12px;
+	margin: 0 2px;
+	border-radius: 8px;
+}
+
+notebook > header.top > tabs > tab > label {
+	margin: 0;
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+notebook > header.top > tabs > tab:hover,
+notebook > header.top > tabs > tab.prelight-page {
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+notebook > header.top > tabs > tab:hover > label,
+notebook > header.top > tabs > tab.prelight-page > label {
+	color: {{colors.on_surface.default.hex}};
+}
+
+notebook > header.top > tabs > tab:checked {
+	background-color: {{colors.primary_container.default.hex}};
+	box-shadow: inset 0 -2px {{colors.primary.default.hex}};
+	color: {{colors.on_primary_container.default.hex}};
+}
+
+notebook > header.top > tabs > tab:checked > label {
+	color: {{colors.on_primary_container.default.hex}};
+}
+
+windowcontrols > button {
+	background-color: transparent;
+	color: {{colors.on_surface.default.hex}};
+}

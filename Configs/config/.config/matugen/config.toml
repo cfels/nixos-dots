@@ -1,0 +1,51 @@
+[config]
+
+[templates.quickshell]
+input_path = "~/.config/matugen/templates/quickshell.json"
+output_path = "~/.config/quickshell/moxi/colors.json"
+
+[templates.hyprland]
+input_path = "~/.config/matugen/templates/hyprland.lua"
+output_path = "~/.config/hypr/hyprland/colors.lua"
+
+[templates.gtk3]
+input_path = "~/.config/matugen/templates/gtk3.css"
+output_path = "~/.config/gtk-3.0/gtk.css"
+
+[templates.gtk3_colors]
+input_path = "~/.config/matugen/templates/gtk-colors.css"
+output_path = "~/.config/gtk-3.0/colors.css"
+
+[templates.gtk4]
+input_path = "~/.config/matugen/templates/gtk4.css"
+output_path = "~/.cache/moxi-theme/gtk-4.0/gtk.css"
+
+[templates.gtk4_colors]
+input_path = "~/.config/matugen/templates/gtk-colors.css"
+output_path = "~/.config/gtk-4.0/colors.css"
+
+[templates.kde]
+input_path = "~/.config/matugen/templates/kde.colors"
+output_path = "~/.local/share/color-schemes/Matugen.colors"
+
+[templates.kitty]
+input_path = "~/.config/matugen/templates/kitty.conf"
+output_path = "~/.config/kitty/current-theme.conf"
+post_hook = "pkill -SIGUSR1 -x kitty || true"
+
+[templates.starship]
+input_path = "~/.config/matugen/templates/starship.toml"
+output_path = "~/.config/starship.toml"
+
+[templates.fastfetch]
+input_path = "~/.config/matugen/templates/fastfetch.jsonc"
+output_path = "~/.config/fastfetch/config.jsonc"
+
+[templates.hyprlock]
+input_path = "~/.config/matugen/templates/hyprlock.conf"
+output_path = "~/.config/hypr/hyprlock.conf"
+
+[templates.cava]
+input_path = "~/.config/matugen/templates/cava.conf"
+output_path = "~/.config/cava/config"
+post_hook = "pkill -USR1 -x cava || true"

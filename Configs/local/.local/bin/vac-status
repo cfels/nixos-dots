@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+# status flag
+if [[ "$1" = "--status" || "$1" = "-s" ]]; then
+	echo "VAC status: $(cat /tmp/vac_state 2>/dev/null || echo disabled)"
+	exit 0
+fi
+
+# help flag
+if [[ "$1" = "--help" || "$1" = "-h" ]]; then
+cat << EOF
+ _  _   __    ___     ___  _  _  ____  ___  __ _  ____  ____     __  ___     ____  ___  
+/ )( \ / _\  / __)   / __)/ )( \(  __)/ __)(  / )(  __)(  _ \   /  \/ _ \   ( __ \/ _ \ 
+\ \/ //    \( (__   ( (__ ) __ ( ) _)( (__  )  (  ) _)  )   /  (_/ /\__  )_  (__ (\__  )
+ \__/ \_/\_/ \___)   \___)\_)(_/(____)\___)(__\_)(____)(__\_)   (__)(___/(_)(____/(___/ 
+
+USAGE:
+	--help, -h = show help (who would guess that right?)
+	--status, -s = show your vac status
+
+that's it
+EOF
+exit 0
+fi
+
+# main part of this script
+cat << EOF
+ _  _   __    ___     ___  _  _  ____  ___  __ _  ____  ____     __  ___     ____  ___  
+/ )( \ / _\  / __)   / __)/ )( \(  __)/ __)(  / )(  __)(  _ \   /  \/ _ \   ( __ \/ _ \ 
+\ \/ //    \( (__   ( (__ ) __ ( ) _)( (__  )  (  ) _)  )   /  (_/ /\__  )_  (__ (\__  )
+ \__/ \_/\_/ \___)   \___)\_)(_/(____)\___)(__\_)(____)(__\_)   (__)(___/(_)(____/(___/ 
+EOF
+
+# prompt user for yeah or nah
+read -p "do you wish to enable vac live? (Y/N): " vacprompt
+
+# vac prompt
+if [ "$vacprompt" = "y" ] || [ "$vacprompt" = "Y" ] || [ "$vacprompt" = "yes" ]; then
+    echo "VAC enabled!" > /tmp/vac_state
+    echo "VAC has been enabled!"
+else
+    echo "VAC disabled!" > /tmp/vac_state
+    echo "VAC has been disabled!"
+fi
+exit 0

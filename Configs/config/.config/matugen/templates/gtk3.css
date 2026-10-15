@@ -1,0 +1,444 @@
+window, window.background, .background, dialog, messagedialog {
+	background-color: {{colors.surface.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+window stack, window box, window scrolledwindow, window viewport, window frame {
+	background-color: transparent;
+	color: inherit;
+}
+
+headerbar, .titlebar, headerbar.default-decoration, .titlebar.default-decoration, .header-bar {
+	background-color: {{colors.surface_container.default.hex}};
+	background-image: none;
+	color: {{colors.on_surface.default.hex}};
+	border-bottom: 1px solid {{colors.outline_variant.default.hex}};
+	box-shadow: none;
+	text-shadow: none;
+}
+
+headerbar .title, headerbar .subtitle, .titlebar .title, .titlebar .subtitle {
+	color: {{colors.on_surface.default.hex}};
+	text-shadow: none;
+}
+
+headerbar button, headerbar button.flat, .titlebar button, .titlebutton {
+	background-color: transparent;
+	background-image: none;
+	border: 1px solid transparent;
+	box-shadow: none;
+	color: {{colors.on_surface.default.hex}};
+	-gtk-icon-shadow: none;
+}
+
+button, .button, modelbutton, menubutton > button, combobox button, button.combo, dropdown button, spinbutton button, stackswitcher button {
+	background-color: {{colors.surface_container_high.default.hex}};
+	background-image: none;
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+	border-radius: 8px;
+	box-shadow: none;
+	text-shadow: none;
+	-gtk-icon-shadow: none;
+}
+
+button:hover, .button:hover, button.combo:hover, combobox button:hover, dropdown button:hover, modelbutton:hover, headerbar button:hover {
+	background-color: {{colors.surface_container_highest.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+button:active, button:checked, togglebutton:active, togglebutton:checked, stackswitcher button:checked, modelbutton:active {
+	background-color: {{colors.primary.default.hex}};
+	background-image: none;
+	color: {{colors.on_primary.default.hex}};
+	border-color: {{colors.primary.default.hex}};
+}
+
+button:disabled, button:disabled label, modelbutton:disabled, button:disabled image {
+	color: {{colors.on_surface_variant.default.hex}};
+	-gtk-icon-shadow: none;
+}
+
+button.suggested-action, headerbar button.suggested-action, .suggested-action {
+	background-color: {{colors.primary.default.hex}};
+	background-image: none;
+	color: {{colors.on_primary.default.hex}};
+	border-color: {{colors.primary.default.hex}};
+	box-shadow: none;
+	text-shadow: none;
+	-gtk-icon-shadow: none;
+}
+
+button.suggested-action label, button.suggested-action image, headerbar button.suggested-action label,
+headerbar button.suggested-action image, .suggested-action label, .suggested-action image {
+	color: {{colors.on_primary.default.hex}};
+	text-shadow: none;
+	-gtk-icon-shadow: none;
+}
+
+button.suggested-action:hover, button.suggested-action:focus, button.suggested-action:active,
+button.suggested-action:checked, headerbar button.suggested-action:hover, .suggested-action:hover, .suggested-action:active {
+	background-color: {{colors.primary.default.hex}};
+	background-image: none;
+	color: {{colors.on_primary.default.hex}};
+	border-color: {{colors.primary.default.hex}};
+	box-shadow: none;
+}
+
+button.suggested-action:hover label, button.suggested-action:active label, button.suggested-action:checked label,
+headerbar button.suggested-action:hover label, .suggested-action:hover label {
+	color: {{colors.on_primary.default.hex}};
+}
+
+button.destructive-action, headerbar button.destructive-action, .destructive-action {
+	background-color: {{colors.error.default.hex}};
+	background-image: none;
+	color: {{colors.on_error.default.hex}};
+	border-color: {{colors.error.default.hex}};
+	box-shadow: none;
+	text-shadow: none;
+	-gtk-icon-shadow: none;
+}
+
+button.destructive-action label, button.destructive-action image, headerbar button.destructive-action label,
+.destructive-action label, .destructive-action image {
+	color: {{colors.on_error.default.hex}};
+	text-shadow: none;
+	-gtk-icon-shadow: none;
+}
+
+button.flat, .flat, headerbar button.flat, headerbar button.titlebutton, popover button.flat {
+	background-color: transparent;
+	background-image: none;
+	border-color: transparent;
+	box-shadow: none;
+}
+
+button.flat:hover, .flat:hover, headerbar button.flat:hover, popover button.flat:hover {
+	background-color: {{colors.surface_container_high.default.hex}};
+}
+
+entry, spinbutton, searchentry, entry.search, headerbar entry, headerbar searchentry {
+	background-color: {{colors.surface_container.default.hex}};
+	background-image: none;
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+	border-radius: 8px;
+	box-shadow: none;
+	text-shadow: none;
+}
+
+headerbar entry, headerbar searchentry, entry.search {
+	background-color: {{colors.surface_container_high.default.hex}};
+}
+
+entry:focus, entry:focus-within, spinbutton:focus-within, searchentry:focus {
+	border-color: {{colors.primary.default.hex}};
+	box-shadow: none;
+}
+
+entry:disabled, spinbutton:disabled {
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+entry selection, text selection, label selection, entry:selected {
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+entry placeholder, entry:disabled label {
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+.view, treeview.view, textview text, iconview, list, listview, .view text, flowbox, flowboxchild {
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+treeview.view, treeview.view cell {
+	border-color: {{colors.outline_variant.default.hex}};
+}
+
+treeview.view:selected, treeview.view:selected:focus, row:selected, list row:selected, listbox row:selected, .view:selected, flowboxchild:selected {
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+treeview.view:hover:not(:selected), row:hover, list row:hover, listbox row:hover, placessidebar row:hover, flowboxchild:hover {
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+treeview header button, treeview.view header button {
+	background-color: {{colors.surface_container.default.hex}};
+	background-image: none;
+	color: {{colors.on_surface_variant.default.hex}};
+	border: none;
+	border-bottom: 1px solid {{colors.outline_variant.default.hex}};
+	border-radius: 0;
+	box-shadow: none;
+}
+
+treeview header button:hover, treeview.view header button:hover {
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+.sidebar, .sidebar .view, .sidebar list, placessidebar, placessidebar list, placessidebar .view {
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+.sidebar row:selected, placessidebar row:selected, placessidebar row:selected:focus {
+	background-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+placessidebar row:disabled, placessidebar row:disabled image {
+	color: {{colors.on_surface_variant.default.hex}};
+	-gtk-icon-shadow: none;
+}
+
+filechooser placessidebar, filechooser .sidebar, filechooser .view, filechooser treeview.view, filechooser entry {
+	background-color: {{colors.surface_container.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+pathbar, .path-bar, pathbar button, .path-bar button {
+	background-color: transparent;
+	background-image: none;
+	color: {{colors.on_surface.default.hex}};
+	border: none;
+	border-radius: 6px;
+	box-shadow: none;
+}
+
+pathbar button:hover, .path-bar button:hover {
+	background-color: {{colors.surface_container_high.default.hex}};
+}
+
+separator, .separator, paned > separator {
+	background-color: {{colors.outline_variant.default.hex}};
+	border-color: {{colors.outline_variant.default.hex}};
+}
+
+popover, popover.background, popover > contents, popover > arrow, menu, .context-menu, combobox popup, dropdown popover, dropdown popup > contents {
+	background-color: {{colors.surface_container_high.default.hex}};
+	background-image: none;
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+	box-shadow: none;
+}
+
+popover list, popover row, popover .view, menu menuitem, modelbutton, combobox popup row {
+	background-color: transparent;
+	color: {{colors.on_surface.default.hex}};
+}
+
+menuitem:hover, modelbutton:hover, popover row:hover, combobox popup row:hover {
+	background-color: {{colors.surface_container_highest.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+combobox arrow, button.combo arrow, combobox button arrow {
+	color: {{colors.on_surface.default.hex}};
+	-gtk-icon-shadow: none;
+}
+
+tooltip, tooltip.background, tooltip * {
+	background-color: {{colors.surface_container_highest.default.hex}};
+	background-image: none;
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+	box-shadow: none;
+}
+
+scrollbar, scrollbar.vertical, scrollbar.horizontal {
+	background-color: transparent;
+	border: none;
+}
+
+scrollbar trough {
+	background-color: transparent;
+	border: none;
+}
+
+scrollbar slider {
+	background-color: {{colors.outline_variant.default.hex}};
+	background-image: none;
+	border: none;
+	border-radius: 8px;
+	box-shadow: none;
+}
+
+scrollbar slider:hover {
+	background-color: {{colors.on_surface_variant.default.hex}};
+}
+
+notebook > header:not(.top) {
+	background-color: {{colors.surface_container.default.hex}};
+	border-color: {{colors.outline_variant.default.hex}};
+}
+
+notebook > header:not(.top) tab {
+	background-color: transparent;
+	border-color: transparent;
+	box-shadow: none;
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+notebook > header:not(.top) tab:hover {
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+notebook > header:not(.top) tab:checked {
+	background-color: transparent;
+	color: {{colors.primary.default.hex}};
+	box-shadow: inset 0 -2px {{colors.primary.default.hex}};
+}
+
+notebook > header.top {
+	background-color: {{colors.surface_container.default.hex}};
+	background-image: none;
+	border: none;
+	border-bottom: 1px solid {{colors.outline_variant.default.hex}};
+	padding: 6px;
+	box-shadow: none;
+}
+
+notebook > header.top > tabs > tab {
+	min-height: 18px;
+	padding: 6px 12px;
+	margin: 0 2px;
+	background-color: transparent;
+	background-image: none;
+	border: none;
+	border-radius: 8px;
+	box-shadow: none;
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+notebook > header.top > tabs > tab:first-child,
+notebook > header.top > tabs > tab:last-child,
+notebook > header.top > tabs > tab:checked:first-child,
+notebook > header.top > tabs > tab:checked:not(:first-child),
+notebook > header.top > tabs > tab:checked:not(:last-child),
+notebook > header.top > tabs > tab:checked + tab {
+	padding: 6px 12px;
+	margin: 0 2px;
+	border-radius: 8px;
+}
+
+notebook > header.top > tabs > tab > label {
+	margin: 0;
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+notebook > header.top > tabs > tab:hover,
+notebook > header.top > tabs > tab.prelight-page {
+	background-color: {{colors.surface_container_high.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+}
+
+notebook > header.top > tabs > tab:hover > label,
+notebook > header.top > tabs > tab.prelight-page > label {
+	color: {{colors.on_surface.default.hex}};
+}
+
+notebook > header.top > tabs > tab:checked {
+	background-color: {{colors.primary_container.default.hex}};
+	box-shadow: inset 0 -2px {{colors.primary.default.hex}};
+	color: {{colors.on_primary_container.default.hex}};
+}
+
+notebook > header.top > tabs > tab:checked > label {
+	color: {{colors.on_primary_container.default.hex}};
+}
+
+check, radio {
+	background-color: {{colors.surface_container.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	-gtk-icon-shadow: none;
+}
+
+check:checked, radio:checked {
+	background-color: {{colors.primary.default.hex}};
+	border-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+switch {
+	background-color: {{colors.surface_container_highest.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+}
+
+switch:checked {
+	background-color: {{colors.primary.default.hex}};
+	border-color: {{colors.primary.default.hex}};
+}
+
+switch slider {
+	background-color: {{colors.on_surface.default.hex}};
+	border: none;
+	box-shadow: none;
+}
+
+scale trough, progressbar trough, levelbar trough {
+	background-color: {{colors.surface_container_highest.default.hex}};
+	background-image: none;
+	border: none;
+	box-shadow: none;
+}
+
+scale highlight, progressbar progress, levelbar block.filled {
+	background-color: {{colors.primary.default.hex}};
+	background-image: none;
+	border: none;
+	box-shadow: none;
+}
+
+scale slider {
+	background-color: {{colors.primary.default.hex}};
+	background-image: none;
+	border: none;
+	box-shadow: none;
+	-gtk-icon-source: none;
+}
+
+.dim-label, label.dim-label, headerbar .subtitle, .titlebar .subtitle, .view .dim-label {
+	color: {{colors.on_surface_variant.default.hex}};
+}
+
+.osd, .osd .background, .app-notification {
+	background-color: {{colors.surface_container_highest.default.hex}};
+	color: {{colors.on_surface.default.hex}};
+	border: 1px solid {{colors.outline_variant.default.hex}};
+}
+
+row:selected label, row:selected image, row:selected .dim-label,
+.sidebar row:selected label, .sidebar row:selected image,
+placessidebar row:selected label, placessidebar row:selected image,
+flowboxchild:selected label, flowboxchild:selected image {
+	color: {{colors.on_primary.default.hex}};
+	text-shadow: none;
+	-gtk-icon-shadow: none;
+}
+
+button:checked:not(.suggested-action):not(.destructive-action),
+button:active:not(.suggested-action):not(.destructive-action) {
+	background-color: {{colors.primary.default.hex}};
+	background-image: none;
+	border-color: {{colors.primary.default.hex}};
+	color: {{colors.on_primary.default.hex}};
+}
+
+button:checked:not(.suggested-action):not(.destructive-action) label,
+button:checked:not(.suggested-action):not(.destructive-action) image,
+button:active:not(.suggested-action):not(.destructive-action) label,
+button:active:not(.suggested-action):not(.destructive-action) image {
+	color: {{colors.on_primary.default.hex}};
+	text-shadow: none;
+	-gtk-icon-shadow: none;
+}
