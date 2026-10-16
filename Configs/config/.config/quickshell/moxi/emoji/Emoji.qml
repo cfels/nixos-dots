@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -21,8 +23,10 @@ PanelWindow {
 	readonly property real surfaceTop: 6
 	property string query: ""
 	property var results: []
+	property string resultsQuery: "\u0000"
 	property int selected: 0
 	property real contentBlur: 0
+	readonly property real preferredHeight: 96 + (results.length === 0 ? 80 : Math.min(344, Math.ceil(results.length / 10) * 52))
 
 	function setAnchor(width: real, height: real, y: real): void {
 		emoji.anchorWidth = width
@@ -53,6 +57,7 @@ PanelWindow {
 
 		try {
 			emoji.catalog = JSON.parse(raw)
+			emoji.resultsQuery = "\u0000"
 		} catch (error) {
 			emoji.catalog = []
 		}
@@ -86,15 +91,21 @@ PanelWindow {
 
 	function refresh(): void {
 		var needle = emoji.query.trim().toLowerCase()
-		var found = []
-
-		for (var i = 0; i < emoji.catalog.length; ++i) {
-			var entry = emoji.catalog[i]
-
-			if (needle.length === 0 || entry[1].indexOf(needle) !== -1) found.push(entry)
+		if (needle !== emoji.resultsQuery) {
+			var found = emoji.catalog
+			if (needle.length > 0) {
+				found = []
+				for (var i = 0; i < emoji.catalog.length; ++i) {
+					var entry = emoji.catalog[i]
+					if (entry[1].indexOf(needle) !== -1) found.push(entry)
+				}
+			}
+			if (found.length !== emoji.results.length || found.some(function(entry, index) { return entry !== emoji.results[index] })) {
+				resultsBackdrop.update()
+				emoji.results = found
+			}
+			emoji.resultsQuery = needle
 		}
-
-		emoji.results = found
 		emoji.selected = 0
 	}
 
@@ -109,6 +120,8 @@ PanelWindow {
 		input.clear()
 		emoji.query = ""
 		emoji.refresh()
+		grid.followSelection = true
+		grid.positionViewAtBeginning()
 		emoji.open = true
 		if (!emoji.surfaceHost) {
 			emoji.contentBlur = 1
@@ -188,7 +201,7 @@ PanelWindow {
 		anchors.top: parent.top
 		y: emoji.open ? 50 : emoji.anchorTop
 		width: emoji.open ? 560 : emoji.anchorWidth
-		height: emoji.open ? 440 : emoji.anchorHeight
+		height: emoji.open ? emoji.preferredHeight : emoji.anchorHeight
 		opacity: emoji.open ? 1 : 0
 		scale: emoji.open ? 1 : 0.94
 		transformOrigin: Item.Center
@@ -260,13 +273,23 @@ PanelWindow {
 
 				Rectangle {
 					id: searchFrame
+					property real focusPresence: input.activeFocus ? 1 : 0
 
 					anchors.top: parent.top
 					anchors.left: parent.left
 					anchors.right: parent.right
 					height: 42
 					radius: 21
-					color: Qt.rgba(theme.idle.r, theme.idle.g, theme.idle.b, 0.35)
+					color: Qt.rgba(theme.idle.r, theme.idle.g, theme.idle.b, 0.35 + 0.07 * focusPresence)
+					border.width: 1
+					border.color: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.18 * focusPresence)
+
+					Behavior on focusPresence {
+						NumberAnimation {
+							duration: 180
+							easing.type: Easing.OutCubic
+						}
+					}
 
 					Text {
 						anchors.left: parent.left
@@ -317,6 +340,12 @@ PanelWindow {
 					}
 				}
 
+				SearchBackdrop {
+					id: resultsBackdrop
+					view: grid
+					active: emoji.open
+				}
+
 				GridView {
 					id: grid
 					property bool followSelection: true
@@ -327,13 +356,13 @@ PanelWindow {
 					anchors.right: parent.right
 					anchors.bottom: parent.bottom
 					clip: true
-					cacheBuffer: 600
+					cacheBuffer: 104
 					cellWidth: 52
 					cellHeight: 52
 					model: emoji.results
 					currentIndex: emoji.selected
 					highlightFollowsCurrentItem: true
-					highlightMoveDuration: followSelection ? 0 : 270
+					highlightMoveDuration: 180
 					highlightRangeMode: followSelection ? GridView.ApplyRange : GridView.NoHighlightRange
 					preferredHighlightBegin: Math.max(0, (height - cellHeight) / 2)
 					preferredHighlightEnd: preferredHighlightBegin + cellHeight
@@ -384,7 +413,7 @@ PanelWindow {
 						scale: index === emoji.selected ? 1.08 : 1
 
 						Behavior on scale {
-							SmoothedAnimation { duration: 250; velocity: -1 }
+							NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
 						}
 
 						Text {
@@ -404,12 +433,18 @@ PanelWindow {
 				}
 
 				Text {
-					anchors.centerIn: parent
-					visible: emoji.results.length === 0
+					id: emptyResults
+					anchors.centerIn: grid
+					visible: opacity > 0.001
+					opacity: emoji.results.length === 0 ? 1 : 0
+					transform: Translate { y: 6 * (1 - emptyResults.opacity) }
 					color: emoji.muted
 					font.family: emoji.fontFamily
 					font.pixelSize: 13
 					text: "no emoji found"
+					Behavior on opacity {
+						NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
+					}
 				}
 			}
 		}

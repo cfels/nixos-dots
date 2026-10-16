@@ -29,6 +29,7 @@ PanelWindow {
 	property bool pillShown: true
 	property real popupPush: 0
 	property real islandProgress: 0
+	readonly property real pillReveal: 1 - Math.min(1, bar.islandProgress * 4)
 	property bool volumeVisible: bar.audioReady && volumeTimer.running
 	property real titleWidth: 170
 	property real mediaWidth: bar.hasPlayer && (songInfo.shownTitle.length > 0 || bar.playing) ? mediaRow.implicitWidth : 0
@@ -41,7 +42,7 @@ PanelWindow {
 	readonly property real pillTop: pill.y - pill.height * (pill.scale - 1) / 2 - 2 * bar.popupPush
 	readonly property real barTopMargin: 6
 	readonly property real pillScreenTop: bar.barTopMargin + bar.pillTop
-	property real contentBlur: bar.pillShown ? 0 : 0.62
+	readonly property real contentBlur: 0.62 * (1 - bar.pillReveal)
 	property bool intro: false
 	property bool audioReady: false
 	property bool notificationsMuted: false
@@ -145,14 +146,6 @@ PanelWindow {
 			duration: 160
 			easing.type: Easing.Bezier
 			easing.bezierCurve: [0.25, 1, 0.3, 1]
-		}
-	}
-
-	Behavior on contentBlur {
-		NumberAnimation {
-			duration: bar.pillShown ? 120 : 150
-			easing.type: Easing.Bezier
-			easing.bezierCurve: [0.32, 0.72, 0, 1]
 		}
 	}
 
@@ -277,7 +270,7 @@ PanelWindow {
 		width: content.implicitWidth + 30
 		radius: height / 2
 		clip: true
-		opacity: bar.intro ? 1 - Math.min(1, bar.islandProgress * 4) : 0
+		opacity: bar.intro ? bar.pillReveal : 0
 
 		transform: [Translate {
 			y: bar.intro ? 0 : -12
@@ -292,18 +285,19 @@ PanelWindow {
 		}, Translate { y: -2 * bar.popupPush }]
 
 		Behavior on opacity {
+			enabled: !bar.panelOpen
 			NumberAnimation {
-				duration: bar.panelOpen ? 170 : 140
+				duration: 140
 				easing.type: Easing.Bezier
 				easing.bezierCurve: [0.32, 0.72, 0, 1]
 			}
 		}
 
-		color: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, bar.pillShown ? (bar.hovered ? 0.78 : 0.66) : 0)
+		color: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, bar.hovered ? 0.78 : 0.66)
 		border.width: 1
 		border.color: bar.flash
 			? bar.accent
-			: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, bar.pillShown ? (bar.expanded ? 0.5 : 0.16) : 0)
+			: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, bar.expanded ? 0.5 : 0.16)
 		scale: bar.held ? 1.04 : 1
 
 		Behavior on scale {
@@ -377,30 +371,14 @@ PanelWindow {
 
 			anchors.centerIn: parent
 			spacing: 7
-			scale: bar.pillShown ? 1 : 0.93
-			opacity: bar.pillShown ? 1 : 0
+			scale: 0.93 + 0.07 * bar.pillReveal
+			opacity: bar.pillReveal
 			layer.enabled: bar.contentBlur > 0.004
 
 			layer.effect: MultiEffect {
 				blurEnabled: true
 				blurMax: 26
 				blur: bar.contentBlur
-			}
-
-			Behavior on scale {
-				NumberAnimation {
-					duration: bar.pillShown ? 140 : 170
-					easing.type: Easing.Bezier
-					easing.bezierCurve: [0.32, 0.72, 0, 1]
-				}
-			}
-
-			Behavior on opacity {
-				NumberAnimation {
-					duration: bar.pillShown ? 120 : 150
-					easing.type: Easing.Bezier
-					easing.bezierCurve: [0.32, 0.72, 0, 1]
-				}
 			}
 
 			Row {

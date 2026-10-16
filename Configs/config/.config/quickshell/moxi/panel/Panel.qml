@@ -1,4 +1,3 @@
-// WARNING: BLOATED QML FILE
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Mpris
@@ -69,6 +68,7 @@ PanelWindow {
 			contentTimer.restart()
 
 			panel.rollEmptyPhrase()
+			panel.updateActiveLyric()
 		} else {
 			calendar.selectedDay = 0
 			panel.contentVisible = false
@@ -457,6 +457,7 @@ PanelWindow {
 	}
 
 	function updateActiveLyric(): void {
+		if (!panel.expanded) return
 		if (!panel.syncedLyrics || panel.lyrics.length === 0 || (!panel.positionTrusted && panel.seekTarget < 0)) {
 			panel.activeLyric = -1
 			return
@@ -697,7 +698,7 @@ PanelWindow {
 	}
 
 	Timer {
-		interval: 33
+		interval: panel.expanded ? 33 : 250
 		running: panel.hasPlayer && panel.playing && !progressTrack.dragging
 		repeat: true
 
@@ -857,7 +858,7 @@ PanelWindow {
 			Quickshell.env("HOME") + "/.config/hypr/scripts/wallpaper-list.sh"
 		]
 
-		running: false
+		running: true
 
 		stdout: SplitParser {
 			onRead: (line) => {
@@ -894,9 +895,8 @@ PanelWindow {
 
 	Timer {
 		interval: 4000
-		running: true
+		running: panel.expanded
 		repeat: true
-		triggeredOnStart: true
 		onTriggered: scan.running = true
 	}
 
@@ -1257,7 +1257,7 @@ PanelWindow {
 						opacity: panel.lyricsFade
 						boundsBehavior: Flickable.StopAtBounds
 						pixelAligned: false
-						cacheBuffer: 2400
+						cacheBuffer: 480
 						property bool manual: false
 						property bool returning: false
 						property real scrollTarget: 0
@@ -2278,6 +2278,7 @@ PanelWindow {
 							anchors.fill: parent
 							source: panel.wallpaperSource(panel.previewWallpaper).length > 0 ? "file://" + panel.wallpaperSource(panel.previewWallpaper) : ""
 							animated: panel.wallpaperSourceAnimated(panel.previewWallpaper)
+							playing: panel.expanded
 							radius: 30
 							power: 4
 							sourceWidth: 560
@@ -2308,7 +2309,7 @@ PanelWindow {
 							sourceHeight: 320
 							opacity: previewFrame.ghostProgress
 							visible: previewFrame.ghostProgress > 0.001
-							playing: visible
+							playing: visible && panel.expanded
 							layer.enabled: visible
 							layer.effect: MultiEffect {
 								blurEnabled: true

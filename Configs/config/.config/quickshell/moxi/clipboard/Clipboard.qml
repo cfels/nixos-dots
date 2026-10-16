@@ -29,6 +29,7 @@ PanelWindow {
 	property var readyIds: []
 	property var screenshotIds: []
 	property var stagedEntries: []
+	property bool previewsDirty: true
 	property string pendingSelection: ""
 	property string previewDir: Quickshell.env("HOME") + "/.cache/moxi-clip"
 	property var revealedIds: []
@@ -121,6 +122,7 @@ PanelWindow {
 	mask: Region { item: inputArea }
 
 	function refresh(keepSelection): void {
+		if (lister.running) return
 		var previous = clipboard.entries.length > clipboard.selected && clipboard.selected >= 0
 			? clipboard.entries[clipboard.selected].id
 			: ""
@@ -206,13 +208,14 @@ PanelWindow {
 
 	Process {
 		id: previewDump
+		property var requestedIds: []
 
 		command: [
 			"bash",
 			Quickshell.shellDir + "/clipboard/preview-images.sh",
 			clipboard.previewDir,
 			Quickshell.env("HOME") + "/screenshots"
-		].concat(lister.binaryIds.filter(function(id) { return clipboard.readyIds.indexOf(id) === -1 }))
+		].concat(previewDump.requestedIds)
 
 		stdout: SplitParser {
 			onRead: (line) => {
@@ -265,7 +268,10 @@ PanelWindow {
 				}
 			}
 
-			if (changed) clipboard.entries = staged
+			if (changed) {
+				clipboard.entries = staged
+				clipboard.previewsDirty = true
+			}
 
 			if (clipboard.pendingSelection.length > 0) {
 				for (var j = 0; j < clipboard.entries.length; ++j) {
@@ -278,7 +284,11 @@ PanelWindow {
 				clipboard.pendingSelection = ""
 			}
 
-			if (!previewDump.running && lister.binaryIds.some(function(id) { return clipboard.readyIds.indexOf(id) === -1 })) previewDump.running = true
+			if (!previewDump.running && (clipboard.previewsDirty || lister.binaryIds.some(function(id) { return clipboard.readyIds.indexOf(id) === -1 }))) {
+				clipboard.previewsDirty = false
+				previewDump.requestedIds = lister.binaryIds
+				previewDump.running = true
+			}
 		}
 	}
 
@@ -514,6 +524,8 @@ PanelWindow {
 							height: 56
 							radius: 9
 							power: 4
+							sourceWidth: 168
+							sourceHeight: 112
 							opacity: row.modelData.binary && thumb.ready ? 1 : 0
 							visible: opacity > 0.001
 							Behavior on opacity { SmoothedAnimation { duration: 220; velocity: -1 } }
@@ -587,6 +599,7 @@ PanelWindow {
 					ImagePreview {
 						anchors.fill: parent
 						anchors.margins: 12
+						active: clipboard.open && clipboard.selectedImage
 						source: clipboard.selectedImage && clipboard.hasPreview(clipboard.selectedEntry)
 							? "file://" + clipboard.previewDir + "/" + clipboard.selectedEntry.id + ".png" : ""
 						textColor: clipboard.muted

@@ -12,6 +12,7 @@ Item {
 	property int stackOrder: 0
 	property string failedSource: ""
 	property bool initialized: false
+	property bool active: true
 	readonly property var frontFrame: front < 0 ? null : frame(front)
 	readonly property bool waiting: !frontFrame || String(frontFrame.image.source) !== String(source)
 	clip: true
@@ -32,7 +33,7 @@ Item {
 	}
 
 	function loadSource(): void {
-		if (!initialized) return
+		if (!initialized || !active) return
 		if (!String(source).length) return
 		if (frontFrame && String(frontFrame.image.source) === String(source)) {
 			loading = -1
@@ -74,11 +75,29 @@ Item {
 		failedSource = ""
 		loadSource()
 	}
+	onActiveChanged: if (active) loadSource()
 	Component.onCompleted: {
 		initialized = true
 		loadSource()
 	}
 	Component.onDestruction: initialized = false
+
+	Timer {
+		interval: 30000
+		running: !preview.active
+		onTriggered: {
+			preview.initialized = false
+			preview.front = -1
+			preview.loading = -1
+			preview.failedSource = ""
+			for (var i = 0; i < frames.count; ++i) {
+				var cached = preview.frame(i)
+				cached.active = false
+				cached.image.source = ""
+			}
+			preview.initialized = true
+		}
+	}
 
 	component Frame: Item {
 		id: layer
@@ -102,7 +121,7 @@ Item {
 			anchors.bottomMargin: 30
 			fillMode: Image.PreserveAspectFit
 			asynchronous: true
-			cache: true
+			cache: false
 			onStatusChanged: preview.imageLoaded(layer.slot)
 		}
 		Text {

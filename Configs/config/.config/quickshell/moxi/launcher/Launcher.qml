@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -27,11 +29,14 @@ PanelWindow {
 	property var results: []
 	property int selected: 0
 	property var index: []
+	property var defaultResults: []
+	property string resultsQuery: "\u0000"
 	property bool indexReady: false
 	property var iconFiles: ({})
 	property var iconPending: ({})
 	property double lastKeyNav: 0
 	readonly property int resultLimit: 200
+	readonly property real preferredHeight: 104 + (results.length === 0 ? 80 : Math.min(356, results.length * 50 - 4))
 
 	readonly property color accent: theme.accent
 	readonly property color foreground: theme.foreground
@@ -40,7 +45,11 @@ PanelWindow {
 	readonly property real cornerRadius: launcher.open ? 30 : 19
 	readonly property string iconScanScript: Quickshell.shellDir + "/launcher/icon-scan.sh"
 
-	Component.onCompleted: iconScan.running = true
+	Component.onCompleted: {
+		launcher.buildIndex()
+		launcher.refresh(true)
+		iconScan.running = true
+	}
 
 	FontLoader {
 		id: momo
@@ -103,23 +112,31 @@ PanelWindow {
 		})
 
 		launcher.index = built
-		launcher.indexReady = built.length > 0
+		launcher.defaultResults = built.slice(0, launcher.resultLimit).map(function(item) { return item.entry })
+		launcher.resultsQuery = "\u0000"
+		launcher.indexReady = true
 	}
 
 	function refresh(reset): void {
 		if (!launcher.indexReady) launcher.buildIndex()
 
 		var needle = launcher.query.toLowerCase()
-		var entries = launcher.index
-		var found = []
-
-		for (var i = 0; i < entries.length; ++i) {
-			var item = entries[i]
-
-			if (needle.length === 0 || item.lower.indexOf(needle) !== -1 || item.id.indexOf(needle) !== -1 || item.terms.indexOf(needle) !== -1) found.push(item.entry)
+		if (needle !== launcher.resultsQuery) {
+			var found = launcher.defaultResults
+			if (needle.length > 0) {
+				found = []
+				var entries = launcher.index
+				for (var i = 0; i < entries.length && found.length < launcher.resultLimit; ++i) {
+					var item = entries[i]
+					if (item.lower.indexOf(needle) !== -1 || item.id.indexOf(needle) !== -1 || item.terms.indexOf(needle) !== -1) found.push(item.entry)
+				}
+			}
+			if (found.length !== launcher.results.length || found.some(function(entry, index) { return entry !== launcher.results[index] })) {
+				resultsBackdrop.update()
+				launcher.results = found
+			}
+			launcher.resultsQuery = needle
 		}
-
-		launcher.results = found.slice(0, launcher.resultLimit)
 
 		if (reset === true || launcher.selected >= launcher.results.length) launcher.selected = 0
 		if (launcher.selected < 0) launcher.selected = 0
@@ -140,6 +157,8 @@ PanelWindow {
 		input.clear()
 		launcher.query = ""
 		launcher.refresh(true)
+		list.followSelection = true
+		list.positionViewAtBeginning()
 		launcher.open = true
 		focusTimer.restart()
 	}
@@ -227,7 +246,7 @@ PanelWindow {
 		anchors.top: parent.top
 		y: launcher.open ? 50 : launcher.anchorTop
 		width: launcher.open ? 660 : launcher.anchorWidth
-		height: launcher.open ? 460 : launcher.anchorHeight
+		height: launcher.open ? launcher.preferredHeight : launcher.anchorHeight
 		opacity: launcher.open ? 1 : 0
 
 		Behavior on width {
@@ -293,13 +312,23 @@ PanelWindow {
 
 				Rectangle {
 					id: searchFrame
+					property real focusPresence: input.activeFocus ? 1 : 0
 
 					anchors.top: parent.top
 					anchors.left: parent.left
 					anchors.right: parent.right
 					height: 46
 					radius: 23
-					color: Qt.rgba(theme.idle.r, theme.idle.g, theme.idle.b, 0.35)
+					color: Qt.rgba(theme.idle.r, theme.idle.g, theme.idle.b, 0.35 + 0.07 * focusPresence)
+					border.width: 1
+					border.color: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.18 * focusPresence)
+
+					Behavior on focusPresence {
+						NumberAnimation {
+							duration: 180
+							easing.type: Easing.OutCubic
+						}
+					}
 
 					Text {
 						anchors.left: parent.left
@@ -350,6 +379,12 @@ PanelWindow {
 					}
 				}
 
+				SearchBackdrop {
+					id: resultsBackdrop
+					view: list
+					active: launcher.open
+				}
+
 				ListView {
 					id: list
 					property bool followSelection: true
@@ -371,7 +406,7 @@ PanelWindow {
 					highlightRangeMode: followSelection ? ListView.ApplyRange : ListView.NoHighlightRange
 					preferredHighlightBegin: Math.max(0, (height - 46) / 2)
 					preferredHighlightEnd: preferredHighlightBegin + 46
-					cacheBuffer: 900
+					cacheBuffer: 184
 
 					onCountChanged: positionViewAtBeginning()
 
@@ -454,6 +489,21 @@ PanelWindow {
 								launcher.launch()
 							}
 						}
+					}
+				}
+
+				Text {
+					id: emptyResults
+					anchors.centerIn: list
+					visible: opacity > 0.001
+					opacity: launcher.results.length === 0 ? 1 : 0
+					transform: Translate { y: 6 * (1 - emptyResults.opacity) }
+					color: launcher.muted
+					font.family: launcher.fontFamily
+					font.pixelSize: 13
+					text: "no apps found"
+					Behavior on opacity {
+						NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
 					}
 				}
 			}

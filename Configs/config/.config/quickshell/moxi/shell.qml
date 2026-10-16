@@ -27,6 +27,8 @@ ShellRoot {
 		id: island
 		barWindow: pill
 		mode: root.openOverlay
+		launcherHeight: launcher.preferredHeight
+		emojiHeight: emojiPicker.preferredHeight
 	}
 
 	function updatePanel(): void {

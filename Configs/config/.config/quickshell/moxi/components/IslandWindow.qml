@@ -11,7 +11,7 @@ PanelWindow {
 	required property var barWindow
 	property string mode: ""
 	readonly property bool expanded: mode !== ""
-	readonly property int collapseDuration: 240
+	readonly property int collapseDuration: 420
 	property real expansion: expanded ? 1 : 0
 	readonly property real progress: Math.max(0, Math.min(1, expansion))
 	property alias launcherHost: launcherPane
@@ -19,6 +19,8 @@ PanelWindow {
 	property alias clipboardHost: clipboardPane
 	property alias panelHost: panelPane
 	property alias powerHost: powerPane
+	property real launcherHeight: 460
+	property real emojiHeight: 440
 
 	property bool armed: false
 	property bool geometryEnabled: false
@@ -30,7 +32,7 @@ PanelWindow {
 	property color originColor: "transparent"
 	property color originBorder: "transparent"
 	readonly property real targetWidth: mode === "panel" ? 920 : mode === "power" ? 360 : mode === "emoji" ? 560 : mode === "clipboard" ? 680 : 660
-	readonly property real targetHeight: mode === "panel" ? 420 : mode === "power" ? 150 : mode === "emoji" ? 440 : 460
+	readonly property real targetHeight: mode === "panel" ? 420 : mode === "power" ? 150 : mode === "emoji" ? emojiHeight : mode === "launcher" ? launcherHeight : 460
 
 	function captureBar(): void {
 		geometryEnabled = false
@@ -84,7 +86,8 @@ PanelWindow {
 		id: expansionMotion
 		NumberAnimation {
 			duration: expansionMotion.targetValue === 0 ? island.collapseDuration : 560
-			easing.type: Easing.OutCubic
+			easing.type: expansionMotion.targetValue === 0 ? Easing.BezierSpline : Easing.OutCubic
+			easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
 		}
 	}
 
@@ -98,7 +101,7 @@ PanelWindow {
 		clip: true
 		transform: Translate { y: (1 - pane.presence) * 8 }
 		Behavior on presence {
-			NumberAnimation { duration: pane.active ? 240 : 120; easing.type: Easing.OutCubic }
+			NumberAnimation { duration: pane.active ? 240 : 180; easing.type: Easing.OutCubic }
 		}
 	}
 
@@ -116,31 +119,61 @@ PanelWindow {
 		opacity: Math.min(1, island.progress * 3)
 
 		Behavior on width {
-			id: widthMotion
 			enabled: island.geometryEnabled
 			NumberAnimation {
-				duration: widthMotion.targetValue === island.barWindow.pillWidth ? island.collapseDuration : 560
-				easing.type: widthMotion.targetValue === island.barWindow.pillWidth ? Easing.OutCubic : Easing.OutBack
+				duration: island.expanded ? 560 : island.collapseDuration
+				easing.type: island.expanded ? Easing.OutBack : Easing.BezierSpline
+				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
 				easing.overshoot: 0.7
 			}
 		}
 		Behavior on height {
-			id: heightMotion
 			enabled: island.geometryEnabled
 			NumberAnimation {
-				duration: heightMotion.targetValue === island.barWindow.pillHeight ? island.collapseDuration : 560
-				easing.type: heightMotion.targetValue === island.barWindow.pillHeight ? Easing.OutCubic : Easing.OutBack
+				duration: island.expanded ? (island.progress >= 0.999 ? 260 : 560) : island.collapseDuration
+				easing.type: island.expanded && island.progress < 0.999 ? Easing.OutBack : Easing.BezierSpline
+				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
 				easing.overshoot: 0.7
 			}
 		}
-		Behavior on y { enabled: island.geometryEnabled; NumberAnimation { duration: island.expanded ? 460 : island.collapseDuration; easing.type: Easing.OutCubic } }
-		Behavior on radius { id: radiusMotion; enabled: island.geometryEnabled; NumberAnimation { duration: radiusMotion.targetValue === 36 ? 480 : island.collapseDuration; easing.type: Easing.OutCubic } }
-		Behavior on color { enabled: island.geometryEnabled; ColorAnimation { duration: island.expanded ? 440 : island.collapseDuration } }
-		Behavior on border.color { enabled: island.geometryEnabled; ColorAnimation { duration: island.expanded ? 440 : island.collapseDuration } }
+		Behavior on y {
+			enabled: island.geometryEnabled
+			NumberAnimation {
+				duration: island.expanded ? 460 : island.collapseDuration
+				easing.type: island.expanded ? Easing.OutCubic : Easing.BezierSpline
+				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
+			}
+		}
+		Behavior on radius {
+			enabled: island.geometryEnabled
+			NumberAnimation {
+				duration: island.expanded ? 480 : island.collapseDuration
+				easing.type: island.expanded ? Easing.OutCubic : Easing.BezierSpline
+				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
+			}
+		}
+		Behavior on color {
+			enabled: island.geometryEnabled
+			ColorAnimation {
+				duration: island.expanded ? 440 : island.collapseDuration
+				easing.type: island.expanded ? Easing.Linear : Easing.BezierSpline
+				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
+			}
+		}
+		Behavior on border.color {
+			enabled: island.geometryEnabled
+			ColorAnimation {
+				duration: island.expanded ? 440 : island.collapseDuration
+				easing.type: island.expanded ? Easing.Linear : Easing.BezierSpline
+				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
+			}
+		}
 
 		Item {
 			id: content
-			anchors.fill: parent
+			anchors.horizontalCenter: parent.horizontalCenter
+			width: 920
+			height: 460
 			opacity: Math.max(0, (island.progress - 0.2) / 0.8)
 			layer.enabled: island.progress > 0.001 && island.progress < 0.999
 			layer.effect: MultiEffect {
@@ -149,8 +182,8 @@ PanelWindow {
 				blur: 0.65 * (1 - island.progress)
 				autoPaddingEnabled: false
 			}
-			Pane { id: launcherPane; anchors.horizontalCenter: parent.horizontalCenter; width: 660; height: 460; active: island.mode === "launcher" }
-			Pane { id: emojiPane; anchors.horizontalCenter: parent.horizontalCenter; width: 560; height: 440; active: island.mode === "emoji" }
+			Pane { id: launcherPane; anchors.horizontalCenter: parent.horizontalCenter; width: 660; height: island.launcherHeight; active: island.mode === "launcher" }
+			Pane { id: emojiPane; anchors.horizontalCenter: parent.horizontalCenter; width: 560; height: island.emojiHeight; active: island.mode === "emoji" }
 			Pane { id: clipboardPane; anchors.horizontalCenter: parent.horizontalCenter; width: 680; height: 460; active: island.mode === "clipboard" }
 			Pane { id: panelPane; anchors.horizontalCenter: parent.horizontalCenter; width: 920; height: 420; active: island.mode === "panel" }
 			Pane { id: powerPane; anchors.horizontalCenter: parent.horizontalCenter; width: 360; height: 150; active: island.mode === "power" }
