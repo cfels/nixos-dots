@@ -1,37 +1,35 @@
 #!/usr/bin/env bash
 
-USER_NAME="${DOTS_USER:-${SUDO_USER:-$(id -un)}}"
-USER_HOME="$(getent passwd "$USER_NAME" | cut -d: -f6)"
-USER_HOME="${USER_HOME:-/home/$USER_NAME}"
+set -euo pipefail
+umask 077
 
-echo "remove shit"
-sudo rm -rf /etc/nixos
-sudo rm -rf "$USER_HOME/.config"
-sudo rm -rf "$USER_HOME/.local"
-sudo rm -rf "$USER_HOME/.icons"
-echo "shit removed!"
+source "$(dirname -- "${BASH_SOURCE[0]}")/../common.sh"
+dots_resolve_user
+dots_require_root "$0" "$@"
+[[ "$USER_EXISTS" == 1 ]] || { dots_error "restore requires an existing user"; exit 1; }
+dots_lock
 
-echo "recreating directories"
-mkdir -p "$USER_HOME/.config"
-mkdir -p "$USER_HOME/.local"
-
-echo "now restoring the stuff u backed up"
-
-echo "restore /etc/nixos"
-sudo cp -r "$USER_HOME/dots-backup/nixos" /etc/nixos
-echo "restore .config"
-sudo cp -r "$USER_HOME/dots-backup/.config/." "$USER_HOME/.config/"
-echo "restore .local"
-sudo cp -r "$USER_HOME/dots-backup/.local/." "$USER_HOME/.local/"
-echo "restore .icons"
-sudo cp -r "$USER_HOME/dots-backup/.icons/." "$USER_HOME/.icons/"
-sudo chown -R "$USER_NAME" "$USER_HOME/.config" "$USER_HOME/.local" "$USER_HOME/.icons" 2>/dev/null || true
-echo "resotre /etc/nixos from backup"
-if [ -d /etc/nixos.bak ] && [ ! -L /etc/nixos.bak ]; then
-  sudo rm -rf /etc/nixos
-  sudo mv /etc/nixos.bak /etc/nixos
-else
-  sudo rm -rf /etc/nixos.bak
+backup="$USER_HOME/dots-backup"
+dots_validate_backup "$backup"
+system_source="$backup/nixos"
+if [[ -d /etc/nixos.bak && ! -L /etc/nixos.bak ]]; then
+  dots_validate_system_source /etc/nixos.bak
+  system_source=/etc/nixos.bak
 fi
+
+dots_begin_transaction restore
+dots_copy_directory "$system_source" "$TX_SYSTEM/nixos"
+for index in 1 2 3; do
+  item="${BACKUP_ITEMS[$index]}"
+  [[ "${BACKUP_STATES[$index]}" == present ]] || continue
+  dots_copy_directory "$backup/$item" "$TX_HOME/$item"
+  sudo chown -R -P -h -- "$USER_NAME" "$TX_HOME/$item"
+done
+
+printf 'publishing\n' > "$TX_HOME/status"
+for item in .config .local .icons; do
+  dots_replace "$USER_HOME/$item" "$TX_HOME/$item"
+done
+dots_replace /etc/nixos "$TX_SYSTEM/nixos"
 
 echo "restore DONE!"

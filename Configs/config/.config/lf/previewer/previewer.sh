@@ -42,4 +42,4 @@ case "$file" in
             cat "$file"
         fi
         ;;
-es:
+esac

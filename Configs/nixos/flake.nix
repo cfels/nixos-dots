@@ -8,8 +8,8 @@
       url = "github:cfels/fadesktop";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    codex-app = {
-      url = "github:ilysenko/codex-desktop-linux";
+    codex-cli = {
+      url = "github:sadjow/codex-cli-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     pineconemc = {
@@ -50,7 +50,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     seanime = {
-      url = "github:LibereCode/seanime.nix";
+      url = "github:cfels/seanime-nix/49dd0f5015e3047296a2ba23f680478c15e052ba";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -104,7 +104,6 @@
               extraSpecialArgs = { inherit inputs username hostName; };
               users.${username} = {
                 imports = [
-                  inputs.codex-app.homeManagerModules.default
                 ];
               };
             };

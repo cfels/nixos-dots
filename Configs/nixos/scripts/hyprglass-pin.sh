@@ -5,7 +5,8 @@ flake=/etc/nixos
 flake_nix=$flake/flake.nix
 hyprglass_nix=$flake/packages/hyprglass.nix
 
-version=$(nix eval --raw "$flake#nixosConfigurations.moxiu.pkgs.hyprland.version")
+configuration=$(nix eval --raw --file "$flake/username.nix")
+version=$(nix eval --raw "$flake#nixosConfigurations.\"$configuration\".pkgs.hyprland.version")
 version_re=${version//./\\.}
 
 line=$(curl -fsSL https://raw.githubusercontent.com/hyprnux/hyprglass/main/hyprpm.toml \

@@ -1,28 +1,59 @@
 #!/usr/bin/env bash
 
-USER_NAME="${DOTS_USER:-${SUDO_USER:-$(id -un)}}"
-USER_HOME="$(getent passwd "$USER_NAME" | cut -d: -f6)"
-USER_HOME="${USER_HOME:-/home/$USER_NAME}"
+set -euo pipefail
+umask 077
 
-echo "creating backup direcotry at $USER_HOME"
-mkdir -p "$USER_HOME/dots-backup"
-
-echo "backup /etc/nixos"
-if [ -e "$USER_HOME/dots-backup/nixos" ]; then
-  echo "original /etc/nixos already backed up, keeping it"
-else
-  sudo cp -r /etc/nixos "$USER_HOME/dots-backup"
+source "$(dirname -- "${BASH_SOURCE[0]}")/../common.sh"
+dots_resolve_user
+dots_require_root "$0" "$@"
+if [[ ! -d "$USER_HOME" ]]; then
+  sudo mkdir -p -m 755 -- "$USER_HOME"
+  if [[ "$USER_EXISTS" == 1 ]]; then
+    sudo chown -h -- "$USER_NAME" "$USER_HOME"
+  fi
 fi
-echo "backup .config"
-sudo rm -rf "$USER_HOME/dots-backup/.config"
-sudo cp -r "$USER_HOME/.config" "$USER_HOME/dots-backup"
-echo "backup .local"
-sudo rm -rf "$USER_HOME/dots-backup/.local"
-sudo cp -r "$USER_HOME/.local" "$USER_HOME/dots-backup"
-echo "backup .icons"
-sudo rm -rf "$USER_HOME/dots-backup/.icons"
-sudo cp -r "$USER_HOME/.icons" "$USER_HOME/dots-backup"
-sudo rm -rf /etc/nixos.bak
-sudo mv /etc/nixos /etc/nixos.bak
+dots_lock
+
+backup="$USER_HOME/dots-backup"
+if [[ -e "$backup" || -L "$backup" ]]; then
+  dots_validate_backup "$backup"
+fi
+
+stage="$(sudo mktemp -d "$USER_HOME/.dots-backup.XXXXXX")"
+trap 'printf "Backup staging retained at %s\n" "$stage" >&2' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+printf 'moxi-backup-v1\n' > "$stage/.dots-manifest"
+
+for item in nixos .config .local .icons; do
+  if [[ "$item" == nixos ]]; then
+    source=/etc/nixos
+    if [[ -d "$backup/nixos" ]]; then
+      source="$backup/nixos"
+      echo "original /etc/nixos already backed up, keeping it"
+    fi
+  else
+    source="$USER_HOME/$item"
+  fi
+  echo "backup $item"
+  if [[ -e "$source" || -L "$source" ]]; then
+    dots_copy_directory "$source" "$stage/$item"
+    printf '%s\tpresent\n' "$item" >> "$stage/.dots-manifest"
+  elif [[ "$item" != nixos ]]; then
+    printf '%s\tabsent\n' "$item" >> "$stage/.dots-manifest"
+  else
+    dots_error "missing system configuration: $source"
+    exit 1
+  fi
+done
+dots_validate_backup "$stage"
+
+if [[ -d "$backup" ]]; then
+  sudo mv --exchange --no-copy -T -- "$stage" "$backup"
+  echo "previous backup retained at $stage"
+else
+  sudo mv --no-copy -T -- "$stage" "$backup"
+fi
+trap - EXIT
 
 echo "backup DONE!"

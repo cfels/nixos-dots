@@ -7,6 +7,7 @@
 }:
 {
   home.packages = with pkgs; [
+    inputs.codex-cli.packages.${pkgs.system}.default
     inputs.fagram.packages.x86_64-linux.default
     inputs.pineconemc.packages.${system}.prismlauncher
     (inputs.seanime.packages.${pkgs.stdenv.hostPlatform.system}.seanime-denshi.overrideAttrs (

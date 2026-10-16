@@ -1,0 +1,400 @@
+{
+  "metadata": {
+    "artist": "Fixture Artist",
+    "title": "Fixture Song",
+    "album": "Fixture Album",
+    "duration": 180,
+    "track": "https://www.youtube.com/watch?v=abcdefghijk"
+  },
+  "providers": {
+    "lrclib": {
+      "responses": {
+        "https://lrclib.net/api/get": {
+          "trackName": "Fixture Song",
+          "artistName": "Fixture Artist",
+          "albumName": "Fixture Album",
+          "duration": 180,
+          "syncedLyrics": "[00:01.000]lrclib one\n[00:02.000]lrclib two",
+          "plainLyrics": "lrclib one\nlrclib two"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]lrclib one\n[00:02.000]lrclib two",
+        "plainLyrics": "lrclib one\nlrclib two"
+      }
+    },
+    "lrclib_search": {
+      "responses": {
+        "https://lrclib.net/api/search": [
+          {
+            "trackName": "Fixture Song",
+            "artistName": "Fixture Artist",
+            "albumName": "Fixture Album",
+            "duration": 180,
+            "syncedLyrics": "[00:01.000]lrclib_search one\n[00:02.000]lrclib_search two",
+            "plainLyrics": "lrclib_search one\nlrclib_search two"
+          }
+        ]
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]lrclib_search one\n[00:02.000]lrclib_search two",
+        "plainLyrics": "lrclib_search one\nlrclib_search two"
+      }
+    },
+    "netease": {
+      "responses": {
+        "https://music.163.com/api/search/get": {
+          "result": {
+            "songs": [
+              {
+                "id": 101,
+                "name": "Fixture Song",
+                "artists": [
+                  {
+                    "name": "Fixture Artist"
+                  }
+                ],
+                "album": {
+                  "name": "Fixture Album"
+                },
+                "duration": 180000
+              }
+            ]
+          }
+        },
+        "https://music.163.com/api/song/lyric": {
+          "lrc": {
+            "lyric": "[00:01.000]netease one\n[00:02.000]netease two"
+          }
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]netease one\n[00:02.000]netease two",
+        "plainLyrics": "netease one\nnetease two"
+      }
+    },
+    "qq": {
+      "responses": {
+        "https://c.y.qq.com/soso/fcgi-bin/client_search_cp": {
+          "data": {
+            "song": {
+              "list": [
+                {
+                  "songmid": "fixture-mid",
+                  "songname": "Fixture Song",
+                  "singer": [
+                    {
+                      "name": "Fixture Artist"
+                    }
+                  ],
+                  "albumname": "Fixture Album",
+                  "interval": 180
+                }
+              ]
+            }
+          }
+        },
+        "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg": {
+          "lyric": "[00:01.000]qq one\n[00:02.000]qq two"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]qq one\n[00:02.000]qq two",
+        "plainLyrics": "qq one\nqq two"
+      }
+    },
+    "kugou": {
+      "responses": {
+        "http://mobilecdn.kugou.com/api/v3/search/song": {
+          "data": {
+            "info": [
+              {
+                "hash": "fixture-hash",
+                "songname": "Fixture Song",
+                "singername": "Fixture Artist",
+                "duration": 180
+              }
+            ]
+          }
+        },
+        "https://krcs.kugou.com/search": {
+          "candidates": [
+            {
+              "id": 101,
+              "accesskey": "fixture-access-key"
+            }
+          ]
+        },
+        "https://lyrics.kugou.com/download": {
+          "content": "WzAwOjAxLjAwMF1rdWdvdSBvbmUKWzAwOjAyLjAwMF1rdWdvdSB0d28="
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]kugou one\n[00:02.000]kugou two",
+        "plainLyrics": "kugou one\nkugou two"
+      }
+    },
+    "lyricsplus": {
+      "responses": {
+        "https://lyricsplus.binimum.org/v2/lyrics/get": {
+          "title": "Fixture Song",
+          "artist": "Fixture Artist",
+          "album": "Fixture Album",
+          "duration": 180,
+          "lyrics": "[00:01.000]lyricsplus one\n[00:02.000]lyricsplus two"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]lyricsplus one\n[00:02.000]lyricsplus two",
+        "plainLyrics": "lyricsplus one\nlyricsplus two"
+      }
+    },
+    "lyricsplus_backup": {
+      "responses": {
+        "https://lyricsplus.prjktla.my.id/v2/lyrics/get": {
+          "title": "Fixture Song",
+          "artist": "Fixture Artist",
+          "album": "Fixture Album",
+          "duration": 180,
+          "lyrics": "[00:01.000]lyricsplus_backup one\n[00:02.000]lyricsplus_backup two"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]lyricsplus_backup one\n[00:02.000]lyricsplus_backup two",
+        "plainLyrics": "lyricsplus_backup one\nlyricsplus_backup two"
+      }
+    },
+    "unison": {
+      "responses": {
+        "https://unison.boidu.dev/lyrics/search": {
+          "success": true,
+          "data": [
+            {
+              "id": 101,
+              "song": "Fixture Song",
+              "artist": "Fixture Artist",
+              "lyrics": ""
+            }
+          ]
+        },
+        "https://unison.boidu.dev/lyrics/101": {
+          "title": "Fixture Song",
+          "artist": "Fixture Artist",
+          "album": "Fixture Album",
+          "duration": 180,
+          "lyrics": "[00:01.000]unison one\n[00:02.000]unison two"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "",
+        "plainLyrics": "unison one\nunison two"
+      }
+    },
+    "betterlyrics": {
+      "responses": {
+        "https://lyrics-api.boidu.dev/getLyrics": {
+          "metadata": {
+            "title": "Fixture Song",
+            "artist": "Fixture Artist",
+            "album": "Fixture Album",
+            "durationSeconds": 180
+          },
+          "ttml": "<tt><body><p begin=\"1s\">betterlyrics one</p><p begin=\"2s\">betterlyrics two</p></body></tt>"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]betterlyrics one\n[00:02.000]betterlyrics two",
+        "plainLyrics": "betterlyrics one\nbetterlyrics two"
+      }
+    },
+    "betterlyrics_kugou": {
+      "responses": {
+        "https://lyrics-api.boidu.dev/kugou/getLyrics": {
+          "metadata": {
+            "title": "Fixture Song",
+            "artist": "Fixture Artist",
+            "album": "Fixture Album",
+            "durationSeconds": 180
+          },
+          "ttml": "<tt><body><p begin=\"1s\">betterlyrics_kugou one</p><p begin=\"2s\">betterlyrics_kugou two</p></body></tt>"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]betterlyrics_kugou one\n[00:02.000]betterlyrics_kugou two",
+        "plainLyrics": "betterlyrics_kugou one\nbetterlyrics_kugou two"
+      }
+    },
+    "betterlyrics_qq": {
+      "responses": {
+        "https://lyrics-api.boidu.dev/qq/getLyrics": {
+          "metadata": {
+            "title": "Fixture Song",
+            "artist": "Fixture Artist",
+            "album": "Fixture Album",
+            "durationSeconds": 180
+          },
+          "ttml": "<tt><body><p begin=\"1s\">betterlyrics_qq one</p><p begin=\"2s\">betterlyrics_qq two</p></body></tt>"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]betterlyrics_qq one\n[00:02.000]betterlyrics_qq two",
+        "plainLyrics": "betterlyrics_qq one\nbetterlyrics_qq two"
+      }
+    },
+    "simpmusic": {
+      "responses": {
+        "https://api-lyrics.simpmusic.org/v1/abcdefghijk": {
+          "type": "success",
+          "data": [
+            {
+              "songTitle": "Fixture Song",
+              "artistName": "Fixture Artist",
+              "durationSeconds": 180,
+              "syncedLyrics": "[00:01.000]simpmusic one\n[00:02.000]simpmusic two",
+              "plainLyric": "simpmusic one\nsimpmusic two"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]simpmusic one\n[00:02.000]simpmusic two",
+        "plainLyrics": "simpmusic one\nsimpmusic two"
+      }
+    },
+    "apple": {
+      "responses": {
+        "https://amp-api.music.apple.com/v1/catalog/us/search": {
+          "results": {
+            "songs": {
+              "data": [
+                {
+                  "id": "101",
+                  "attributes": {
+                    "name": "Fixture Song",
+                    "artistName": "Fixture Artist",
+                    "durationInMillis": 180000
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "https://amp-api.music.apple.com/v1/catalog/us/songs/101/lyrics": {
+          "data": [
+            {
+              "attributes": {
+                "ttml": "<tt><body><p begin=\"1s\">apple one</p><p begin=\"2s\">apple two</p></body></tt>",
+                "lyrics": "apple one\napple two"
+              }
+            }
+          ]
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]apple one\n[00:02.000]apple two",
+        "plainLyrics": "apple one\napple two"
+      }
+    },
+    "paxsenix": {
+      "responses": {
+        "https://api.paxsenix.org/lyrics/lrcget": {
+          "title": "Fixture Song",
+          "artist": "Fixture Artist",
+          "album": "Fixture Album",
+          "duration": 180,
+          "lyrics": "[00:01.000]paxsenix one\n[00:02.000]paxsenix two"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]paxsenix one\n[00:02.000]paxsenix two",
+        "plainLyrics": "paxsenix one\npaxsenix two"
+      }
+    },
+    "paxsenix_musixmatch": {
+      "responses": {
+        "https://api.paxsenix.org/lyrics/musixmatch": {
+          "title": "Fixture Song",
+          "artist": "Fixture Artist",
+          "album": "Fixture Album",
+          "duration": 180,
+          "lyrics": "[00:01.000]paxsenix_musixmatch one\n[00:02.000]paxsenix_musixmatch two"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]paxsenix_musixmatch one\n[00:02.000]paxsenix_musixmatch two",
+        "plainLyrics": "paxsenix_musixmatch one\npaxsenix_musixmatch two"
+      }
+    },
+    "paxsenix_apple": {
+      "responses": {
+        "https://api.paxsenix.org/apple-music/search": {
+          "data": [
+            {
+              "id": "101",
+              "attributes": {
+                "name": "Fixture Song",
+                "artistName": "Fixture Artist",
+                "durationInMillis": 180000
+              }
+            }
+          ]
+        },
+        "https://api.paxsenix.org/lyrics/applemusic": {
+          "title": "Fixture Song",
+          "artist": "Fixture Artist",
+          "album": "Fixture Album",
+          "duration": 180,
+          "lyrics": "[00:01.000]paxsenix_apple one\n[00:02.000]paxsenix_apple two"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]paxsenix_apple one\n[00:02.000]paxsenix_apple two",
+        "plainLyrics": "paxsenix_apple one\npaxsenix_apple two"
+      }
+    },
+    "paxsenix_spotify": {
+      "responses": {
+        "https://api.paxsenix.org/spotify/search": {
+          "data": [
+            {
+              "id": "101",
+              "attributes": {
+                "name": "Fixture Song",
+                "artistName": "Fixture Artist",
+                "durationInMillis": 180000
+              }
+            }
+          ]
+        },
+        "https://api.paxsenix.org/lyrics/spotify": {
+          "title": "Fixture Song",
+          "artist": "Fixture Artist",
+          "album": "Fixture Album",
+          "duration": 180,
+          "lyrics": "[00:01.000]paxsenix_spotify one\n[00:02.000]paxsenix_spotify two"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]paxsenix_spotify one\n[00:02.000]paxsenix_spotify two",
+        "plainLyrics": "paxsenix_spotify one\npaxsenix_spotify two"
+      }
+    }
+  }
+}

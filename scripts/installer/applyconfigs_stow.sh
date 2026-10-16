@@ -1,37 +1,32 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
+umask 077
 
 REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
-USER_NAME="${DOTS_USER:-${SUDO_USER:-$(id -un)}}"
-if id -u "$USER_NAME" >/dev/null 2>&1; then
-  USER_HOME="$(getent passwd "$USER_NAME" | cut -d: -f6)"
-  USER_HOME="${USER_HOME:-/home/$USER_NAME}"
-  if [ "$USER_NAME" = "$(id -un)" ]; then
-    stow_cmd=(stow)
-    mkdir_cmd=(mkdir -p)
-  else
-    stow_cmd=(sudo stow)
-    mkdir_cmd=(sudo mkdir -p)
-    CHOWN_USER=1
-  fi
-else
-  USER_HOME="/home/$USER_NAME"
-  stow_cmd=(sudo stow)
-  mkdir_cmd=(sudo mkdir -p)
-  CHOWN_USER=1
-fi
+source "$REPO/scripts/installer/common.sh"
+dots_resolve_user
+dots_require_root "$0" "$@"
+dots_lock
+dots_validate_backup "$USER_HOME/dots-backup"
+new_user=$((1 - USER_EXISTS))
 HOST_NAME="$(hostname)"
 
-# delete and make dirs
-#del dirs
-sudo rm -rf "$USER_HOME/.config"
-sudo rm -rf "$USER_HOME/.icons"
-#make dirs
-"${mkdir_cmd[@]}" "$USER_HOME/.config"
-"${mkdir_cmd[@]}" "$USER_HOME/.icons"
+dots_begin_transaction apply
+mkdir -m 755 "$TX_HOME/.config" "$TX_HOME/.icons"
+stow_cmd=(stow)
+if [[ "$USER_EXISTS" == 1 ]]; then
+  sudo chown -h -- "$USER_NAME" "$TX_HOME/.config" "$TX_HOME/.icons"
+  stow_cmd=(sudo -u "$USER_NAME" stow)
+fi
+dots_replace "$USER_HOME/.config" "$TX_HOME/.config"
+dots_replace "$USER_HOME/.icons" "$TX_HOME/.icons"
 
-# stow
+"${stow_cmd[@]}" --simulate \
+  --dir="$REPO/Configs" \
+  --target="$USER_HOME" \
+  config local walls
+
 "${stow_cmd[@]}" \
   --dir="$REPO/Configs" \
   --target="$USER_HOME" \
@@ -48,9 +43,16 @@ for f in kscreenlockerrc plasmarc spectaclerc; do
   fi
 done
 
-# symlnk /etc/nixos
-sudo rm -rf /etc/nixos
-sudo ln -s "$REPO/Configs/nixos" /etc/nixos
+if [[ "$USER_EXISTS" == 1 ]]; then
+  dots_own_stowed_paths "$REPO"
+fi
+
+ln -s "$REPO/Configs/nixos" "$TX_SYSTEM/nixos"
+dots_replace /etc/nixos "$TX_SYSTEM/nixos"
+if [[ ! -e /etc/nixos.bak && ! -L /etc/nixos.bak ]]; then
+  dots_copy_directory "$USER_HOME/dots-backup/nixos" "$TX_SYSTEM/nixos.bak"
+  dots_replace /etc/nixos.bak "$TX_SYSTEM/nixos.bak"
+fi
 if [ -f "$USER_HOME/dots-backup/nixos/hardware-configuration.nix" ]; then
   cp "$USER_HOME/dots-backup/nixos/hardware-configuration.nix" "$REPO/Configs/nixos/hardware-configuration.nix"
 else
@@ -85,9 +87,13 @@ printf '"%s"\n' "$HOST_NAME" >"$REPO/Configs/nixos/hostname.nix"
 sudo git config --global --add safe.directory "$REPO"
 sudo cp -r "$REPO/Configs/config/.config/nvim/" /root/.config/
 fc-cache -f -v
+dots_commit_transaction
 if ! sudo nixos-rebuild switch --flake "/etc/nixos#${USER_NAME}"; then
   echo "nixos-rebuild switch failed - falling back to direct activation"
   echo "(usually a systemd too old for 'systemd-run --output=cat', needs systemd >= 253)"
   sudo NIXOS_INSTALL_BOOTLOADER=1 /nix/var/nix/profiles/system/bin/switch-to-configuration switch
 fi
-[ -z "${CHOWN_USER:-}" ] || sudo chown -R "$USER_NAME" "$USER_HOME"
+if [[ "$new_user" == 1 ]]; then
+  sudo chown -h -- "$USER_NAME" "$USER_HOME"
+  dots_own_stowed_paths "$REPO"
+fi
