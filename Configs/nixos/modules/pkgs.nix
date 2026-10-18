@@ -4,7 +4,10 @@
   nixpkgs.config.allowUnfree = true;
 
   services.flatpak.enable = true;
-  programs.hyprland.enable = true;
+  programs.hyprland = {
+    enable = true;
+    withUWSM = true;
+  };
   programs.gpu-screen-recorder.enable = true;
   programs.droidcam.enable = true;
   services.gnome.gnome-keyring.enable = true;

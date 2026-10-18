@@ -94,3 +94,7 @@ Configs/config/.config/fish
 # nix build outputs
 result
 result-*
+
+# py cachee
+__pycache__/
+*.pyc
