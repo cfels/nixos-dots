@@ -8,6 +8,9 @@ Scope {
 	required property PlayerController media
 
 	function resetTrack(): void {
+		lyricsRetry.stop()
+		lyricsState.lyricsRetryable = false
+		lyricsState.lyricsRetries = 0
 		lyricsState.lookupDuration = lyricsState.lyricsDurations[lyricsState.lyricsKey] > 0 ? lyricsState.lyricsDurations[lyricsState.lyricsKey] : 0
 		lyricsState.syncedLyrics = false
 		lyricsState.lyrics = []
@@ -24,6 +27,8 @@ Scope {
 	property var lyrics: []
 	property bool syncedLyrics: true
 	property bool lyricsWanted: false
+	property bool lyricsRetryable: false
+	property int lyricsRetries: 0
 	property var lyricsPlain: []
 	property string lyricsKey: ""
 	property string lyricsFetchKey: ""
@@ -160,6 +165,10 @@ Scope {
 			lyricsState.lyrics = []
 			lyricsState.lyricsPlain = []
 			lyricsState.lyricsLoadedKey = ""
+			if (data.retryable === true) {
+				lyricsState.lyricsRetryable = true
+				return
+			}
 			lyricsState.noteMissingLyrics()
 
 			return
@@ -228,7 +237,25 @@ Scope {
 
 		lyricsState.lyricsFetchKey = lyricsState.lyricsKey
 		lyricsState.lyricsWanted = false
+		lyricsState.lyricsRetryable = false
+		lyricsRetry.stop()
 		lyricsFetch.running = true
+	}
+
+	function retryLyrics(): void {
+		if (!lyricsState.lyricsRetryable || lyricsFetch.running)
+			return
+		lyricsState.lyricsRetries = 0
+		lyricsState.fetchLyrics()
+	}
+
+	function retryAfterFailure(): void {
+		lyricsState.lyricsRetryable = true
+		if (lyricsState.lyricsRetries >= 2)
+			return
+		lyricsRetry.interval = 15000 * Math.pow(3, lyricsState.lyricsRetries)
+		lyricsState.lyricsRetries += 1
+		lyricsRetry.restart()
 	}
 
 	Behavior on lyricsMix {
@@ -246,6 +273,12 @@ Scope {
 	}
 
 	Timer {
+		id: lyricsRetry
+
+		onTriggered: lyricsState.fetchLyrics()
+	}
+
+	Timer {
 		id: lyricsWatchdog
 
 		interval: 11000
@@ -254,8 +287,8 @@ Scope {
 			if (!lyricsFetch.running)
 				return
 			lyricsState.lyricsWanted = false
+			lyricsState.lyricsRetryable = true
 			lyricsFetch.running = false
-			lyricsState.noteMissingLyrics()
 		}
 	}
 
@@ -275,6 +308,10 @@ Scope {
 				return
 			if (lyricsState.lyricsLoadedKey === lyricsState.lyricsKey)
 				return
+			if (lyricsState.lyricsRetryable || code !== 0) {
+				lyricsState.retryAfterFailure()
+				return
+			}
 			lyricsState.noteMissingLyrics()
 		}
 

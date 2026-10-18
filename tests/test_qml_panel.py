@@ -17,6 +17,15 @@ class QmlPanelTests(unittest.TestCase):
     def test_existing_player_on_load(self):
         self.run_scenario(REPO / "tests/qml/PanelScenario.qml", initial_player=True)
 
+    def test_panel_with_real_artwork_fetcher(self):
+        self.run_scenario(REPO / "tests/qml/PanelScenario.qml", real_artwork=True)
+
+    def test_artwork_refresh_does_not_reanimate(self):
+        self.run_scenario(REPO / "tests/qml/ArtworkScenario.qml")
+
+    def test_search_progress_preserves_animation_position(self):
+        self.run_scenario(REPO / "tests/qml/SearchProgressScenario.qml")
+
     def test_panel_visual_states(self):
         images = self.run_scenario(REPO / "tests/qml/PanelVisualScenario.qml")
         self.assertEqual(set(images), {"panel-" + name + ".png" for name in ("idle", "artwork", "synced", "plain", "hosted", "collapsed")})
@@ -31,7 +40,7 @@ class QmlPanelTests(unittest.TestCase):
         self.assertEqual(len(images), 6)
         self.assertEqual(len(set(images.values())), 6)
 
-    def run_scenario(self, scenario, source=None, renderer="software", initial_player=False, installed_layout=False):
+    def run_scenario(self, scenario, source=None, renderer="software", initial_player=False, installed_layout=False, real_artwork=False):
         desktop = IsolatedDesktop()
         self.addCleanup(desktop.close)
         source = source or REPO / "Configs/config/.config/quickshell/moxi"
@@ -50,6 +59,7 @@ class QmlPanelTests(unittest.TestCase):
             "testWallpaper": "wallpaperController" if (target / "panel/WallpaperController.qml").exists() else "panel",
             "testTimeline": "playerView.testTimeline",
             "testLyricsView": "playerView.testLyricsView",
+            "testArtworkView": "playerView.testArtworkView",
             "testSurface": "cardSource",
             "testCalendar": "calendar",
         }
@@ -59,7 +69,9 @@ class QmlPanelTests(unittest.TestCase):
             lyrics_view.write_text(lyrics_view.read_text().replace("id: lyricsDisplay\n", "id: lyricsDisplay\n\tproperty alias testList: lyricsView\n", 1))
         player_view = target / "panel/PlayerView.qml"
         if player_view.exists():
-            player_view.write_text(player_view.read_text().replace("id: playerView\n", "id: playerView\n\tproperty alias testTimeline: progressTrack\n\tproperty alias testLyricsView: lyricsView.testList\n", 1))
+            player_view.write_text(player_view.read_text().replace("id: playerView\n", "id: playerView\n\tproperty alias testTimeline: progressTrack\n\tproperty alias testLyricsView: lyricsView.testList\n\tproperty alias testArtworkView: artwork\n", 1).replace("id: progressTrack\n", "id: progressTrack\n\t\tproperty alias testSweep: progressFill.sweep\n", 1))
+            artwork_view = target / "panel/ArtworkView.qml"
+            artwork_view.write_text(artwork_view.read_text().replace("id: artwork\n", "id: artwork\n\tproperty int testTransitions: 0\n", 1).replace("id: artSwap\n", "id: artSwap\n\t\tonStarted: artwork.testTransitions += 1\n", 1))
         else:
             text = text.replace("playerView.testTimeline", "progressTrack").replace("playerView.testLyricsView", "lyricsView")
         panel.write_text(text)
@@ -99,22 +111,46 @@ done
         mocks = {
             "wallpaper-list.sh": 'cat /work/wallpapers.tsv',
             "wallpaper-set.sh": 'printf "%s\\n" "$1" > /work/set-wallpaper',
-            "artwork-fetch.sh": '[[ -n "$1$2$4" ]] || exit 1; mkdir -p "$(dirname "$5")"; cp /work/image.svg "$5"',
-            "lyrics-fetch.sh": '[[ "$2" != Slow ]] || sleep 2; sed "s/one/$2 one/" /work/lyrics.jsonl',
+            "artwork-fetch.sh": '''[[ -n "$1$2$4" ]] || exit 1
+[[ "$2" != file:///work/artwork-race ]] || sleep 0.65
+source=/work/image.svg
+[[ "$1" != file:///work/tiny.svg ]] || source=/work/tiny.svg
+mkdir -p "$(dirname "$5")"
+duplicate=0
+[[ ! -f "$6" ]] || ! cmp -s "$source" "$6" || duplicate=1
+cp "$source" "$5"
+[[ "$duplicate" == 0 ]] || exit 2''',
+            "lyrics-fetch.sh": '''if [[ "$2" == Missing ]]; then
+  printf '{"duration":0,"syncedLyrics":"","plainLyrics":""}\\n'
+elif [[ "$2" == Retry && ! -e /work/retried ]]; then
+  touch /work/retried
+  printf '{"duration":0,"syncedLyrics":"","plainLyrics":"","retryable":true}\\n'
+else
+  [[ "$2" != Slow ]] || sleep 2
+  sed "s/one/$2 one/" /work/lyrics.jsonl
+fi''',
         }
         for name, body in mocks.items():
             script = scripts / name
             script.write_text('#!/usr/bin/env bash\n' + body + '\n')
             script.chmod(0o755)
-        (desktop.work / "image.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="#ab3456"/></svg>')
+        if real_artwork:
+            for name in ("artwork-fetch.sh", "media-match.jq", "media-cache.py"):
+                shutil.copy2(REPO / "Configs/config/.config/hypr/scripts" / name, scripts / name)
+        (desktop.work / "image.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="600" height="600" fill="#ab3456"/></svg>')
+        (desktop.work / "tiny.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><rect width="60" height="60" fill="#3456ab"/></svg>')
         (desktop.work / "wallpapers.tsv").write_text('/work/image.svg\t/work/image.svg\n/work/video.mp4\t/work/image.svg\t/work/preview.gif\n/work/image.svg\tignored\n')
         (desktop.work / "lyrics.jsonl").write_text('{"duration":180,"syncedLyrics":"[00:01.000]one\\n[00:02.000]two","plainLyrics":""}\n')
         (desktop.work / "reload-marker").write_text("")
         (desktop.work / "colors.json").write_text('{"accent":"#cba6f7"}\n')
         shutil.copy2(REPO / "tests/qml/FakePlayer.qml", desktop.work / "FakePlayer.qml")
+        if real_artwork:
+            fixture = desktop.work / "FakePlayer.qml"
+            fixture.write_text(fixture.read_text().replace('"mpris:trackid": "A"', '"mpris:artUrl": "file:///work/image.svg", "mpris:trackid": "A"'))
         (desktop.work / "shell.qml").write_bytes(scenario.read_bytes())
         environment = {
             "QT_QPA_PLATFORM": "offscreen", "QT_QUICK_BACKEND": "software", "PANEL_INITIAL_PLAYER": "1" if initial_player else "0",
+            "PANEL_REAL_ARTWORK": "1" if real_artwork else "0",
             "QML_IMPORT_PATH": "/run/current-system/sw/lib/qt-6/qml",
             "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/no-bus", "XDG_RUNTIME_DIR": "/tmp/runtime", "LANG": "C.UTF-8",
         }

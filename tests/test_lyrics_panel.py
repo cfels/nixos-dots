@@ -23,9 +23,10 @@ def block_after(source, marker):
 class LyricsPanelTests(unittest.TestCase):
     def run_panel(self, checks):
         source = LYRICS.read_text()
-        bodies = {name: block_after(source, "function " + name + "(") for name in ("applyLyrics", "fetchLyrics", "parseLyrics")}
+        bodies = {name: block_after(source, "function " + name + "(") for name in ("applyLyrics", "fetchLyrics", "parseLyrics", "retryAfterFailure", "retryLyrics", "resetTrack")}
         process = source[source.index("id: lyricsFetch"):]
         bodies["restartFetch"] = block_after(process, "onRunningChanged:")
+        bodies["exitFetch"] = block_after(process, "onExited:")
         script = '''
 const assert = require("node:assert/strict");
 const bodies = JSON.parse(require("node:fs").readFileSync(0, "utf8"));
@@ -33,6 +34,8 @@ globalThis.panel = {
   trackTitle: "Song", trackDuration: 180, lyricsKey: "A", lyricsFetchKey: "",
   lyricsLoadedKey: "", lyrics: [], lyricsPlain: [], lyricsUnavailable: false,
   lyricsWanted: false, lookupDuration: 0, syncedLyrics: false, showLyrics: false,
+  lyricsRetryable: false, lyricsRetries: 0,
+  lyricsDurations: {},
   rememberDuration(value) { this.remembered = value; },
   noteMissingLyrics() { this.missing = true; },
   updateActiveLyric() {},
@@ -41,10 +44,15 @@ globalThis.panel = {
 globalThis.lyricsState = panel;
 panel.media = panel;
 globalThis.lyricsFetch = { running: false };
+globalThis.lyricsRetry = { running: false, restarts: 0, stop() { this.running = false; }, restart() { this.running = true; this.restarts++; } };
 panel.applyLyrics = new Function("payload", bodies.applyLyrics);
 panel.fetchLyrics = new Function(bodies.fetchLyrics);
 panel.parseLyrics = new Function("raw", bodies.parseLyrics);
+panel.retryAfterFailure = new Function(bodies.retryAfterFailure);
+panel.retryLyrics = new Function(bodies.retryLyrics);
+panel.resetTrack = new Function(bodies.resetTrack);
 const restartFetch = new Function(bodies.restartFetch);
+const exitFetch = new Function("code", "status", bodies.exitFetch);
 ''' + checks
         result = subprocess.run(["node", "-e", script], input=json.dumps(bodies), capture_output=True, text=True, timeout=5)
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -83,4 +91,44 @@ assert.deepEqual(panel.lyrics, [{ time: 1, text: "loaded" }]);
 assert.equal(panel.missing, undefined);
 panel.applyLyrics("{malformed");
 assert.deepEqual(panel.lyrics, [{ time: 1, text: "loaded" }]);
+''')
+
+    def test_transient_failure_retries_are_bounded_and_track_changes_cancel_them(self):
+        self.run_panel('''
+panel.lyricsFetchKey = panel.lyricsKey;
+const failure = JSON.stringify({duration: 180, syncedLyrics: "", plainLyrics: "", retryable: true});
+panel.applyLyrics(failure);
+assert.equal(panel.missing, undefined);
+exitFetch(0, 0);
+assert.equal(lyricsRetry.interval, 15000);
+assert.equal(panel.lyricsRetries, 1);
+panel.fetchLyrics();
+assert.equal(panel.lyricsRetryable, false);
+assert.equal(lyricsRetry.running, false);
+lyricsFetch.running = false;
+panel.applyLyrics(failure);
+exitFetch(0, 0);
+assert.equal(lyricsRetry.interval, 45000);
+assert.equal(panel.lyricsRetries, 2);
+lyricsRetry.running = false;
+panel.applyLyrics(failure);
+exitFetch(0, 0);
+assert.equal(lyricsRetry.running, false);
+assert.equal(lyricsRetry.restarts, 2);
+assert.equal(panel.missing, undefined);
+panel.lyricsKey = "B";
+panel.resetTrack();
+assert.equal(panel.lyricsRetryable, false);
+assert.equal(panel.lyricsRetries, 0);
+assert.equal(lyricsRetry.running, false);
+''')
+
+    def test_reopening_after_network_failure_can_retry_immediately(self):
+        self.run_panel('''
+panel.lyricsRetryable = true;
+panel.lyricsRetries = 2;
+panel.retryLyrics();
+assert.equal(panel.lyricsRetries, 0);
+assert.equal(panel.lyricsRetryable, false);
+assert.equal(lyricsFetch.running, true);
 ''')

@@ -82,6 +82,7 @@ PanelWindow {
 
 			playerController.rollEmptyPhrase()
 			lyricsController.updateActiveLyric()
+			lyricsController.retryLyrics()
 		} else {
 			calendar.selectedDay = 0
 			panel.contentVisible = false

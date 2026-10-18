@@ -49,6 +49,12 @@ class LyricsNormalizerTests(unittest.TestCase):
         result = self.normalize(payload, raw=True)
         self.assertEqual(result["syncedLyrics"], "[00:01.000]One\n[00:02.000]Two")
 
+    def test_amll_romanization_does_not_duplicate_main_lyrics(self):
+        payload = '<tt xmlns:ttm="urn:metadata"><body><p begin="1s">一<span ttm:role="x-roman">ichi</span></p><p begin="2s">二<span ttm:role="x-roman">ni</span></p></body></tt>'
+        result = self.normalize(payload, raw=True)
+        self.assertEqual(result["syncedLyrics"], "[00:01.000]一\n[00:02.000]二")
+        self.assertEqual(result["plainLyrics"], "一\n二")
+
     def test_timed_json_supports_milliseconds_and_seconds(self):
         for key, values in (("time", (1000, 2000)), ("timestamp", (1000, 2000)), ("startTimeMs", (1000, 2000)), ("startTime", (1, 2))):
             with self.subTest(key=key):

@@ -124,7 +124,7 @@ Item {
 		property real dragOffset: 0
 		readonly property real seekRange: 180
 		readonly property bool seekable: playerView.media.hasPlayer && playerView.media.player.canSeek
-		readonly property bool waiting: playerView.media.hasPlayer && !progressTrack.dragging && (playerView.lyricsController.lyricsSearching || (playerView.media.trackDuration <= 0 && playerView.media.playing))
+		readonly property bool waiting: playerView.media.hasPlayer && !progressTrack.dragging && playerView.lyricsController.lyricsSearching
 		property real waitingMix: progressTrack.waiting ? 1 : 0
 		readonly property real waitingAmount: progressTrack.dragging ? 0 : progressTrack.waitingMix
 		property real displayedProgress: playerView.media.progress
@@ -230,7 +230,8 @@ Item {
 			opacity: 1 - 0.4 * progressTrack.waitingAmount
 
 			SequentialAnimation {
-				running: progressTrack.waiting
+				running: playerView.media.hasPlayer
+				paused: running && !progressTrack.waiting
 				loops: Animation.Infinite
 
 				NumberAnimation {

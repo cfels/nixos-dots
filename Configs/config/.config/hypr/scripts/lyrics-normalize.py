@@ -82,7 +82,7 @@ def element_text(node):
     parts = [node.text or ""]
     for child in node:
         role = next((v for k, v in child.attrib.items() if k.split("}")[-1] == "role"), "")
-        if role not in {"x-translation", "x-transliteration", "x-bg"}:
+        if role not in {"x-translation", "x-transliteration", "x-roman", "x-bg"}:
             parts.append(" " if child.tag.split("}")[-1] == "br" else element_text(child))
         parts.append(child.tail or "")
     return "".join(parts)

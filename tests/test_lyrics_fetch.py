@@ -21,7 +21,7 @@ class LyricsFetchTests(unittest.TestCase):
         self.fixtures = json.loads(FIXTURES.read_text())
         directory = self.desktop.repo / "Configs/config/.config/hypr/scripts"
         directory.mkdir(parents=True)
-        for name in ("lyrics-fetch.sh", "lyrics-normalize.py"):
+        for name in ("lyrics-fetch.sh", "lyrics-normalize.py", "media-cache.py", "media-match.jq"):
             shutil.copy2(REPO / "Configs/config/.config/hypr/scripts" / name, directory / name)
         (self.desktop.work / "fixtures.json").write_text(json.dumps(self.fixtures))
         curl = self.desktop.work / "bin/curl"
@@ -39,9 +39,18 @@ with open("/work/requests.jsonl", "a") as log:
     log.write(json.dumps({"route": route, "args": args}) + "\\n")
 failures = json.loads(os.environ.get("CURL_FAILURES", "{}"))
 if route in failures:
+    print(json.loads(os.environ.get("CURL_HTTP_STATUS", "{}")).get(route, "404" if failures[route] == 22 else "000"), end="")
     sys.exit(failures[route])
+
+def respond(body):
+    if "-o" in args:
+        Path(args[args.index("-o") + 1]).write_text(body)
+        print("200", end="")
+    else:
+        print(body)
+
 if route == os.environ.get("CURL_RAW_ROUTE"):
-    print(os.environ["CURL_RAW_RESPONSE"])
+    respond(os.environ["CURL_RAW_RESPONSE"])
     sys.exit(0)
 if os.environ.get("CURL_DELAY"):
     time.sleep(float(os.environ["CURL_DELAY"]))
@@ -54,15 +63,15 @@ if route in duration_routes and os.environ.get("DURATION_GATE"):
             sys.exit(28)
         time.sleep(0.01)
     if "itunes" in route:
-        print(json.dumps({"results": [{"trackName": "Fixture Song", "artistName": "Fixture Artist", "trackTimeMillis": 180000}]}))
+        respond(json.dumps({"results": [{"trackName": "Fixture Song", "artistName": "Fixture Artist", "trackTimeMillis": 180000}]}))
     else:
-        print(json.dumps({"data": []}))
+        respond(json.dumps({"data": []}))
     sys.exit(0)
 fixtures = json.loads(Path("/work/fixtures.json").read_text())
 for provider in os.environ.get("LYRICS_PROVIDERS", "").split(","):
     responses = fixtures["providers"].get(provider, {}).get("responses", {})
     if route in responses:
-        print(json.dumps(responses[route], ensure_ascii=False))
+        respond(json.dumps(responses[route], ensure_ascii=False))
         sys.exit(0)
 sys.exit(22)
 ''')
@@ -73,6 +82,7 @@ sys.exit(22)
         return [str(value[key]) for key in ("artist", "title", "album", "duration", "track")]
 
     def fetch(self, providers=(), **environment):
+        environment.setdefault("LYRICS_CACHE", "0")
         result = self.desktop.run(
             FETCH, *self.arguments(), LYRICS_PROVIDERS=",".join(providers),
             APPLE_MUSIC_TOKEN="fixture-token", PAXSENIX_API_KEY="fixture-key", **environment,
@@ -103,6 +113,30 @@ sys.exit(22)
         response["syncedLyrics"] = ""
         (self.desktop.work / "fixtures.json").write_text(json.dumps(self.fixtures))
         self.assertEqual(self.fetch(["lrclib", "netease"]), [self.fixtures["providers"]["netease"]["expected"]])
+
+    def test_synced_candidate_precedes_plain_candidate_with_better_album_match(self):
+        response = self.fixtures["providers"]["lrclib"]["responses"]["https://lrclib.net/api/get"]
+        response["syncedLyrics"] = ""
+        response = self.fixtures["providers"]["netease"]["responses"]["https://music.163.com/api/search/get"]
+        response["result"]["songs"][0]["album"]["name"] = "Another Edition"
+        (self.desktop.work / "fixtures.json").write_text(json.dumps(self.fixtures))
+        self.assertEqual(self.fetch(["lrclib", "netease"]), [self.fixtures["providers"]["netease"]["expected"]])
+
+    def test_japanese_character_credits_match_performers_and_search_by_their_names(self):
+        self.fixtures["metadata"].update(title="動く、動く", artist="チト（CV：水瀬いのり）、ユーリ（CV：久保ユリカ）")
+        response = self.fixtures["providers"]["netease"]["responses"]["https://music.163.com/api/search/get"]
+        response["result"]["songs"][0].update(name="動く、動く", artists=[{"name": "水瀬いのり"}, {"name": "久保ユリカ"}])
+        (self.desktop.work / "fixtures.json").write_text(json.dumps(self.fixtures))
+        self.assertEqual(self.fetch(["netease"]), [self.fixtures["providers"]["netease"]["expected"]])
+        args = next(request["args"] for request in self.requests() if request["route"] == "https://music.163.com/api/search/get")
+        self.assertIn("s=水瀬いのり 久保ユリカ 動く、動く", args)
+
+    def test_japanese_character_credits_match_ascii_provider_credits(self):
+        self.fixtures["metadata"].update(title="動く、動く", artist="チト（CV：水瀬いのり）、ユーリ（CV：久保ユリカ）")
+        response = self.fixtures["providers"]["lyricsplus"]["responses"]["https://lyricsplus.binimum.org/v2/lyrics/get"]
+        response.update(title="動く、動く", artist="チト(CV:水瀬いのり), ユーリ(CV:久保ユリカ)")
+        (self.desktop.work / "fixtures.json").write_text(json.dumps(self.fixtures))
+        self.assertEqual(self.fetch(["lyricsplus"]), [self.fixtures["providers"]["lyricsplus"]["expected"]])
 
     def test_plain_lyrics_remain_usable(self):
         response = self.fixtures["providers"]["lrclib"]["responses"]["https://lrclib.net/api/get"]
@@ -166,6 +200,41 @@ sys.exit(22)
         (self.desktop.work / "fixtures.json").write_text(json.dumps(self.fixtures))
         self.assertEqual(self.fetch(["lyricsplus"], LYRICSPLUS_URL="https://fixture.invalid"), [self.fixtures["providers"]["lyricsplus"]["expected"]])
 
+    def test_custom_lrcmux_endpoint_is_preserved(self):
+        responses = self.fixtures["providers"]["lrcmux"]["responses"]
+        responses["https://fixture.invalid/compat/lrclib/api/get"] = responses.pop("https://api.lrcmux.dev/compat/lrclib/api/get")
+        (self.desktop.work / "fixtures.json").write_text(json.dumps(self.fixtures))
+        self.assertEqual(self.fetch(["lrcmux"], LRCMUX_URL="https://fixture.invalid"), [self.fixtures["providers"]["lrcmux"]["expected"]])
+
+    def test_new_providers_reject_wrong_recordings(self):
+        for provider in ("lrcmux", "amll"):
+            for mismatch in ("title", "artist", "duration"):
+                with self.subTest(provider=provider, mismatch=mismatch):
+                    fixtures = json.loads(FIXTURES.read_text())
+                    responses = fixtures["providers"][provider]["responses"]
+                    if provider == "lrcmux":
+                        record = responses["https://api.lrcmux.dev/compat/lrclib/api/get"]
+                        key = {"title": "trackName", "artist": "artistName", "duration": "duration"}[mismatch]
+                    else:
+                        record = responses["https://music.163.com/api/search/get"]["result"]["songs"][0]
+                        key = {"title": "name", "artist": "artists", "duration": "duration"}[mismatch]
+                    record[key] = {"title": "Wrong Song", "artist": [{"name": "Wrong Artist"}] if provider == "amll" else "Wrong Artist", "duration": 195000 if provider == "amll" else 195}[mismatch]
+                    (self.desktop.work / "fixtures.json").write_text(json.dumps(fixtures))
+                    self.assertEqual(self.fetch([provider]), [{"duration": 180, "syncedLyrics": "", "plainLyrics": ""}])
+
+    def test_amll_rejects_invalid_catalog_ids(self):
+        response = self.fixtures["providers"]["amll"]["responses"]["https://music.163.com/api/search/get"]
+        response["result"]["songs"][0]["id"] = "../../unexpected"
+        (self.desktop.work / "fixtures.json").write_text(json.dumps(self.fixtures))
+        self.assertEqual(self.fetch(["amll"]), [{"duration": 180, "syncedLyrics": "", "plainLyrics": ""}])
+        self.assertFalse(any("raw.githubusercontent.com" in request["route"] for request in self.requests()))
+
+    def test_new_providers_fall_back_after_network_failure(self):
+        for provider, route in (("lrcmux", "https://api.lrcmux.dev/compat/lrclib/api/get"), ("amll", "https://raw.githubusercontent.com/amll-dev/amll-ttml-db/main/ncm-lyrics/101.ttml")):
+            with self.subTest(provider=provider):
+                result = self.fetch([provider, "lrclib"], CURL_FAILURES=json.dumps({route: 28}))
+                self.assertEqual(result, [self.fixtures["providers"]["lrclib"]["expected"]])
+
     def test_timeout_and_network_error_allow_fallback(self):
         for status in (7, 28):
             with self.subTest(curl_status=status):
@@ -174,6 +243,71 @@ sys.exit(22)
 
     def test_empty_results_keep_the_output_contract(self):
         self.assertEqual(self.fetch(), [{"duration": 180, "syncedLyrics": "", "plainLyrics": ""}])
+
+    def test_successful_primary_sources_skip_fallback_requests(self):
+        self.fetch(["lrclib"])
+        self.assertEqual({request["route"] for request in self.requests()}, {
+            "https://lrclib.net/api/get", "https://lrclib.net/api/search", "https://music.163.com/api/search/get",
+        })
+
+    def test_cached_lyrics_survive_another_lookup_without_network(self):
+        expected = self.fetch(["lrclib"], LYRICS_CACHE="1")
+        before = len(self.requests())
+        self.assertEqual(self.fetch(LYRICS_CACHE="1"), expected)
+        self.assertEqual(len(self.requests()), before)
+
+    def test_corrupted_cache_is_refetched(self):
+        self.fetch(["lrclib"], LYRICS_CACHE="1")
+        cache = next((self.desktop.home / ".cache/moxi/lyrics/v1").glob("*.json"))
+        cache.write_text('{"duration":true,"syncedLyrics":[],"plainLyrics":null}')
+        result = self.fetch(["netease"], LYRICS_CACHE="1")
+        self.assertEqual(result, [self.fixtures["providers"]["netease"]["expected"]])
+
+    def test_successful_lyrics_are_remembered_beyond_a_week(self):
+        expected = self.fetch(["lrclib"], LYRICS_CACHE="1")
+        cache = next((self.desktop.home / ".cache/moxi/lyrics/v1").glob("*.json"))
+        os.utime(cache, (time.time() - 90 * 86400,) * 2)
+        before = len(self.requests())
+        self.assertEqual(self.fetch(LYRICS_CACHE="1"), expected)
+        self.assertEqual(len(self.requests()), before)
+        self.assertGreater(cache.stat().st_mtime, time.time() - 5)
+
+    def test_duration_and_recording_are_part_of_cache_identity(self):
+        self.fetch(["lrclib"], LYRICS_CACHE="1")
+        before = len(self.requests())
+        self.fixtures["metadata"]["duration"] = 181
+        self.fetch(["netease"], LYRICS_CACHE="1")
+        self.assertGreater(len(self.requests()), before)
+        before = len(self.requests())
+        self.fixtures["metadata"]["track"] = "https://www.youtube.com/watch?v=otherrecord"
+        self.fetch(["netease"], LYRICS_CACHE="1")
+        self.assertGreater(len(self.requests()), before)
+
+    def test_transient_network_misses_are_retryable_and_not_cached(self):
+        route = "https://lrclib.net/api/get"
+        for status, http_status in ((7, "000"), (28, "000"), (22, "429"), (22, "503")):
+            with self.subTest(status=status, http_status=http_status):
+                result = self.fetch(LYRICS_CACHE="1", CURL_FAILURES=json.dumps({route: status}), CURL_HTTP_STATUS=json.dumps({route: http_status}))
+                self.assertEqual(result, [{"duration": 180, "syncedLyrics": "", "plainLyrics": "", "retryable": True}])
+                self.assertFalse(list((self.desktop.home / ".cache/moxi/lyrics/v1").glob("*.json")))
+        self.assertEqual(self.fetch(["lrclib"], LYRICS_CACHE="1"), [self.fixtures["providers"]["lrclib"]["expected"]])
+
+    def test_definitive_misses_have_a_short_lived_cache(self):
+        expected = self.fetch(LYRICS_CACHE="1")
+        before = len(self.requests())
+        self.assertEqual(self.fetch(["lrclib"], LYRICS_CACHE="1"), expected)
+        self.assertEqual(len(self.requests()), before)
+        cache = next((self.desktop.home / ".cache/moxi/lyrics/v1").glob("*.json"))
+        os.utime(cache, (time.time() - 901,) * 2)
+        self.assertEqual(self.fetch(["lrclib"], LYRICS_CACHE="1"), [self.fixtures["providers"]["lrclib"]["expected"]])
+
+    def test_small_cache_entries_are_not_evicted_by_an_entry_count_limit(self):
+        cache = self.desktop.home / ".cache/moxi/lyrics/v1"
+        cache.mkdir(parents=True)
+        for index in range(260):
+            (cache / (str(index) + ".json")).write_text("{}")
+        self.fetch(["lrclib"], LYRICS_CACHE="1")
+        self.assertEqual(len(list(cache.glob("*.json"))), 261)
 
     def test_local_lrc_precedes_network_search(self):
         (self.desktop.work / "song.lrc").write_text("[00:01.000]local one\n[00:02.000]local two\n")

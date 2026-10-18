@@ -2,6 +2,8 @@
 set -euo pipefail
 
 #   lrclib      https://lrclib.net/api/get + /api/search                             synced + plain
+#   lrcmux      https://api.lrcmux.dev/compat/lrclib/api/get                        synced + plain
+#   amll        https://github.com/amll-dev/amll-ttml-db (NetEase song IDs)         synced
 #   netease     https://music.163.com/api/search/get + /api/song/lyric               synced
 #   qq          https://c.y.qq.com/soso/fcgi-bin/client_search_cp
 #               https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg            synced
@@ -32,40 +34,28 @@ track="${5:-}"
 
 SCRIPT_DIR="$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")"
 UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
-QUERY="$(printf '%s %s' "$artist" "$title" | sed -e 's/  */ /g' -e 's/^ *//' -e 's/ *$//')"
 WANT_SECS="$(printf '%s' "${length%%.*}" | sed -e 's/[^0-9]//g')"
 [ -n "$WANT_SECS" ] || WANT_SECS=0
 
-JQ_MATCH='
-def norm: ascii_downcase | gsub("[^\\p{L}\\p{N}]+"; " ") | gsub("^ +| +$"; "");
-def artists: ascii_downcase | [splits("\\s+(?:feat\\.?|ft\\.?|featuring)\\s+|\\s*[,;&]\\s*")] | map(norm) | map(select(length > 0));
-def adiff: if . < 0 then -. else . end;
-($title | norm) as $wantT
-| ($artist | artists) as $wantA
-| ($album | norm) as $wantAlbum
-| (($dur // 0) | if . < 0 then 0 else . end) as $wantD
-| [ .[]
-	| . as $c
-	| (($c.title // "") | norm) as $ct
-	| (($c.artist // "") | artists) as $ca
-	| select($wantT != "" and $ct == $wantT)
-	| select(($wantA | length) > 0 and ($wantA - $ca | length) == 0)
-	| select($wantD <= 0 or ($c.duration // 0) <= 0 or (((($c.duration // 0) - $wantD) | adiff) <= 3))
-	| $c + {
-		score: ((if $ca == $wantA then 2 else 1 end)
-			+ (if $wantAlbum != "" and (($c.album // "") | norm) == $wantAlbum then 2 else 0 end)
-			+ (if ($wantD > 0 and ($c.duration // 0) > 0)
-				then ((($c.duration // 0) - $wantD) | adiff) as $dd
-					| 4 - $dd
-				else 0 end))
-	}
-]
-| sort_by(-.score, if ((.synced // .syncedLyrics // "") | length) > 0 then 0 else 1 end)
-| .[0] // {}
-'
+cache_args=("$artist" "$title" "$album" "$WANT_SECS" "$track")
+cache_enabled="${LYRICS_CACHE:-1}"
+case "$track" in file://*) cache_enabled=0 ;; esac
+if [ "$cache_enabled" = 1 ] && cached="$(python3 "$SCRIPT_DIR/media-cache.py" read "${cache_args[@]}")"; then
+	printf '%s\n' "$cached"
+	exit 0
+fi
+
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+QUERY_ARTIST="$(printf '%s' "$artist" | jq -L "$SCRIPT_DIR" -sRr 'include "media-match"; artists | join(" ")')"
+QUERY="$(printf '%s %s' "$QUERY_ARTIST" "$title" | sed -e 's/  */ /g' -e 's/^ *//' -e 's/ *$//')"
 
 pick() {
-	jq -c --arg title "$title" --arg artist "$artist" --arg album "$album" --argjson dur "$WANT_SECS" "$JQ_MATCH" 2>/dev/null || printf '{}'
+	jq -L "$SCRIPT_DIR" -c --arg title "$title" --arg artist "$artist" --arg album "$album" --argjson dur "$WANT_SECS" \
+		'include "media-match"; matched_tracks($title; $artist; $album; $dur) | .[0] // {}' 2>/dev/null || printf '{}'
 }
 
 match_payload() {
@@ -87,7 +77,16 @@ lyric_pids=""
 length_pid=""
 
 net() {
-	curl -sfL --connect-timeout 2 --max-time "${LYRICS_TIMEOUT:-4}" -A "$UA" "$@" 2>/dev/null || true
+	local response http_code status=0
+	response="$(mktemp "$work/response.XXXXXX")"
+	http_code="$(curl -sfL --connect-timeout 2 --max-time "${LYRICS_TIMEOUT:-4}" -A "$UA" \
+		-o "$response" -w '%{http_code}' "$@" 2>/dev/null)" || status=$?
+	if [ "$status" -eq 0 ]; then
+		cat "$response"
+	elif [ "$status" -ne 22 ] || [[ "$http_code" == 429 || "$http_code" == 5?? ]]; then
+		printf '1\n' >> "$work/transient"
+	fi
+	rm -f "$response"
 }
 
 take() {
@@ -117,8 +116,12 @@ prov_lrclib() {
 		args+=(--data-urlencode "album_name=$album" --data-urlencode "duration=${length%.*}")
 	fi
 
-	net -G "${args[@]}" "https://lrclib.net/api/get" |
+	net -G "${args[@]}" "${1:-https://lrclib.net/api/get}" |
 		jq -c '. + {title: (.trackName // ""), artist: (.artistName // ""), album: (.albumName // "")}' 2>/dev/null || true
+}
+
+prov_lrcmux() {
+	prov_lrclib "${LRCMUX_URL:-https://api.lrcmux.dev}/compat/lrclib/api/get"
 }
 
 prov_lrclib_search() {
@@ -128,13 +131,19 @@ prov_lrclib_search() {
 		jq -c '. + {syncedLyrics: (.synced // ""), plainLyrics: (.plain // "")}' 2>/dev/null || true
 }
 
-prov_netease() {
-	local search picked id ms lyric
+netease_track() {
+	local search
 
 	search="$(net -G --data-urlencode "s=$QUERY" --data-urlencode "type=1" --data-urlencode "limit=8" "https://music.163.com/api/search/get")"
 	search="$(printf '%s' "$search" | jq -c '[(.result.songs // [])[] | {id: .id, title: (.name // ""), artist: ([.artists[]?.name] | join(" & ")), album: (.album.name // ""), duration: ((.duration // 0) / 1000)}]' 2>/dev/null || printf '[]')"
 
-	picked="$(printf '%s' "$search" | pick)"
+	printf '%s' "$search" | pick
+}
+
+prov_netease() {
+	local picked id ms lyric
+
+	picked="$(netease_track)"
 	id="$(printf '%s' "$picked" | jq -r '.id // empty' 2>/dev/null || true)"
 	[ -n "$id" ] || return 0
 
@@ -146,6 +155,17 @@ prov_netease() {
 		syncedLyrics: (.lrc.lyric // ""),
 		plainLyrics: ((.lrc.lyric // "") | gsub("\\[[0-9:.]+\\]"; ""))
 	}' 2>/dev/null | with_metadata "$picked" || true
+}
+
+prov_amll() {
+	local picked id
+
+	picked="$(netease_track)"
+	id="$(printf '%s' "$picked" | jq -r '.id // empty' 2>/dev/null || true)"
+	[[ "$id" =~ ^[0-9]+$ ]] || return 0
+
+	net "https://raw.githubusercontent.com/amll-dev/amll-ttml-db/main/ncm-lyrics/$id.ttml" |
+		normalize | with_metadata "$picked"
 }
 
 prov_qq() {
@@ -427,10 +447,7 @@ if [ -n "$track" ]; then
 fi
 
 if [ -z "$synced" ]; then
-	work="$(mktemp -d)"
-	trap 'rm -rf "$work"' EXIT
-
-	providers=(lrclib lrclib_search netease qq kugou lyricsplus lyricsplus_backup unison betterlyrics betterlyrics_kugou betterlyrics_qq simpmusic)
+	providers=(lrclib lrclib_search netease qq kugou lyricsplus lyricsplus_backup unison betterlyrics betterlyrics_kugou betterlyrics_qq simpmusic lrcmux amll)
 	if [ -n "${APPLE_MUSIC_TOKEN:-}" ]; then
 		providers+=(apple)
 	fi
@@ -438,14 +455,29 @@ if [ -z "$synced" ]; then
 		providers+=(paxsenix paxsenix_musixmatch paxsenix_apple paxsenix_spotify)
 	fi
 
-	for p in "${providers[@]}"; do
-		(
-			"prov_$p" | normalize | match_payload > "$work/$p.tmp" 2>/dev/null || true
-			# Publish complete JSON only; never select a half-written response.
-			mv "$work/$p.tmp" "$work/$p"
-		) &
-		lyric_pids="$lyric_pids $!"
-	done
+	start_providers() {
+		local p
+		for p in "$@"; do
+			(
+				"prov_$p" | normalize | match_payload > "$work/$p.tmp" 2>/dev/null || true
+				# Publish complete JSON only; never select a half-written response.
+				mv "$work/$p.tmp" "$work/$p"
+			) &
+			lyric_pids="$lyric_pids $!"
+		done
+	}
+
+	best_candidate() {
+		local p candidates=()
+		for p in "${providers[@]}"; do
+			[ ! -s "$work/$p" ] || candidates+=("$work/$p")
+		done
+		if [ "${#candidates[@]}" -gt 0 ]; then
+			jq -s '.' "${candidates[@]}" | pick | normalize | match_payload
+		fi
+	}
+
+	start_providers "${providers[@]:0:3}"
 
 	length_pid=""
 
@@ -455,8 +487,9 @@ if [ -z "$synced" ]; then
 		length_done=1
 	fi
 
-	stop=$(( $(date +%s) + ${LYRICS_BUDGET:-5} ))
-
+	stop=$((SECONDS + ${LYRICS_BUDGET:-5}))
+	primary_stop=$((SECONDS + 2))
+	fallback_started=""
 	while :; do
 		alive=""
 
@@ -464,8 +497,22 @@ if [ -z "$synced" ]; then
 			if kill -0 "$pid" 2>/dev/null; then alive="$alive $pid"; fi
 		done
 
+		if [ -z "$fallback_started" ] && { [ -z "$alive" ] || [ "$SECONDS" -ge "$primary_stop" ]; }; then
+			candidate="$(best_candidate)"
+			if printf '%s' "$candidate" | jq -e '(.syncedLyrics // "") != "" and (.duration // 0) > 0' >/dev/null; then
+				break
+			fi
+			start_providers "${providers[@]:3}"
+			fallback_started=1
+			continue
+		fi
+
 		[ -n "$alive" ] || break
-		[ "$(date +%s)" -lt "$stop" ] || { kill $alive 2>/dev/null || true; break; }
+		if [ "$SECONDS" -ge "$stop" ]; then
+			printf '1\n' >> "$work/transient"
+			kill $alive 2>/dev/null || true
+			break
+		fi
 		sleep 0.15
 	done
 
@@ -476,13 +523,7 @@ if [ -z "$synced" ]; then
 		if [ "${duration:-0}" -gt 0 ] 2>/dev/null; then WANT_SECS="$duration"; fi
 	fi
 
-	candidates=()
-	for p in "${providers[@]}"; do
-		[ ! -s "$work/$p" ] || candidates+=("$work/$p")
-	done
-	if [ "${#candidates[@]}" -gt 0 ]; then
-		take "$(jq -s '.' "${candidates[@]}" | pick | normalize | match_payload)"
-	fi
+	take "$(best_candidate)"
 fi
 
 if [ "$duration" = "0" ] && [ "${WANT_SECS:-0}" -le 0 ] 2>/dev/null && [ -z "$length_done" ]; then
@@ -497,8 +538,11 @@ CREDITS='(作词|作詞|作曲|编曲|編曲|produced by|written by|lyrics by)[[
 [ -n "$synced" ] && synced="$(printf '%s\n' "$synced" | grep -vE "$CREDITS" || true)"
 [ -n "$plain" ] && plain="$(printf '%s\n' "$plain" | grep -vE "$CREDITS" || true)"
 
-jq -cn --argjson d "${duration:-0}" --arg s "$synced" --arg p "$plain" \
-	'{duration: $d, syncedLyrics: $s, plainLyrics: $p}'
+retryable=false
+if [ -z "$synced$plain" ] && [ -s "$work/transient" ]; then retryable=true; fi
+payload="$(jq -cn --argjson d "${duration:-0}" --arg s "$synced" --arg p "$plain" --argjson retryable "$retryable" \
+	'{duration: $d, syncedLyrics: $s, plainLyrics: $p} + (if $retryable then {retryable: true} else {} end)')"
+printf '%s\n' "$payload"
 
 if [ -n "$length_pid" ] && [ "${duration:-0}" = "0" ]; then
 	tries=0
@@ -513,6 +557,12 @@ if [ -n "$length_pid" ] && [ "${duration:-0}" = "0" ]; then
 	late="$(cat "$work/length" 2>/dev/null || true)"
 
 	if [ "${late:-0}" -gt 0 ] 2>/dev/null; then
-		jq -cn --argjson d "${late%.*}" '{duration: $d, syncedLyrics: "", plainLyrics: ""}'
+		jq -cn --argjson d "${late%.*}" --argjson retryable "$retryable" \
+			'{duration: $d, syncedLyrics: "", plainLyrics: ""} + (if $retryable then {retryable: true} else {} end)'
+		payload="$(printf '%s' "$payload" | jq -c --argjson d "${late%.*}" '.duration = $d')"
 	fi
+fi
+
+if [ "$cache_enabled" = 1 ] && [ "$retryable" = false ]; then
+	printf '%s' "$payload" | python3 "$SCRIPT_DIR/media-cache.py" write "${cache_args[@]}" || true
 fi

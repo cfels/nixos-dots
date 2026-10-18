@@ -8,6 +8,8 @@ ShellRoot {
 	id: scenario
 
 	property int step: 0
+	property string artworkKey: ""
+	property string artworkSource: ""
 
 	function check(condition, message): void {
 		if (!condition) throw new Error(message)
@@ -132,9 +134,33 @@ ShellRoot {
 					scenario.check(subject.testLyricsView.count === 2 && subject.testLyricsView.followIndex === lyrics.activeLyric, "lyrics list follows controller selection")
 					subject.testLyricsView.glideBy(40)
 					scenario.check(subject.testLyricsView.manual, "manual lyric scrolling")
-					media.player = null
+					scenario.artworkKey = subject.testArtwork.artCacheKey
+					scenario.artworkSource = subject.testArtwork.artSource
+					fakePlayer.metadata = Object.assign({}, fakePlayer.metadata, {"mpris:artUrl": "file:///work/tiny.svg"})
 				} else if (scenario.step === 10) {
+					scenario.check(subject.testArtwork.artCacheKey === scenario.artworkKey, "artwork URL refresh keeps the recording cache key")
+					if (Quickshell.env("PANEL_REAL_ARTWORK") === "1")
+						scenario.check(subject.testArtwork.artSource === scenario.artworkSource, "late low-resolution artwork cannot replace the high-resolution cover")
+					media.player = null
+				} else if (scenario.step === 11) {
 					scenario.check(!media.hasPlayer && subject.testArtwork.artSource === "", "player disappearance clears artwork")
+					fakePlayer.trackTitle = "Missing"
+					fakePlayer.lengthSupported = false
+					fakePlayer.metadata = ({"mpris:trackid": "missing", "xesam:url": "https://music.youtube.com/playlist?list=LM"})
+					fakePlayer.playbackState = MprisPlaybackState.Playing
+					media.player = fakePlayer
+					scenario.check(lyrics.lyricsSearching && subject.testTimeline.waiting, "unknown duration starts lyrics search")
+				} else if (scenario.step === 18) {
+					scenario.check(media.trackDuration === 0 && media.playing && lyrics.lyricsUnavailable, "missing lyrics and duration finish lookup")
+					scenario.check(!lyrics.lyricsSearching && !subject.testTimeline.waiting, "completed lookup stops searching with unknown duration")
+					fakePlayer.trackTitle = "Retry"
+				} else if (scenario.step === 25) {
+					scenario.check(lyrics.lyricsRetryable && !lyrics.lyricsUnavailable, "network failure remains retryable")
+					scenario.check(!lyrics.lyricsSearching && !subject.testTimeline.waiting, "backoff does not show an endless search")
+					subject.expanded = false
+					subject.expanded = true
+				} else if (scenario.step === 28) {
+					scenario.check(lyrics.syncedLyrics && lyrics.lyrics.length === 2 && lyrics.lyrics[0].text === "Retry one", "reopening retries a transient failure successfully")
 					scenarioTimer.stop()
 					markReload.running = true
 				}

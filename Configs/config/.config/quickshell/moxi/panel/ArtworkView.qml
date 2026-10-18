@@ -40,7 +40,9 @@ Item {
 	readonly property bool ready: artworkIn.ready || artworkOut.ready
 	property string shown: ""
 	property string incoming: ""
+	property string incomingKey: ""
 	property bool pending: false
+	property bool animateSwap: true
 	property real swapDir: 1
 
 	function artSourceNow(): string {
@@ -59,12 +61,14 @@ Item {
 			return
 		if (next === artwork.incoming)
 			return
-		if (artwork.pending) {
+		if (artwork.pending || artSwap.running) {
 			artSwap.stop()
 			artwork.pending = false
 			artwork.finish()
 		}
 
+		artwork.animateSwap = !artwork.controller.artUnchanged && artwork.incomingKey !== artwork.controller.artTrackKey
+		artwork.incomingKey = artwork.controller.artTrackKey
 		artwork.swapDir = dir
 		artwork.incoming = next
 		artwork.pending = true
@@ -79,6 +83,10 @@ Item {
 			return
 		artReadyTimer.stop()
 		artwork.pending = false
+		if (!artwork.animateSwap) {
+			artwork.finish()
+			return
+		}
 		artworkOut.source = artwork.shown
 		artworkOut.x = 0
 		artworkOut.opacity = artwork.shown.length > 0 ? 1 : 0
@@ -102,6 +110,7 @@ Item {
 		artwork.pending = false
 		artwork.shown = ""
 		artwork.incoming = ""
+		artwork.incomingKey = ""
 		artworkOut.source = ""
 		artworkOut.x = 0
 		artworkOut.opacity = 0

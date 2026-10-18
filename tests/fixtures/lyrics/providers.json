@@ -395,6 +395,52 @@
         "syncedLyrics": "[00:01.000]paxsenix_spotify one\n[00:02.000]paxsenix_spotify two",
         "plainLyrics": "paxsenix_spotify one\npaxsenix_spotify two"
       }
+    },
+    "lrcmux": {
+      "responses": {
+        "https://api.lrcmux.dev/compat/lrclib/api/get": {
+          "trackName": "Fixture Song",
+          "artistName": "Fixture Artist",
+          "albumName": "Fixture Album",
+          "duration": 180,
+          "syncedLyrics": "[00:01.000]lrcmux one\n[00:02.000]lrcmux two",
+          "plainLyrics": "lrcmux one\nlrcmux two"
+        }
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]lrcmux one\n[00:02.000]lrcmux two",
+        "plainLyrics": "lrcmux one\nlrcmux two"
+      }
+    },
+    "amll": {
+      "responses": {
+        "https://music.163.com/api/search/get": {
+          "result": {
+            "songs": [
+              {
+                "id": 101,
+                "name": "Fixture Song",
+                "artists": [
+                  {
+                    "name": "Fixture Artist"
+                  }
+                ],
+                "album": {
+                  "name": "Fixture Album"
+                },
+                "duration": 180000
+              }
+            ]
+          }
+        },
+        "https://raw.githubusercontent.com/amll-dev/amll-ttml-db/main/ncm-lyrics/101.ttml": "<tt xmlns:ttm=\"urn:metadata\"><body><p begin=\"1s\">amll one<span ttm:role=\"x-roman\">romanized one</span></p><p begin=\"2s\">amll two<span ttm:role=\"x-translation\">translated two</span></p></body></tt>"
+      },
+      "expected": {
+        "duration": 180,
+        "syncedLyrics": "[00:01.000]amll one\n[00:02.000]amll two",
+        "plainLyrics": "amll one\namll two"
+      }
     }
   }
 }
