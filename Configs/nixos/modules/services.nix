@@ -24,6 +24,7 @@
     {
       users = [ username ];
       keepEnv = true;
+      setEnv = [ "-XDG_CACHE_HOME" ];
       persist = true;
     }
   ];

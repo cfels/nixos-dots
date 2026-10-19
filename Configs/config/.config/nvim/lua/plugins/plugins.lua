@@ -1,5 +1,11 @@
 return {
   {
+    "folke/snacks.nvim",
+    opts = {
+      image = { enabled = true },
+    },
+  },
+  {
     "LazyVim/LazyVim",
     opts = {
       colorscheme = "catppuccin",

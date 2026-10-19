@@ -8,10 +8,6 @@
       url = "github:cfels/fadesktop";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    codex-cli = {
-      url = "github:sadjow/codex-cli-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     pineconemc = {
       url = "github:ElyPrismLauncher/Launcher";
       inputs.nixpkgs.follows = "nixpkgs";

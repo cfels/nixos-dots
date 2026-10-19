@@ -3,7 +3,7 @@ import shutil
 import sys
 import unittest
 
-from support import IsolatedDesktop
+from support import IsolatedDesktop, REPO
 
 
 class HyprglassPinTests(unittest.TestCase):
@@ -15,6 +15,7 @@ class HyprglassPinTests(unittest.TestCase):
         nix = self.desktop.work / "bin/nix"
         nix.write_text(f"#!{sys.executable}\n" + '''
 import json
+import os
 from pathlib import Path
 import sys
 
@@ -27,6 +28,8 @@ elif args == ["eval", "--raw", '/etc/nixos#nixosConfigurations."audituser".pkgs.
     print("0.55.0")
 elif args == ["flake", "update", "--flake", "/etc/nixos", "hyprglass"]:
     pass
+elif args == ["flake", "update", "--flake", "/etc/nixos"]:
+    sys.exit(int(os.environ.get("NIX_UPDATE_STATUS", "0")))
 else:
     sys.exit("unexpected nix command: " + repr(args))
 ''')
@@ -55,3 +58,33 @@ else:
         self.assertIn('version = "0.10.1";', (self.desktop.etc / "nixos/packages/hyprglass.nix").read_text())
         commands = [json.loads(line) for line in (self.desktop.work / "nix-commands.jsonl").read_text().splitlines()]
         self.assertEqual(commands[-1], ["flake", "update", "--flake", "/etc/nixos", "hyprglass"])
+
+    @unittest.skipUnless(shutil.which("fish"), "Fish is required for shell function verification")
+    def test_nixupdate_uses_user_cache_and_only_repins_after_success(self):
+        shutil.copyfile(REPO / "Configs/config/.config/fish/config.fish", self.desktop.work / "config.fish")
+        doas = self.desktop.work / "bin/doas"
+        doas.write_text('#!/usr/bin/env bash\necho "unexpected privilege elevation" >&2\nexit 99\n')
+        doas.chmod(0o755)
+        fish_script = self.desktop.work / "update.fish"
+        fish_script.write_text('''
+function starship
+end
+function fastfetch
+end
+function funcsave
+end
+source /work/config.fish
+nixupdate
+''')
+        launcher = self.desktop.work / "update.sh"
+        launcher.write_text('exec fish --no-config /work/update.fish\n')
+        (self.desktop.work / "hyprpm.toml").write_text("")
+        for status in (0, 23):
+            with self.subTest(status=status):
+                log = self.desktop.work / "nix-commands.jsonl"
+                log.unlink(missing_ok=True)
+                result = self.desktop.run("/work/update.sh", NIX_UPDATE_STATUS=status)
+                self.assertEqual(result.returncode, status, result.stderr)
+                commands = [json.loads(line) for line in log.read_text().splitlines()]
+                self.assertEqual(commands[0], ["flake", "update", "--flake", "/etc/nixos"])
+                self.assertEqual(len(commands), 3 if status == 0 else 1)

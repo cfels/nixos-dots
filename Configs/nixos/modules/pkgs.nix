@@ -16,6 +16,14 @@
     enable = true;
     gui.enable = true;
   };
+  
+  services.ollama = {
+    enable = true;
+    package = pkgs.ollama-rocm;
+    environmentVariables = {
+      OLLAMA_CONTEXT_LENGTH = "32768";
+    };
+  };
 
   environment.systemPackages = with pkgs; [
 v4l-utils
@@ -30,13 +38,12 @@ rocmPackages.rocm-smi # for btop to show gpu stats
 heroic
 gamemode
 gamescope
-vscodium
 seanime
 tokei
 kdePackages.ark
 kdePackages.dolphin
 tdf
-imagemagick
+imagemagick-native
 libsecret
 matugen
 gnome-keyring
@@ -55,7 +62,7 @@ gum
 parted
 fastfetch
 pinentry-qt
-neovim
+(pkgs.callPackage ../packages/neovim.nix { })
 librewolf
 pkgs.qt6.qtdeclarative
 git
@@ -104,10 +111,13 @@ lf
 ctpv
 ffmpegthumbnailer
 rsync
-p7zip
+p7zip-native
+(lib.hiPrio zstd-native)
+(lib.hiPrio xz-native)
 atool
+claude-code
 jq
-ffmpeg
+ffmpeg-native
 exiftool
 udiskie
 mpv

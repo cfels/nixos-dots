@@ -37,6 +37,7 @@ require("lazy").setup({
   }, -- automatically check for plugin updates
   performance = {
     rtp = {
+      paths = vim.split(vim.env.NVIM_TREESITTER_PARSERS or "", ":", { trimempty = true }),
       -- disable some rtp plugins
       disabled_plugins = {
         "gzip",

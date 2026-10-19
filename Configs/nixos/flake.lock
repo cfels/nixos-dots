@@ -1,26 +1,5 @@
 {
   "nodes": {
-    "codex-cli": {
-      "inputs": {
-        "flake-utils": "flake-utils",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1792102462,
-        "narHash": "sha256-co1yWucHy1/uQbwm+PSUTlPRrL1PengYmBzsdG83HcQ=",
-        "owner": "sadjow",
-        "repo": "codex-cli-nix",
-        "rev": "8dc8656b82ed75c9f76002f1368415b1e8471264",
-        "type": "github"
-      },
-      "original": {
-        "owner": "sadjow",
-        "repo": "codex-cli-nix",
-        "type": "github"
-      }
-    },
     "fagram": {
       "inputs": {
         "nixpkgs": [
@@ -163,24 +142,6 @@
         "type": "github"
       }
     },
-    "flake-utils": {
-      "inputs": {
-        "systems": "systems"
-      },
-      "locked": {
-        "lastModified": 1791914995,
-        "narHash": "sha256-Zf/xfQEAasnwnmEfHqW/4hjDE/s44yn2hD4RuVIZRjA=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "b7a79d3fea1e214f6d668d521cecec0c01e26544",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
     "git-hooks": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -190,11 +151,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790500375,
-        "narHash": "sha256-XN3sDtn8TU9hAc9xqZ+SqRB/HHm2wjxM6aSWYLJU+oo=",
+        "lastModified": 1791909798,
+        "narHash": "sha256-VAhpCOmrun/KXimYfR8NM88bciKCui7CqHHhThSzgag=",
         "owner": "cachix",
         "repo": "git-hooks.nix",
-        "rev": "a0e4241b51206fbcbf52fd322eb5f0cd80f153c4",
+        "rev": "1ba1dbfe28738c9a71c266be6efa5b89e75491a9",
         "type": "github"
       },
       "original": {
@@ -212,11 +173,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790500375,
-        "narHash": "sha256-XN3sDtn8TU9hAc9xqZ+SqRB/HHm2wjxM6aSWYLJU+oo=",
+        "lastModified": 1791909798,
+        "narHash": "sha256-VAhpCOmrun/KXimYfR8NM88bciKCui7CqHHhThSzgag=",
         "owner": "cachix",
         "repo": "git-hooks.nix",
-        "rev": "a0e4241b51206fbcbf52fd322eb5f0cd80f153c4",
+        "rev": "1ba1dbfe28738c9a71c266be6efa5b89e75491a9",
         "type": "github"
       },
       "original": {
@@ -392,11 +353,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1792178428,
-        "narHash": "sha256-5sKlyBTirWG8q/E9d/jGCg3DnrX8Tiky6inwZT3Bx78=",
+        "lastModified": 1792345931,
+        "narHash": "sha256-+FIuAgGZp5n9W78TgrxV+qRDePTjTuxqYbJHyFoLUiQ=",
         "owner": "FlameFlag",
         "repo": "nixcord",
-        "rev": "677edbc1f59753ee7d20292a8b633ebcd6f755d6",
+        "rev": "f4141bfe6e9ea277747ace245e6cbc13a276dc00",
         "type": "github"
       },
       "original": {
@@ -550,11 +511,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1791956154,
-        "narHash": "sha256-jBYGPi4udQ9uo4KQp9m2J0546nJVQitG15gvZSaVVAs=",
+        "lastModified": 1792094642,
+        "narHash": "sha256-zp8ToDMnqZcu4o4IH9pdwXFXGp7yLm/M0dEnNWnyd7I=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "55bfb4d7437bd4e09ab7cba58a43bd68eb310044",
+        "rev": "fe13242281a67641c0102cdb1087f0ebe586c7df",
         "type": "github"
       },
       "original": {
@@ -595,11 +556,11 @@
         "std": "std"
       },
       "locked": {
-        "lastModified": 1791717137,
-        "narHash": "sha256-9F+e9mF7Qclj5fIJKnar+MlmTWuyEFLTrBvOPt0r7GQ=",
+        "lastModified": 1792319311,
+        "narHash": "sha256-+tQDCLk/LPOFdJf+Z30wZSdch4SqShF/bXdnsb27gRo=",
         "owner": "Daaboulex",
         "repo": "proton-cachyos-nix",
-        "rev": "9a8bc6bbcb8eefbf9db75858ba6ee043a186e9c1",
+        "rev": "6d9b137dc5f8cfc41e8e7ca019ca63b9842721db",
         "type": "github"
       },
       "original": {
@@ -618,11 +579,11 @@
         "std": "std_2"
       },
       "locked": {
-        "lastModified": 1791977478,
-        "narHash": "sha256-Ayv7r6XRA+4jyhDF5t6/C2lkzHP9xk8WkgxlTVJfKpg=",
+        "lastModified": 1792313772,
+        "narHash": "sha256-TEKZYzd1eZznuyyx+3NdhFHphVqXwRq/gIt64YD+uvU=",
         "owner": "Daaboulex",
         "repo": "proton-ge-nix",
-        "rev": "e204930dd08317c47a51dced9ecf408bafa83486",
+        "rev": "73fee9e7e33472c55cc9c91896d155c1981e2a7f",
         "type": "github"
       },
       "original": {
@@ -633,7 +594,6 @@
     },
     "root": {
       "inputs": {
-        "codex-cli": "codex-cli",
         "fagram": "fagram",
         "home-manager": "home-manager",
         "hyprglass": "hyprglass",
@@ -741,21 +701,6 @@
         "type": "github"
       }
     },
-    "systems_2": {
-      "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
-        "owner": "nix-systems",
-        "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "default",
-        "type": "github"
-      }
-    },
     "treefmt-nix": {
       "inputs": {
         "nixpkgs": [
@@ -785,11 +730,11 @@
         "twintail_x86_64": "twintail_x86_64"
       },
       "locked": {
-        "lastModified": 1792051923,
-        "narHash": "sha256-Awc+fH+rffnNifAiQjIohnzKkCuxCaZUDsh2vx3BH4Y=",
+        "lastModified": 1792310249,
+        "narHash": "sha256-gUwM4NFnIp0eaa9MAPA2ZZK5njiX60hVTeG5yw1xnlQ=",
         "owner": "madebycli",
         "repo": "twintail-nix",
-        "rev": "8b29af91fe736c673d333918c6ec2af8b90d0594",
+        "rev": "ab86628fc4aad843197a726d3acc96c79e6d011c",
         "type": "github"
       },
       "original": {
@@ -801,13 +746,13 @@
     "twintail_x86_64": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-TZMQyC0KbyGo3sYPeOyjW0jODF66hT636fb6dJSxwwA=",
+        "narHash": "sha256-gBhzKoqZUmIu75UxUA5qivMc5fIN9D8PyeY5+9OrOu8=",
         "type": "file",
-        "url": "https://github.com/TwintailTeam/TwintailLauncher/releases/download/ttl-v2.5.1/twintaillauncher_2.5.1_amd64.deb"
+        "url": "https://github.com/TwintailTeam/TwintailLauncher/releases/download/ttl-v2.5.2/twintaillauncher_2.5.2_amd64.deb"
       },
       "original": {
         "type": "file",
-        "url": "https://github.com/TwintailTeam/TwintailLauncher/releases/download/ttl-v2.5.1/twintaillauncher_2.5.1_amd64.deb"
+        "url": "https://github.com/TwintailTeam/TwintailLauncher/releases/download/ttl-v2.5.2/twintaillauncher_2.5.2_amd64.deb"
       }
     },
     "umadance": {
@@ -832,7 +777,7 @@
     },
     "utils": {
       "inputs": {
-        "systems": "systems_2"
+        "systems": "systems"
       },
       "locked": {
         "lastModified": 1726560853,
@@ -851,11 +796,11 @@
     "vice": {
       "flake": false,
       "locked": {
-        "lastModified": 1792012886,
-        "narHash": "sha256-ERXbOhZxfqA+uggwo16f8hOy4JR7+gpa/d6hd/6ssNE=",
+        "lastModified": 1792342221,
+        "narHash": "sha256-TkcqrGnQtglzJMxjmCRv/KUOg0VbUs/chCjYOoHjHJQ=",
         "owner": "eklonofficial",
         "repo": "Vice",
-        "rev": "82dfdc2faa5e87ca5d6571d6dd013ba426286d41",
+        "rev": "e81d1cdb4047c4fd38a7e11a71b4b8eff4da03b8",
         "type": "github"
       },
       "original": {

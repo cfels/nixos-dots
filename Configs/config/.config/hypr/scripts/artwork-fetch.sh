@@ -10,10 +10,13 @@ current="${6:-}"
 album="${7:-}"
 SCRIPT_DIR="$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")"
 
+# Ensure the destination directory exists
 [ -n "$dest" ] || exit 1
 
-[ -d "$(dirname "$dest")" ] || rm -f "$(dirname "$dest")"
+# Create directory if needed, removing any existing file with same name
 mkdir -p "$(dirname "$dest")"
+rm -f "$dest"
+
 partial="$(mktemp "$dest.part.XXXXXX")"
 best="$(mktemp "$dest.best.XXXXXX")"
 best_size=0
@@ -92,19 +95,23 @@ local_image() {
 	return 1
 }
 
-if valid_image "$dest"; then
-	best_size="$(resolution "$dest")"
-	if [ "$best_size" -ge 512 ]; then
-		touch -- "$dest"
-		purge
-		same_as_shown "$dest" && exit 2
-		exit 0
+# Check if we already have a valid cached image
+if [ -f "$dest" ]; then
+	if valid_image "$dest"; then
+		best_size="$(resolution "$dest")"
+		if [ "$best_size" -ge 512 ]; then
+			touch -- "$dest"
+			purge
+			same_as_shown "$dest" && exit 2
+			exit 0
+		fi
+		cp -f -- "$dest" "$best"
+	else
+		rm -f -- "$dest"
 	fi
-	cp -f -- "$dest" "$best"
-else
-	rm -f -- "$dest"
 fi
 
+# Try to get artwork from various sources in order of preference
 case "$art" in
 	http://*|https://*) download "$art" && exit 0 ;;
 	*) local_image "$art" && exit 0 ;;
@@ -142,5 +149,6 @@ if [ -n "$artist" ] && [ -n "$title" ]; then
 		| matched_tracks($title; $artist; $album; 0) | .[].artwork // empty' 2>/dev/null)
 fi
 
+# If we have a valid best image, publish it
 [ "$best_size" -le 0 ] || { publish && exit 0; }
 exit 1
