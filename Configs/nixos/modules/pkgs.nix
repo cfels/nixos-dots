@@ -17,15 +17,8 @@
     gui.enable = true;
   };
   
-  services.ollama = {
-    enable = true;
-    package = pkgs.ollama-rocm;
-    environmentVariables = {
-      OLLAMA_CONTEXT_LENGTH = "32768";
-    };
-  };
-
   environment.systemPackages = with pkgs; [
+universal-android-debloater
 v4l-utils
 file
 pipes-rs

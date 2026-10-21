@@ -193,8 +193,6 @@ Scope {
 				return
 			}
 
-			media.player.positionChanged()
-
 			var reported = media.player.position
 
 			if (!isFinite(reported) || reported < 0)

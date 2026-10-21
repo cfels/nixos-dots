@@ -13,9 +13,7 @@ SCRIPT_DIR="$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")"
 # Ensure the destination directory exists
 [ -n "$dest" ] || exit 1
 
-# Create directory if needed, removing any existing file with same name
 mkdir -p "$(dirname "$dest")"
-rm -f "$dest"
 
 partial="$(mktemp "$dest.part.XXXXXX")"
 best="$(mktemp "$dest.best.XXXXXX")"
@@ -24,14 +22,10 @@ trap 'rm -f -- "$partial" "$best"' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-valid_image() {
-	[ -s "$1" ] && [ "$(stat -c %s -- "$1")" -le 16777216 ] &&
-		magick -regard-warnings -limit memory 64MiB -limit map 128MiB -limit disk 0 \
-			-limit width 8192 -limit height 8192 -limit time 5 "$1[0]" null: >/dev/null 2>&1
-}
-
 resolution() {
-	magick identify -quiet -format '%[fx:min(w,h)]' "$1[0]" 2>/dev/null
+	[ -s "$1" ] && [ "$(stat -c %s -- "$1")" -le 16777216 ] || return 1
+	magick identify -regard-warnings -quiet -limit thread 1 -limit width 8192 -limit height 8192 \
+		-format '%[fx:min(w,h)]' "$1[0]" 2>/dev/null
 }
 
 publish() {
@@ -45,8 +39,8 @@ publish() {
 
 consider() {
 	local size
-	valid_image "$partial" || return 1
 	size="$(resolution "$partial")" || return 1
+	[ -n "$size" ] || return 1
 	if [ "$size" -gt "$best_size" ]; then
 		cp -f -- "$partial" "$best" || return 1
 		best_size="$size"
@@ -97,17 +91,18 @@ local_image() {
 
 # Check if we already have a valid cached image
 if [ -f "$dest" ]; then
-	if valid_image "$dest"; then
-		best_size="$(resolution "$dest")"
-		if [ "$best_size" -ge 512 ]; then
-			touch -- "$dest"
-			purge
-			same_as_shown "$dest" && exit 2
-			exit 0
-		fi
+	best_size="$(resolution "$dest" || true)"
+	if [ -n "$best_size" ] && [ "$best_size" -ge 512 ]; then
+		touch -- "$dest"
+		purge
+		same_as_shown "$dest" && exit 2
+		exit 0
+	fi
+	if [ -n "$best_size" ] && [ "$best_size" -gt 0 ]; then
 		cp -f -- "$dest" "$best"
 	else
 		rm -f -- "$dest"
+		best_size=0
 	fi
 fi
 
@@ -118,7 +113,7 @@ case "$art" in
 esac
 
 case "$track" in
-	*"youtube.com/watch?v="*|*"youtu.be/"*|*"music.youtube.com/watch?v="*)
+	*"youtube.com/watch?v="*|*"youtu.be/"*)
 		id="$(printf '%s' "$track" | sed -n 's/.*[?&]v=\([A-Za-z0-9_-]\{6,\}\).*/\1/p')"
 
 		if [ -z "$id" ]; then

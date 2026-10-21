@@ -11,6 +11,8 @@ import time
 
 MAX_CACHE_BYTES = 150 * 1024 * 1024
 MAX_ENTRY_BYTES = 2 * 1024 * 1024
+STALE_TEMP_SECONDS = 600
+EMPTY_LYRICS_SECONDS = 900
 
 
 def valid(payload):
@@ -25,43 +27,75 @@ def valid(payload):
     )
 
 
-def prune(cache, protected=None):
-    entries = []
-    directories = (
-        (cache / "lyrics/v1", "*.json"),
-        (cache / "art", "art-*.img"),
-    )
-
-    for directory, pattern in directories:
+def cache_files(cache):
+    for directory in (cache / "art", cache / "lyrics/v1"):
         try:
-            for entry in directory.glob(pattern):
-                try:
-                    stat = entry.stat()
-                    if entry.is_file():
-                        entries.append((stat.st_mtime_ns, stat.st_size, entry))
-                except OSError:
-                    continue
+            entries = list(directory.iterdir())
         except OSError:
             continue
+        for entry in entries:
+            try:
+                if entry.is_file():
+                    yield entry
+            except OSError:
+                continue
 
-    total = sum(size for _, size, _ in entries)
-    if total <= MAX_CACHE_BYTES:
-        return
 
-    for _, size, entry in sorted(entries):
+def remove(entry):
+    try:
+        entry.unlink()
+    except FileNotFoundError:
+        pass
+    except OSError as error:
+        print(f"Media cache: {error}", file=sys.stderr)
+
+
+def is_temporary(entry):
+    name = entry.name
+    return name.startswith(".") or ".part" in name or ".best" in name
+
+
+def has_lyrics(entry):
+    try:
+        payload = json.loads(entry.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    if not isinstance(payload, dict):
+        return False
+    return bool(payload.get("syncedLyrics") or payload.get("plainLyrics"))
+
+
+def prune(cache, protected=None):
+    now = time.time()
+    retained = []
+
+    for entry in cache_files(cache):
+        try:
+            stat = entry.stat()
+        except OSError:
+            continue
+        if is_temporary(entry):
+            if now - stat.st_mtime >= STALE_TEMP_SECONDS:
+                remove(entry)
+            continue
+        if entry.suffix == ".json" and entry.parent == cache / "lyrics/v1":
+            if (
+                entry != protected
+                and now - stat.st_mtime >= EMPTY_LYRICS_SECONDS
+                and not has_lyrics(entry)
+            ):
+                remove(entry)
+                continue
+        retained.append((stat.st_mtime_ns, stat.st_size, entry))
+
+    total = sum(size for _, size, _ in retained)
+    for _, size, entry in sorted(retained):
         if total <= MAX_CACHE_BYTES:
             break
-        if protected is not None and entry == protected:
+        if entry == protected:
             continue
-        try:
-            entry.unlink()
-            total -= size
-        except FileNotFoundError:
-            continue
-        except OSError as error:
-            # Log the error but don't fail the whole process
-            print(f"Media cache: {error}", file=sys.stderr)
-            continue
+        remove(entry)
+        total -= size
 
 
 def main():
@@ -119,8 +153,9 @@ def main():
                 return 0
 
             target.unlink(missing_ok=True)
+        except FileNotFoundError:
+            return 1
         except (OSError, ValueError) as e:
-            # If there's an error reading or parsing the file, just return 1 to indicate no cache
             print(f"Cache read failed: {e}", file=sys.stderr)
             return 1
 

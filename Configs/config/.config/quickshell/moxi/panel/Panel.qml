@@ -34,25 +34,28 @@ PanelWindow {
 
 		onPositionTrustedChanged: lyricsController.updateActiveLyric()
 
-		onTrackKeyChanged: {
-			var key = playerController.trackKey
-
-			if (key === lyricsController.lyricsKey)
-				return
-			lyricsController.lyricsKey = key
-			playerView.dragging = false
-			playerController.resetPosition()
-			lyricsController.resetTrack()
-			playerView.resetLyricsScroll()
-			lyricsController.forgetMissingLyrics()
-
-			if (playerController.trackTitle.length > 0)
-				lyricsController.scheduleFetch()
-			artworkController.scheduleArt(80)
-		}
-
+		onTrackKeyChanged: panel.syncTrack()
 		onArtUrlChanged: artworkController.scheduleArt(80)
 	}
+
+	function syncTrack(): void {
+		var key = playerController.trackKey
+
+		if (key === lyricsController.lyricsKey)
+			return
+		lyricsController.lyricsKey = key
+		playerView.dragging = false
+		playerController.resetPosition()
+		lyricsController.resetTrack()
+		playerView.resetLyricsScroll()
+		lyricsController.forgetMissingLyrics()
+
+		if (playerController.trackTitle.length > 0)
+			lyricsController.scheduleFetch()
+		artworkController.scheduleArt(80)
+	}
+
+	Component.onCompleted: Qt.callLater(panel.syncTrack)
 
 	WallpaperController {
 		id: wallpaperController
@@ -82,6 +85,7 @@ PanelWindow {
 
 			playerController.rollEmptyPhrase()
 			lyricsController.updateActiveLyric()
+			lyricsController.fetchLyrics()
 			lyricsController.retryLyrics()
 		} else {
 			calendar.selectedDay = 0

@@ -34,9 +34,10 @@ Scope {
 
 	function fetchArtwork(): void {
 		if (artCache.running) {
-			artworkState.artWanted = true
-			if (artworkState.artFetchKey !== artworkState.artCacheKey)
+			if (artworkState.artFetchKey !== artworkState.artCacheKey) {
+				artworkState.artWanted = true
 				artCache.running = false
+			}
 			return
 		}
 
@@ -60,7 +61,7 @@ Scope {
 	Process {
 		id: artCache
 
-		command: [Quickshell.env("HOME") + "/.config/hypr/scripts/artwork-fetch.sh", artworkState.media.artUrl, artworkState.media.trackUrl, artworkState.media.trackArtist, artworkState.media.trackTitle, artworkState.artCacheFile, artworkState.artShownFile, artworkState.media.trackAlbum]
+		command: ["nice", "-n", "10", Quickshell.env("HOME") + "/.config/hypr/scripts/artwork-fetch.sh", artworkState.media.artUrl, artworkState.media.trackUrl, artworkState.media.trackArtist, artworkState.media.trackTitle, artworkState.artCacheFile, artworkState.artShownFile, artworkState.media.trackAlbum]
 
 		onExited: (code, status) => {
 			if (artworkState.artFetchKey !== artworkState.artCacheKey)

@@ -24,6 +24,7 @@ Scope {
 	function scheduleFetch(): void {
 		lyricsDebounce.restart()
 	}
+
 	property var lyrics: []
 	property bool syncedLyrics: true
 	property bool lyricsWanted: false
@@ -295,7 +296,7 @@ Scope {
 	Process {
 		id: lyricsFetch
 
-		command: [Quickshell.env("HOME") + "/.config/hypr/scripts/lyrics-fetch.sh", lyricsState.media.trackArtist, lyricsState.media.trackTitle, lyricsState.media.trackAlbum, String(lyricsState.media.hasPlayer && lyricsState.media.player.lengthSupported && lyricsState.media.player.length > 0 ? lyricsState.media.player.length : lyricsState.media.metadataLength), lyricsState.media.trackUrl]
+		command: ["nice", "-n", "10", Quickshell.env("HOME") + "/.config/hypr/scripts/lyrics-fetch.sh", lyricsState.media.trackArtist, lyricsState.media.trackTitle, lyricsState.media.trackAlbum, String(lyricsState.media.hasPlayer && lyricsState.media.player.lengthSupported && lyricsState.media.player.length > 0 ? lyricsState.media.player.length : lyricsState.media.metadataLength), lyricsState.media.trackUrl]
 
 		running: false
 
