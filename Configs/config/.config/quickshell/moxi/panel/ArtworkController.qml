@@ -6,6 +6,7 @@ Scope {
 	id: artworkState
 
 	required property PlayerController media
+	signal artFailed
 	property bool artWanted: false
 	property int artVersion: 0
 	property bool artUnchanged: false
@@ -66,8 +67,10 @@ Scope {
 		onExited: (code, status) => {
 			if (artworkState.artFetchKey !== artworkState.artCacheKey)
 				return
-			if (code !== 0 && code !== 2)
+			if (code !== 0 && code !== 2) {
+				artworkState.artFailed()
 				return
+			}
 			artworkState.artUnchanged = code === 2
 			if (!artworkState.artUnchanged)
 				artworkState.artVersion = artworkState.artVersion + 1

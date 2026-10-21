@@ -76,6 +76,10 @@ length_done=""
 lyric_pids=""
 length_pid=""
 
+mark_completed() {
+	[ "${NET_DEFINITIVE:-1}" = 0 ] || printf '1\n' >> "$work/completed"
+}
+
 net() {
 	local response http_code status=0
 	response="$(mktemp "$work/response.XXXXXX")"
@@ -83,8 +87,11 @@ net() {
 		-o "$response" -w '%{http_code}' "$@" 2>/dev/null)" || status=$?
 	if [ "$status" -eq 0 ]; then
 		cat "$response"
+		mark_completed
 	elif [ "$status" -ne 22 ] || [[ "$http_code" == 429 || "$http_code" == 5?? ]]; then
 		printf '1\n' >> "$work/transient"
+	elif [[ "$http_code" == 4?? ]]; then
+		mark_completed
 	fi
 	rm -f "$response"
 }
@@ -332,6 +339,8 @@ prov_paxsenix_spotify() {
 }
 
 prov_ytlength() {
+	local NET_DEFINITIVE=0
+
 	case "${track:-}" in
 		*youtube.com/*|*youtu.be/*) ;;
 		*) return 0 ;;
@@ -364,6 +373,7 @@ prov_duration() {
 }
 
 prov_length() {
+	local NET_DEFINITIVE=0
 	local work iTunes_pid deezer_pid iTunes_secs deezer_secs
 
 	work="$(mktemp -d)"
@@ -539,7 +549,7 @@ CREDITS='(作词|作詞|作曲|编曲|編曲|produced by|written by|lyrics by)[[
 [ -n "$plain" ] && plain="$(printf '%s\n' "$plain" | grep -vE "$CREDITS" || true)"
 
 retryable=false
-if [ -z "$synced$plain" ] && [ -s "$work/transient" ]; then retryable=true; fi
+if [ -z "$synced$plain" ] && [ -s "$work/transient" ] && [ ! -s "$work/completed" ]; then retryable=true; fi
 payload="$(jq -cn --argjson d "${duration:-0}" --arg s "$synced" --arg p "$plain" --argjson retryable "$retryable" \
 	'{duration: $d, syncedLyrics: $s, plainLyrics: $p} + (if $retryable then {retryable: true} else {} end)')"
 printf '%s\n' "$payload"

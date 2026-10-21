@@ -133,6 +133,10 @@ Item {
 		function onArtSourceChanged() {
 			artwork.swap(artwork.transportDirection !== 0 ? artwork.transportDirection : 1)
 		}
+
+		function onArtFailed() {
+			artwork.reset()
+		}
 	}
 
 	Connections {
