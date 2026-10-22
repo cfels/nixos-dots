@@ -11,6 +11,7 @@
     ./pkgs.nix
     ./git.nix
     ./nixcord.nix
+    ./window-controls.nix
   ];
 
   home = {

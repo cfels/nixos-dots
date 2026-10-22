@@ -56,7 +56,6 @@ parted
 fastfetch
 pinentry-qt
 (pkgs.callPackage ../packages/neovim.nix { })
-librewolf
 pkgs.qt6.qtdeclarative
 git
 usbutils
@@ -108,7 +107,6 @@ ctpv
 ffmpegthumbnailer
 rsync
 p7zip-native
-vscodium
 (lib.hiPrio zstd-native)
 (lib.hiPrio xz-native)
 atool

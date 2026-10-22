@@ -23,6 +23,16 @@
       enabledThemeLinks = [
         "https://catppuccin.github.io/discord/dist/catppuccin-mocha-pink.theme.css"
       ];
+      themes.window-controls = ''
+        [data-window-chrome="true"] {
+          margin-inline-end: 12px !important;
+        }
+
+        [class*="winButtons_"] {
+          display: none !important;
+        }
+      '';
+      enabledThemes = [ "window-controls.css" ];
     };
   };
 }

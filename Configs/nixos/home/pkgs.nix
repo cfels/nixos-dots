@@ -5,9 +5,20 @@
   inputs,
   ...
 }:
+let
+  fagram = inputs.fagram.packages.x86_64-linux.default;
+  fagramWithNativeFrame = fagram.override {
+    unwrapped = fagram.unwrapped.overrideAttrs (oldAttrs: {
+      postPatch = (oldAttrs.postPatch or "") + ''
+        substituteInPlace Telegram/SourceFiles/core/core_settings.cpp \
+          --replace-fail '_nativeWindowFrame = (nativeWindowFrame == 1);' '_nativeWindowFrame = true;'
+      '';
+    });
+  };
+in
 {
   home.packages = with pkgs; [
-    inputs.fagram.packages.x86_64-linux.default
+    fagramWithNativeFrame
     inputs.pineconemc.packages.${pkgs.stdenv.hostPlatform.system}.prismlauncher
     (inputs.seanime.packages.${pkgs.stdenv.hostPlatform.system}.seanime-denshi.overrideAttrs (
       oldAttrs:

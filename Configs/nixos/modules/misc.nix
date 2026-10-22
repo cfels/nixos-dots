@@ -27,10 +27,12 @@ in
 
   # stuff
   programs.fish.enable = true;
-  
+  programs.dconf.enable = true;
+
   # stuff 2
   environment.systemPackages = with pkgs; [
     inputs.kwin-better-blur-dx.packages.${pkgs.stdenv.hostPlatform.system}.default
+    gsettings-desktop-schemas
   ];
 
   # kde portal enable
@@ -49,6 +51,7 @@ in
      hyprland = {
        default = [ "hyprland" "kde" "gtk" ];
        "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
+       "org.freedesktop.impl.portal.Settings" = [ "gtk" ];
        "org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
        "org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
        "org.freedesktop.impl.portal.GlobalShortcuts" = [ "hyprland" ];
