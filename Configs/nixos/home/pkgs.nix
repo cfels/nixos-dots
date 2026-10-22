@@ -8,7 +8,7 @@
 {
   home.packages = with pkgs; [
     inputs.fagram.packages.x86_64-linux.default
-    inputs.pineconemc.packages.${system}.prismlauncher
+    inputs.pineconemc.packages.${pkgs.stdenv.hostPlatform.system}.prismlauncher
     (inputs.seanime.packages.${pkgs.stdenv.hostPlatform.system}.seanime-denshi.overrideAttrs (
       oldAttrs:
       let

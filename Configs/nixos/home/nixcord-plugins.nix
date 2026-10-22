@@ -52,7 +52,7 @@
       nitroFirst = false;
     };
     fastDeleteChannels.enable = true;
-    favouriteAnything.enable = true;
+    favoriteAnything.enable = true;
     fixCodeblockGap.enable = true;
     fixImagesQuality.enable = true;
     fixSpotifyEmbeds.enable = true;

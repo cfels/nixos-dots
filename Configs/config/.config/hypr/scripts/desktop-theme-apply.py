@@ -89,7 +89,7 @@ def apply():
     run("dbus-send", "--session", "--type=signal", "/KIconLoader",
         "org.kde.KIconLoader.iconChanged", "int32:0")
 
-    result = run("gsettings", "get", "org.gnome.desktop.interface", "gtk-theme")
+    result = run("dconf", "read", "/org/gnome/desktop/interface/gtk-theme")
     current = result.stdout.strip().strip("'") if result and not result.returncode else ""
     name = "MoxiMatugen-B" if current == "MoxiMatugen-A" else "MoxiMatugen-A"
 
@@ -127,9 +127,9 @@ def apply():
         settings.write(text, space_around_delimiters=False)
         settings_file.write_text(text.getvalue().rstrip() + "\n")
 
-    run("gsettings", "set", "org.gnome.desktop.interface", "color-scheme", "prefer-dark")
-    run("gsettings", "set", "org.gnome.desktop.interface", "gtk-theme", name)
-    run("gsettings", "set", "org.gnome.desktop.interface", "icon-theme", "MoxiMatugen")
+    run("dconf", "write", "/org/gnome/desktop/interface/color-scheme", "'prefer-dark'")
+    run("dconf", "write", "/org/gnome/desktop/interface/gtk-theme", f"'{name}'")
+    run("dconf", "write", "/org/gnome/desktop/interface/icon-theme", "'MoxiMatugen'")
 
     xsettings = config / "xsettingsd/xsettingsd.conf"
     if xsettings.is_file():

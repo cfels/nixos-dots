@@ -225,12 +225,6 @@ PanelWindow {
 		onTriggered: bar.audioReady = true
 	}
 
-	Process {
-		id: volumePanel
-
-		command: ["pavucontrol"]
-	}
-
 	Connections {
 		target: bar.player
 
@@ -339,7 +333,7 @@ PanelWindow {
 
 			onReleased: (mouse) => {
 				if (mouse.button === Qt.RightButton) {
-					volumePanel.running = true
+					Quickshell.execDetached(["pavucontrol"])
 					return
 				}
 

@@ -41,7 +41,10 @@ pkgs.python3Packages.buildPythonApplication {
   buildInputs = [ pkgs.qt6.qtbase ];
 
   makeWrapperArgs = [
-    "--prefix PATH : ${lib.makeBinPath tools}"
+    "--prefix"
+    "PATH"
+    ":"
+    (lib.makeBinPath tools)
   ];
 
   postInstall = ''

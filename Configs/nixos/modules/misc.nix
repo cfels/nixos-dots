@@ -12,7 +12,7 @@ in
 {
   # kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  
+
   # init
   boot.initrd.systemd.enable = true;
 

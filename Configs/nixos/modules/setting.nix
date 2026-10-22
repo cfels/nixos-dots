@@ -14,4 +14,8 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
   nix.settings.trusted-users = [ "root" username ];
+  nix.settings = {
+    max-jobs = 2;
+    cores = 6;
+  };
 }

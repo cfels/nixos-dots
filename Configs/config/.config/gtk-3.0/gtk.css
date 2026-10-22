@@ -348,7 +348,6 @@ notebook > header.top > tabs > tab.prelight-page > label {
 
 notebook > header.top > tabs > tab:checked {
 	background-color: #324478;
-	box-shadow: inset 0 -2px #b3c5ff;
 	color: #dbe1ff;
 }
 

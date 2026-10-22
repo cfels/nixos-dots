@@ -60,6 +60,9 @@ librewolf
 pkgs.qt6.qtdeclarative
 git
 usbutils
+mold
+cachix
+ccache
 git-filter-repo
 git-crypt
 kitty
