@@ -108,6 +108,7 @@ ctpv
 ffmpegthumbnailer
 rsync
 p7zip-native
+vscodium
 (lib.hiPrio zstd-native)
 (lib.hiPrio xz-native)
 atool
