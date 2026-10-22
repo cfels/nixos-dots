@@ -2,6 +2,10 @@
 final: prev: {
   vice-clipper = vice-clipper prev;
 
+  gtk4 = prev.gtk4.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ../packages/gtk4-user-css-live-reload.patch ];
+  });
+
   droidcam = prev.droidcam.overrideAttrs (old: {
     postPatch = old.postPatch + ''
       substituteInPlace src/decoder_v4l2.c \
