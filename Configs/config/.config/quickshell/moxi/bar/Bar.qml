@@ -46,6 +46,8 @@ PanelWindow {
 	property bool intro: false
 	property bool audioReady: false
 	property bool notificationsMuted: false
+	property real songSwipe: 0
+	readonly property real swipeBlur: Math.min(1, Math.abs(bar.songSwipe) / 48)
 
 	signal notificationsToggle()
 
@@ -146,6 +148,16 @@ PanelWindow {
 			duration: 160
 			easing.type: Easing.Bezier
 			easing.bezierCurve: [0.25, 1, 0.3, 1]
+		}
+	}
+
+	Behavior on songSwipe {
+		enabled: !pillMouse.swiping
+		SpringAnimation {
+			spring: 4.2
+			damping: 0.38
+			mass: 0.7
+			epsilon: 0.4
 		}
 	}
 
@@ -319,16 +331,40 @@ PanelWindow {
 		MouseArea {
 			id: pillMouse
 
+			property real pressX: 0
+			property real pressY: 0
+			property bool swiping: false
+
 			anchors.fill: parent
 			enabled: bar.pillShown
 			acceptedButtons: Qt.LeftButton | Qt.RightButton
 
 			onPressed: (mouse) => {
+				pressX = mouse.x
+				pressY = mouse.y
+				swiping = false
+
 				if (mouse.button === Qt.RightButton) return
 
 				bar.held = false
 				bar.holdHandled = false
 				holdTimer.restart()
+			}
+
+			onPositionChanged: (mouse) => {
+				if (!pressed || !(mouse.buttons & Qt.LeftButton)) return
+
+				var dx = mouse.x - pressX
+				var dy = mouse.y - pressY
+
+				if (!swiping) {
+					if (Math.abs(dx) < 12 || Math.abs(dx) <= Math.abs(dy)) return
+
+					swiping = true
+					holdTimer.stop()
+				}
+
+				bar.songSwipe = Math.max(-72, Math.min(72, dx))
 			}
 
 			onReleased: (mouse) => {
@@ -338,6 +374,15 @@ PanelWindow {
 				}
 
 				holdTimer.stop()
+
+				if (swiping) {
+					if (bar.songSwipe <= -40 && bar.hasPlayer && bar.player.canGoNext) bar.player.next()
+					if (bar.songSwipe >= 40 && bar.hasPlayer && bar.player.canGoPrevious) bar.player.previous()
+
+					swiping = false
+					bar.songSwipe = 0
+					return
+				}
 
 				if (bar.held || bar.holdHandled || bar.panelOpen) {
 					bar.held = false
@@ -357,7 +402,11 @@ PanelWindow {
 				bar.sinkAudio.volume = next
 			}
 
-			onCanceled: holdTimer.stop()
+			onCanceled: {
+				holdTimer.stop()
+				swiping = false
+				bar.songSwipe = 0
+			}
 		}
 
 		RowLayout {
@@ -560,6 +609,7 @@ PanelWindow {
 						Layout.alignment: Qt.AlignVCenter
 						Layout.preferredWidth: songIncoming.implicitWidth
 						Layout.preferredHeight: 18
+						clip: Math.abs(bar.songSwipe) > 0.5
 
 						property string shownTitle: ""
 						property string shownArtist: ""
@@ -623,12 +673,12 @@ PanelWindow {
 							opacity: label.reveal
 							scale: 0.98 + 0.02 * label.reveal
 							visible: label.reveal > 0.001
-							layer.enabled: label.moving
+							layer.enabled: label.moving || Math.abs(bar.songSwipe) > 0.5
 
 							layer.effect: MultiEffect {
 								blurEnabled: true
 								blurMax: 12
-									blur: 0.65 * (1 - label.reveal) + 0.2 * Math.sin(Math.PI * songInfo.progress)
+								blur: Math.min(1, 0.65 * (1 - label.reveal) + 0.2 * Math.sin(Math.PI * songInfo.progress) + 0.6 * bar.swipeBlur)
 								autoPaddingEnabled: false
 							}
 
@@ -662,6 +712,7 @@ PanelWindow {
 							anchors.left: parent.left
 							anchors.verticalCenter: parent.verticalCenter
 							anchors.verticalCenterOffset: -10 * songInfo.progress
+							transform: Translate { x: bar.songSwipe }
 							title: songInfo.previousTitle
 							artist: songInfo.previousArtist
 							reveal: 1 - songInfo.progress
@@ -674,6 +725,7 @@ PanelWindow {
 							anchors.left: parent.left
 							anchors.verticalCenter: parent.verticalCenter
 							anchors.verticalCenterOffset: 10 * (1 - songInfo.progress)
+							transform: Translate { x: bar.songSwipe }
 							title: songInfo.shownTitle
 							artist: songInfo.shownArtist
 							reveal: songInfo.progress
