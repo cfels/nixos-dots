@@ -8,6 +8,7 @@
       user.email = "moxiix@proton.me";
       init.defaultBranch = "main";
       core.editor = "nvim";
+      color.ui = "auto";
     };
   };
 
