@@ -3,29 +3,29 @@
 *proton-pass*
 *ProtonPass*
 
-Configs/config/discord/**
-Configs/config/vesktop/**
-Configs/config/Equicord/**
-Configs/config/libaccounts-glib/**
-Configs/config/geeqie/**
+Configs/config/.config/discord/**
+Configs/config/.config/vesktop/**
+Configs/config/.config/Equicord/**
+Configs/config/.config/libaccounts-glib/**
+Configs/config/.config/geeqie/**
 
-Configs/config/kwalletrc
-Configs/config/kscreenlockerrc
-Configs/config/baloofilerc
-Configs/config/baloofileinformationrc
-Configs/config/trashrc
-Configs/config/ktrashrc
-Configs/config/dconf/**
-Configs/config/session/**
-Configs/config/pulse/**
-Configs/config/systemd/**
+Configs/config/.config/kwalletrc
+Configs/config/.config/kscreenlockerrc
+Configs/config/.config/baloofilerc
+Configs/config/.config/baloofileinformationrc
+Configs/config/.config/trashrc
+Configs/config/.config/ktrashrc
+Configs/config/.config/dconf/**
+Configs/config/.config/session/**
+Configs/config/.config/pulse/**
+Configs/config/.config/systemd/**
 
-Configs/config/git/config
-Configs/config/git/credentials
+Configs/config/.config/git/config
+Configs/config/.config/git/credentials
 
-Configs/config/mozilla/**
-Configs/config/librewolf/**
-Configs/config/Code/**
+Configs/config/.config/mozilla/**
+Configs/config/.config/librewolf/**
+Configs/config/.config/Code/**
 
 Configs/local/state/**
 Configs/local/share/**
@@ -86,10 +86,10 @@ activity-stream.inferred_personalization_feed.json
 sessionCheckpoints.json
 containers.json
 handlers.json
-Configs/config/hypremoji/recents.json
+Configs/config/.config/hypremoji/recents.json
 ssh.fish
 codex.fish
-Configs/config/.config/fish
+Configs/config/.config/fish/fish_variables
 
 # nix build outputs
 result
@@ -98,3 +98,7 @@ result-*
 # py cachee
 __pycache__/
 *.pyc
+
+# generated editor logs and Home Manager font links
+nvim.log
+Configs/config/.config/fontconfig/conf.d/*-hm-*.conf
