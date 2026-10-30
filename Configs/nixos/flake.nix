@@ -4,6 +4,10 @@
   inputs = {
     nixcord.url = "github:FlameFlag/nixcord";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    helium = {
+      url = "github:AlvaroParker/helium-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     fagram = {
       url = "github:cfels/fadesktop";
       inputs.nixpkgs.follows = "nixpkgs";

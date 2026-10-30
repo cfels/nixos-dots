@@ -14,7 +14,8 @@ in
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # init
-  boot.initrd.systemd.enable = true;
+  # no longer used
+  #boot.initrd.systemd.enable = true;
 
   # hostname
   networking.hostName = hostName;

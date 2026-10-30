@@ -110,7 +110,7 @@ p7zip-native
 (lib.hiPrio zstd-native)
 (lib.hiPrio xz-native)
 atool
-claude-code
+codex
 jq
 ffmpeg-native
 exiftool
@@ -160,4 +160,5 @@ pnpm
 depotdownloader
 ];
   programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [ libusb1 ];
 }

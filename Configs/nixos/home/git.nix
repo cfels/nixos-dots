@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }: {
   programs.git = {
     enable = true;
-    signing.key = "CCDFD72CE09C86DC";
+    signing.key = "19EC434750D0C5FA";
     signing.signByDefault = true;
     settings = {
       user.name = "cfels";

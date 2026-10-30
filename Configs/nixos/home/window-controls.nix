@@ -18,18 +18,4 @@
       };
     };
   };
-
-  programs.librewolf = {
-    enable = true;
-    configPath = ".config/librewolf/librewolf";
-    profiles.default = {
-      path = "s8ther0f.default";
-      userChrome = ''
-        .titlebar-buttonbox-container,
-        #window-controls {
-          display: none !important;
-        }
-      '';
-    };
-  };
 }
