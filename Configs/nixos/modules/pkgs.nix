@@ -18,8 +18,8 @@
   };
   
   environment.systemPackages = with pkgs; [
-universal-android-debloater
 v4l-utils
+krita
 file
 pipes-rs
 mesa-demos

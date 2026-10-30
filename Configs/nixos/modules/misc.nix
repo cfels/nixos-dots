@@ -12,6 +12,11 @@ in
 {
   # kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  
+  # tablet drivers
+  hardware.opentabletdriver.enable = true;
+  hardware.uinput.enable = true;
+  boot.kernelModules = [ "uinput" ];
 
   # init
   # no longer used

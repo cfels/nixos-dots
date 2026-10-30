@@ -6,7 +6,7 @@
 local terminal = "kitty"
 local fileManager = "dolphin"
 local chatapp = "discord"
-local browser = "librewolf"
+local browser = "helium"
 local code = "codium"
 local screenlock = "$HOME/.config/hypr/scripts/lock-screen.sh"
 
@@ -114,8 +114,16 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true 
 ---------------------------------\
 
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("qs -c moxi ipc call launcher toggle"), { description = "Launcher" })
-hl.bind("SUPER + ALT + C", hl.dsp.exec_cmd("qs -c moxi ipc call clipboard toggle"), { description = "Clipboard history" })
+hl.bind(
+	"SUPER + ALT + C",
+	hl.dsp.exec_cmd("qs -c moxi ipc call clipboard toggle"),
+	{ description = "Clipboard history" }
+)
 hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd("qs -c moxi ipc call power toggle"), { description = "Power menu" })
 hl.bind("SUPER + period", hl.dsp.exec_cmd("qs -c moxi ipc call emoji toggle"), { description = "Emoji picker" })
-hl.bind("SUPER + ALT + R", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/quickshell-reload.sh"), { description = "Quickshell: Reload bar" })
+hl.bind(
+	"SUPER + ALT + R",
+	hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/quickshell-reload.sh"),
+	{ description = "Quickshell: Reload bar" }
+)
 hl.bind("SUPER + L", hl.dsp.exec_cmd(screenlock))
