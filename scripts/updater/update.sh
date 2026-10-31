@@ -22,7 +22,7 @@ fi
 
 # ── dependencies ──────────────────────────────────────────────────────────────
 
-for dependency in gum git nix doas nixos-rebuild flock tee mktemp; do
+for dependency in gum git nix doas nixos-rebuild flock tee mktemp curl jq; do
   if ! command -v "$dependency" >/dev/null 2>&1; then
     printf 'missing %s. install it, then try again.\n' "$dependency" >&2
     read -r -s -n 1 -p 'press any key to close...' || :
@@ -182,9 +182,13 @@ configuration="$(nix eval --raw --file "$flake/username.nix")"
 
 # ── 2 / 3 ─────────────────────────────────────────────────────────────────────
 
+# shellcheck disable=SC2016 # The child shell expands its own positional arguments.
 run_step 2 \
   'updating packages and stuff' \
-  nix flake update --flake "$flake"
+  bash -e -o pipefail -c '
+    nix flake update --flake "$1"
+    "$1/scripts/hyprglass-pin.sh" "$1"
+  ' bash "$flake"
 
 # ── 3 / 3 ─────────────────────────────────────────────────────────────────────
 

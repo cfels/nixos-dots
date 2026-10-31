@@ -50,7 +50,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     hyprglass = {
-      url = "github:hyprnux/hyprglass/7fc328064c63d9fbaaac8d8204eadf85dcdeae19";
+      url = "github:hyprnux/hyprglass/85b8a8ed8431d7b6f1ef8dad8ae0470d8ea7f291";
       flake = false;
     };
     twintail-nix = {

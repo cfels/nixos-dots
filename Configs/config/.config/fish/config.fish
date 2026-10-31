@@ -15,7 +15,7 @@ fish_add_path "/home/moxiu/.bun/bin"
 alias nixbuild="doas nixos-rebuild switch --flake /etc/nixos#moxiu"
 alias nixup="doas nixos-rebuild switch --upgrade --flake /etc/nixos#moxiu"
 alias nixconf="doas nvim ~/nixos-dots/Configs/nixos"
-function nixupdate --description "Update flake inputs and re-pin hyprglass for the new Hyprland"
+function nixupdate --description "Update flake inputs and hyprglass to the latest release"
     nix flake update --flake /etc/nixos
     and /etc/nixos/scripts/hyprglass-pin.sh
 end

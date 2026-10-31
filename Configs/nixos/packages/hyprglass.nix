@@ -1,10 +1,12 @@
 { inputs }:
 pkgs:
-pkgs.hyprlandPlugins.mkHyprlandPlugin {
+pkgs.hyprlandPlugins.mkHyprlandPlugin rec {
   pluginName = "hyprglass";
-  version = "0.11.0";
+  version = "1.1.0";
 
   src = inputs.hyprglass;
+
+  makeFlags = [ "HYPRGLASS_VERSION=${version}" ];
 
   nativeBuildInputs = [
     pkgs.gnumake
