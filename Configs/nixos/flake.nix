@@ -2,6 +2,14 @@
   description = "Moxi's VacOS configuration";
 
   inputs = {
+    minecraft-plymouth-theme = {
+      url = "github:nikp123/minecraft-plymouth-theme";
+      flake = false;
+    };
+    double-minegrub-menu = {
+      url = "github:Lxtharia/double-minegrub-menu/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixcord.url = "github:FlameFlag/nixcord";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     helium = {
@@ -89,6 +97,8 @@
         inherit system;
         specialArgs = { inherit inputs username hostName; };
         modules = [
+          (inputs.minecraft-plymouth-theme + "/nixos.nix")
+          inputs.double-minegrub-menu.nixosModules.default
           ./configuration.nix
           { nixpkgs.overlays = [ viceOverlay ]; }
           self.nixosModules.vice

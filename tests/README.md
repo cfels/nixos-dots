@@ -10,6 +10,13 @@ The tests require Python, Bash, Bubblewrap, GNU Stow, and the existing GNU comma
 
 ## Isolation
 
+GRUB Secure Boot tests use synthetic boot files and mocked firmware commands.
+They cover signed-kernel handling, embedded paths, ESP detection, key reuse,
+and idempotent boot-entry creation. They never read private host keys or write
+firmware variables. The snapshot was also checked manually in an isolated
+UEFI VM with Secure Boot enabled; actual firmware compatibility still requires
+a test boot on the target machine.
+
 Installer and fetcher tests construct a disposable root filesystem. Only the Nix store and executable directories are mounted read-only from the host. `/etc`, `/home`, `/root`, `/run`, and the test repository are private to the test. Networking is disabled. Failure to start isolation is a test error, never a reason to run without it.
 
 Nix activation, Git configuration, and font-cache updates are mocked. Existing-user Stow commands record the requested account, then run in the test's single-UID namespace. Ownership commands execute against the mapped namespace UID; tests verify that unmanaged files and symlink targets retain their metadata. Actual account allocation and cross-user permissions still require a disposable NixOS VM.

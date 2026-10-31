@@ -9,6 +9,7 @@ original_args=("$@")
 
 mode=""
 requested_user=""
+secure_boot=0
 while [ $# -gt 0 ]; do
   case "$1" in
   --rollback_restore | -rr)
@@ -26,6 +27,10 @@ while [ $# -gt 0 ]; do
     }
     requested_user="$2"
     shift 2
+    ;;
+  --secure-boot)
+    secure_boot=1
+    shift
     ;;
   *) shift ;;
   esac
@@ -54,6 +59,8 @@ if [ "$mode" = "help" ]; then
    --help, -h = show help (who would guess that right?)
    --rollback_restore, -rr = restore ur configs, then activate the restored system
    --user, -u <name> = install for this username (asked for if not given)
+   --secure-boot = prepare signed GRUB and a boot entry after installation
+                   firmware key enrollment and reboot remain manual
 
 that's it
 EOF
@@ -100,6 +107,17 @@ echo "execute backup script"
 
 echo "apply configs"
 "$REPO/scripts/installer/applyconfigs_stow.sh"
+
+if [[ "$secure_boot" == 1 ]]; then
+  echo "preparing GRUB Secure Boot"
+  if ! sudo /run/current-system/sw/bin/grub-secure-setup; then
+    echo "Desktop installation completed, but Secure Boot preparation failed." >&2
+    echo "Fix the reported issue, then retry: sudo grub-secure-setup" >&2
+    exit 1
+  fi
+else
+  echo "Optional GRUB Secure Boot setup: sudo grub-secure-setup"
+fi
 
 echo "DONE! with no issue's i guess"
 

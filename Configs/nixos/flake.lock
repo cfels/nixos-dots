@@ -1,5 +1,27 @@
 {
   "nodes": {
+    "double-minegrub-menu": {
+      "inputs": {
+        "minegrub-world-sel-theme": "minegrub-world-sel-theme",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792576281,
+        "narHash": "sha256-+dLVea5JZw2CgvZEXxXJ1YxIg4uj0s4C1VvFsiXBBE4=",
+        "owner": "Lxtharia",
+        "repo": "double-minegrub-menu",
+        "rev": "2795a5b402906d05bd2422090de6c5801945fdf6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Lxtharia",
+        "ref": "main",
+        "repo": "double-minegrub-menu",
+        "type": "github"
+      }
+    },
     "fagram": {
       "inputs": {
         "nixpkgs": [
@@ -377,6 +399,43 @@
         "type": "github"
       }
     },
+    "minecraft-plymouth-theme": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784285233,
+        "narHash": "sha256-C+CVl3OcpGtqMD9HX5/C7tn6X39dxEPurEoop3MToXo=",
+        "owner": "nikp123",
+        "repo": "minecraft-plymouth-theme",
+        "rev": "f0b471e0642f132f9af1e09324f8def18400f60f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nikp123",
+        "repo": "minecraft-plymouth-theme",
+        "type": "github"
+      }
+    },
+    "minegrub-world-sel-theme": {
+      "inputs": {
+        "nixpkgs": [
+          "double-minegrub-menu",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791992412,
+        "narHash": "sha256-GvRczS1ZaawnZTkR3XvFQj/wxJo6RJ5NdHc2+F6RI90=",
+        "owner": "Lxtharia",
+        "repo": "minegrub-world-sel-theme",
+        "rev": "87d3e5185b85f5f3585f191bae3a6234448c3f94",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Lxtharia",
+        "repo": "minegrub-world-sel-theme",
+        "type": "github"
+      }
+    },
     "nix-darwin": {
       "inputs": {
         "nixpkgs": [
@@ -650,12 +709,14 @@
     },
     "root": {
       "inputs": {
+        "double-minegrub-menu": "double-minegrub-menu",
         "fagram": "fagram",
         "helium": "helium",
         "home-manager": "home-manager",
         "hyprglass": "hyprglass",
         "kwin-better-blur-dx": "kwin-better-blur-dx",
         "millennium": "millennium",
+        "minecraft-plymouth-theme": "minecraft-plymouth-theme",
         "nixcord": "nixcord",
         "nixpkgs": "nixpkgs_3",
         "pineconemc": "pineconemc",

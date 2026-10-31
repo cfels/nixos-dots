@@ -377,6 +377,7 @@ sys.exit(int(os.environ.get("TELEMETRY_STATUS", "0")))
         result = self.desktop.run(MAIN, "--user", "audituser")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("DONE!", result.stdout)
+        self.assertFalse(any(command[0] == "grub-secure-setup" for command in self.desktop.commands()))
         self.assertEqual(self.telemetry_calls(), [[
             "curl", "--disable", "--silent", "--fail", "--max-time", "3", "--request", "POST",
             "--user-agent", "", "--output", "/dev/null", "https://stats.vacpro.fyi/install",
@@ -404,6 +405,21 @@ sys.exit(int(os.environ.get("TELEMETRY_STATUS", "0")))
     def test_help_does_not_send_telemetry(self):
         result = self.desktop.run(MAIN, "--help")
         self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.telemetry_calls(), [])
+
+    def test_secure_boot_setup_is_opt_in_and_runs_after_activation(self):
+        result = self.desktop.run(MAIN, "--user", "audituser", "--secure-boot")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        commands = self.desktop.commands()
+        activation = next(i for i, command in enumerate(commands) if command[0] == "nixos-rebuild")
+        setup = next(i for i, command in enumerate(commands) if command[0] == "grub-secure-setup")
+        self.assertGreater(setup, activation)
+
+    def test_secure_boot_setup_failure_reports_installed_desktop(self):
+        result = self.desktop.run(MAIN, "--user", "audituser", "--secure-boot", SECURE_BOOT_SETUP_STATUS="1")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Desktop installation completed", result.stderr)
+        self.assertIn("sudo grub-secure-setup", result.stderr)
         self.assertEqual(self.telemetry_calls(), [])
 
     def test_invalid_backup_prevents_activation(self):

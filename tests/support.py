@@ -79,6 +79,8 @@ if name == "nixos-rebuild":
     sys.exit(int(os.environ.get("REBUILD_STATUS", "0")))
 if name == "switch-to-configuration":
     sys.exit(int(os.environ.get("DIRECT_ACTIVATION_STATUS", "0")))
+if name == "grub-secure-setup":
+    sys.exit(int(os.environ.get("SECURE_BOOT_SETUP_STATUS", "0")))
 if name == "chown":
     args[args.index("--") + 1] = "0"
     sys.exit(subprocess.run([REAL[name], *args], check=False).returncode)
