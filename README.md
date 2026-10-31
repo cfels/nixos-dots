@@ -15,16 +15,13 @@ cd ~/nixos-dots/
 bash ./installer
 ```
 
-Optional GRUB Secure Boot preparation:
+Secure boot for ppl with fresh install:
 
 ```sh
 bash ./installer --secure-boot
 ```
 
-This prepares signed GRUB and detects the EFI partition automatically. It prints
-the remaining boot-test and firmware enrollment steps. Existing installations
-can rebuild and run `sudo grub-secure-setup`.
-See the [GRUB Secure Boot guide](Configs/nixos/SECURE-BOOT-GRUB.md).
+existing installs can use: `sudo grub-secure-setup`.
 
 <div align="center">
 
