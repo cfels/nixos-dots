@@ -42,7 +42,6 @@ matugen
 gnome-keyring
 hyprlock
 quickshell
-vim
 unrar
 vlc
 uv
@@ -50,7 +49,6 @@ fetch
 android-studio
 android-tools
 filezilla
-wget
 gum
 parted
 fastfetch
@@ -72,7 +70,6 @@ grim
 slurp
 awww
 mpvpaper
-nerd-fonts.iosevka
 doas
 jdk25
 fish
@@ -80,8 +77,6 @@ tldr
 pkg-config
 starship
 docker
-unzip
-zip
 binwalk
 ghidra
 texlivePackages.noto-emoji
@@ -116,8 +111,6 @@ ffmpeg-native
 exiftool
 udiskie
 mpv
-fzf
-fd
 bat
 zoxide
 hicolor-icon-theme
