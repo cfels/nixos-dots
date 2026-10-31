@@ -110,7 +110,7 @@ p7zip-native
 (lib.hiPrio zstd-native)
 (lib.hiPrio xz-native)
 atool
-codex
+inputs.codex-cli-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
 jq
 ffmpeg-native
 exiftool

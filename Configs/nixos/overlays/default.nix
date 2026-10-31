@@ -1,7 +1,4 @@
-{ vice-clipper }:
 final: prev: {
-  vice-clipper = vice-clipper prev;
-
   linuxPackages_latest = prev.linuxPackages_latest.extend (
     final: prev: {
       v4l2loopback = prev.v4l2loopback.overrideAttrs (old: {

@@ -12,6 +12,10 @@
     };
     nixcord.url = "github:FlameFlag/nixcord";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    codex-cli-nix = {
+      url = "github:sadjow/codex-cli-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     helium = {
       url = "github:AlvaroParker/helium-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -34,8 +38,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     vice = {
-      url = "github:eklonofficial/Vice";
-      flake = false;
+      url = "github:splitshotz/Vice";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -78,20 +82,18 @@
       username = import ./username.nix;
       hostName = import ./hostname.nix;
 
-      vice-clipper = import ./packages/vice-clipper.nix { inherit inputs; };
-      viceOverlay = import ./overlays/default.nix { inherit vice-clipper; };
       hyprglass-plugin = import ./packages/hyprglass.nix { inherit inputs; };
     in
     {
       packages.${system} = {
-        vice-clipper = vice-clipper nixpkgs.legacyPackages.${system};
+        vice-clipper = inputs.vice.packages.${system}.vice-clipper;
         hyprglass = hyprglass-plugin nixpkgs.legacyPackages.${system};
-        default = vice-clipper nixpkgs.legacyPackages.${system};
+        default = inputs.vice.packages.${system}.default;
       };
 
-      overlays.default = viceOverlay;
+      overlays.default = import ./overlays/default.nix;
 
-      nixosModules.vice = import ./modules/vice.nix;
+      nixosModules.vice = inputs.vice.nixosModules.default;
 
       nixosConfigurations.${username} = nixpkgs.lib.nixosSystem {
         inherit system;
@@ -100,7 +102,10 @@
           (inputs.minecraft-plymouth-theme + "/nixos.nix")
           inputs.double-minegrub-menu.nixosModules.default
           ./configuration.nix
-          { nixpkgs.overlays = [ viceOverlay ]; }
+          {
+            nixpkgs.overlays = [ self.overlays.default ];
+            services.vice.enable = true;
+          }
           self.nixosModules.vice
           umadance.nixosModules.default
           twintail-nix.nixosModules.default

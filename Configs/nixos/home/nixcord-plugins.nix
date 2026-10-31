@@ -10,7 +10,7 @@
       oscilloscopeColor = "216, 216, 246";
       spectrographColor = "177, 143, 207";
     };
-    betterFolders.enable = true;
+    betterFolders.enable = false;
     betterGifAltText.enable = true;
     betterGifPicker.enable = true;
     betterImageEditor.enable = true;
