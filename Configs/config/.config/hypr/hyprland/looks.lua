@@ -239,7 +239,7 @@ if hl.plugin.hyprglass then
 		refraction_strength = 0.55,
 		chromatic_aberration = 0.3,
 		fresnel_strength = 0.5,
-		spectacular_strength = 0.75,
+		specular_strength = 0.75,
 		edge_thickness = 0.05,
 		lens_distortion = 0.3,
 		dark = { brightness = 0.82, contrast = 0.90, saturation = 0.80, vibrancy = 0.15, adaptive_dim = 0.4 },
