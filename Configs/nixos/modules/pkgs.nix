@@ -26,7 +26,7 @@ mesa-demos
 vulkan-tools
 qbittorrent
 rocmPackages.rocm-smi # for btop to show gpu stats
-heroic
+inputs.omikuji.packages.${pkgs.stdenv.hostPlatform.system}.default
 gamemode
 gamescope
 seanime

@@ -53,8 +53,8 @@
       url = "github:hyprnux/hyprglass/85b8a8ed8431d7b6f1ef8dad8ae0470d8ea7f291";
       flake = false;
     };
-    twintail-nix = {
-      url = "github:madebycli/twintail-nix";
+    omikuji = {
+      url = "github:omikuji-launcher/omikuji";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     umadance = {
@@ -73,7 +73,6 @@
       nixpkgs,
       home-manager,
       kwin-better-blur-dx,
-      twintail-nix,
       umadance,
       ...
     }:
@@ -108,7 +107,6 @@
           }
           self.nixosModules.vice
           umadance.nixosModules.default
-          twintail-nix.nixosModules.default
           (import ./modules/desktop-extras.nix { inherit hyprglass-plugin; })
           home-manager.nixosModules.home-manager
           {
