@@ -24,9 +24,7 @@ file
 pipes-rs
 mesa-demos
 vulkan-tools
-mangohud
 qbittorrent
-goverlay
 rocmPackages.rocm-smi # for btop to show gpu stats
 heroic
 gamemode
@@ -43,7 +41,6 @@ gnome-keyring
 hyprlock
 quickshell
 unrar
-vlc
 uv
 fetch
 android-studio
