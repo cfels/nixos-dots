@@ -142,32 +142,8 @@ popupWidth=560
 immutability=1
 plugin=org.kde.plasma.showdesktop
 
-[Containments][55][Applets][80]
-immutability=1
-plugin=plasmusic-toolbar
-
-[Containments][55][Applets][80][Configuration]
-popupHeight=294
-popupWidth=252
-
-[Containments][55][Applets][80][Configuration][ConfigDialog]
-DialogHeight=630
-DialogWidth=810
-
-[Containments][55][Applets][80][Configuration][General]
-choosePlayerAutomatically=false
-fullViewLoopVisible=false
-fullViewPlaybackControlsVisible=false
-fullViewProgressBarVisible=false
-fullViewShuffleVisible=false
-fullViewVolumeControlVisible=false
-panelIconSizeRatio=0.8
-preferredPlayerIdentity=Mozilla librewolf
-skipBackwardControlInPanel=false
-skipForwardControlInPanel=false
-
 [Containments][55][General]
-AppletOrder=56;57;58;80;59;60;73;74
+AppletOrder=56;57;58;59;60;73;74
 
 [Containments][83]
 ItemGeometries-1920x1080=

@@ -5,15 +5,28 @@ flake=${1:-/etc/nixos}
 flake_nix=$flake/flake.nix
 hyprglass_nix=$flake/packages/hyprglass.nix
 
-api=https://api.github.com/repos/hyprnux/hyprglass
-tag=$(curl -fsSL "$api/releases/latest" | jq -er '.tag_name | select(type == "string")')
+repository=https://github.com/hyprnux/hyprglass
+release_url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' "$repository/releases/latest")
+tag=${release_url##*/}
 
 if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo "hyprglass: invalid release tag: $tag" >&2
   exit 1
 fi
 
-pin=$(curl -fsSL "$api/commits/$tag" | jq -er '.sha | select(type == "string")')
+refs=$(git ls-remote --tags --exit-code "$repository.git" "refs/tags/$tag" "refs/tags/$tag^{}")
+pin=''
+while read -r revision ref; do
+  # Annotated tags have a separate tag object; pin the commit they point to.
+  if [[ "$ref" == "refs/tags/$tag^{}" ]]; then
+    pin=$revision
+    break
+  fi
+  if [[ "$ref" == "refs/tags/$tag" ]]; then
+    pin=$revision
+  fi
+done <<<"$refs"
+
 if [[ ! "$pin" =~ ^[0-9a-f]{40}$ ]]; then
   echo "hyprglass: invalid commit for $tag: $pin" >&2
   exit 1

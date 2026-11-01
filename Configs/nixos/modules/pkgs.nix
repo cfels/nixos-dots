@@ -73,7 +73,6 @@ fish
 tldr
 pkg-config
 starship
-docker
 binwalk
 ghidra
 texlivePackages.noto-emoji
@@ -81,7 +80,6 @@ aria2
 clang
 gcc
 kdePackages.kcalc
-plasmusic-toolbar
 nh
 pavucontrol
 playerctl

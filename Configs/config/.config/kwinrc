@@ -3,24 +3,10 @@ Id_1=c60e93e5-c9e8-45dd-9468-0c49ea7b3c9b
 Number=1
 Rows=1
 
-[Effect-better-blur-dx]
-BlurDecorations=true
-BlurDocks=true
-BlurMenus=true
-BlurStrength=6
-NoiseStrength=6
-RefractionCornerRadius=43
-RefractionMode=1
-RefractionNormalPow=5
-RefractionRGBFringing=5
-RefractionStrength=7
-WindowClasses=zeditor\nzed-editor\nkitty\nvscode\ncode
-
 [Effect-blur]
 BlurStrength=12
 
 [Plugins]
-better_blur_dxEnabled=true
 blurEnabled=false
 magiclampEnabled=true
 shakecursorEnabled=false

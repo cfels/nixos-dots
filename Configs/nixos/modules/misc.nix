@@ -37,7 +37,6 @@ in
 
   # stuff 2
   environment.systemPackages = with pkgs; [
-    inputs.kwin-better-blur-dx.packages.${pkgs.stdenv.hostPlatform.system}.default
     gsettings-desktop-schemas
   ];
 

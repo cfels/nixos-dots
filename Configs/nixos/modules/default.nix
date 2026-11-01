@@ -12,6 +12,5 @@
     ./users.nix
     ./setting.nix
     ./home.nix
-    ./docker.nix
   ];
 }

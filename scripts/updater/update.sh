@@ -22,7 +22,7 @@ fi
 
 # ── dependencies ──────────────────────────────────────────────────────────────
 
-for dependency in gum git nix doas nixos-rebuild flock tee mktemp curl jq; do
+for dependency in gum git nix doas nixos-rebuild flock tee mktemp curl; do
   if ! command -v "$dependency" >/dev/null 2>&1; then
     printf 'missing %s. install it, then try again.\n' "$dependency" >&2
     read -r -s -n 1 -p 'press any key to close...' || :

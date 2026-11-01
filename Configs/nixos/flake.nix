@@ -45,10 +45,6 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    kwin-better-blur-dx = {
-      url = "github:xarblu/kwin-effects-better-blur-dx";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     hyprglass = {
       url = "github:hyprnux/hyprglass/85b8a8ed8431d7b6f1ef8dad8ae0470d8ea7f291";
       flake = false;
@@ -72,7 +68,6 @@
       self,
       nixpkgs,
       home-manager,
-      kwin-better-blur-dx,
       umadance,
       ...
     }:

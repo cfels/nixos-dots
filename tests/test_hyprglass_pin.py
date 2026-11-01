@@ -47,19 +47,41 @@ with open("/work/curl-commands.log", "a") as log:
 status = int(os.environ.get("CURL_STATUS", "0"))
 if status:
     sys.exit(status)
-if url == "https://api.github.com/repos/hyprnux/hyprglass/releases/latest":
-    print(Path("/work/release.json").read_text())
-elif url.startswith("https://api.github.com/repos/hyprnux/hyprglass/commits/"):
-    print(Path("/work/commit.json").read_text())
+if url == "https://github.com/hyprnux/hyprglass/releases/latest":
+    print(Path("/work/release-url").read_text())
 else:
     sys.exit("unexpected curl URL: " + url)
 ''')
         curl.chmod(0o755)
+        git = self.desktop.work / "bin/git"
+        git.unlink()
+        git.write_text(f"#!{sys.executable}\n" + '''
+import os
+from pathlib import Path
+import sys
+
+args = sys.argv[1:]
+if args == ["pull", "--ff-only"]:
+    sys.exit(0)
+tag = Path("/work/release-url").read_text().rsplit("/", 1)[-1]
+expected = ["ls-remote", "--tags", "--exit-code", "https://github.com/hyprnux/hyprglass.git",
+            "refs/tags/" + tag, "refs/tags/" + tag + "^{}"]
+if args != expected:
+    sys.exit("unexpected git command: " + repr(args))
+status = int(os.environ.get("GIT_STATUS", "0"))
+if status:
+    sys.exit(status)
+print(Path("/work/refs").read_text())
+''')
+        git.chmod(0o755)
         self.release()
 
-    def release(self, tag="v2.0.0", revision="b" * 40):
-        (self.desktop.work / "release.json").write_text(json.dumps({"tag_name": tag}))
-        (self.desktop.work / "commit.json").write_text(json.dumps({"sha": revision}))
+    def release(self, tag="v2.0.0", revision="b" * 40, tag_object=None):
+        (self.desktop.work / "release-url").write_text(f"https://github.com/hyprnux/hyprglass/releases/tag/{tag}")
+        refs = f"{revision}\trefs/tags/{tag}\n"
+        if tag_object:
+            refs = f"{tag_object}\trefs/tags/{tag}\n{revision}\trefs/tags/{tag}^{{}}\n"
+        (self.desktop.work / "refs").write_text(refs)
 
     def run_pin(self, *arguments, **environment):
         return self.desktop.run("/work/repo/Configs/nixos/scripts/hyprglass-pin.sh", *arguments, **environment)
@@ -76,9 +98,16 @@ else:
         self.assertIn('version = "2.0.0";', (flake / "packages/hyprglass.nix").read_text())
         self.assertEqual(self.nix_commands(), [["flake", "update", "--flake", "/etc/nixos", "hyprglass"]])
         self.assertEqual((self.desktop.work / "curl-commands.log").read_text().splitlines(), [
-            "https://api.github.com/repos/hyprnux/hyprglass/releases/latest",
-            "https://api.github.com/repos/hyprnux/hyprglass/commits/v2.0.0",
+            "https://github.com/hyprnux/hyprglass/releases/latest",
         ])
+
+    def test_annotated_release_tag_pins_the_commit(self):
+        self.release(tag_object="a" * 40)
+        result = self.run_pin()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        source = (self.desktop.etc / "nixos/flake.nix").read_text()
+        self.assertIn("github:hyprnux/hyprglass/" + "b" * 40, source)
+        self.assertNotIn("github:hyprnux/hyprglass/" + "a" * 40, source)
 
     def test_explicit_flake_path_changes_only_that_flake(self):
         default = self.desktop.etc / "nixos/flake.nix"
@@ -115,6 +144,16 @@ else:
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(source.read_bytes(), before)
         self.assertEqual(self.nix_commands(), [])
+
+    def test_git_failure_changes_nothing(self):
+        flake = self.desktop.etc / "nixos"
+        before = [(flake / name).read_bytes() for name in ("flake.nix", "packages/hyprglass.nix")]
+        for status in (2, 128):
+            with self.subTest(status=status):
+                result = self.run_pin(GIT_STATUS=status)
+                self.assertEqual(result.returncode, status, result.stderr)
+                self.assertEqual([(flake / name).read_bytes() for name in ("flake.nix", "packages/hyprglass.nix")], before)
+                self.assertEqual(self.nix_commands(), [])
 
     @unittest.skipUnless(shutil.which("fish"), "Fish is required for shell function verification")
     def test_nixupdate_uses_user_cache_and_only_repins_after_success(self):

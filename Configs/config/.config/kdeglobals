@@ -148,7 +148,7 @@ ForegroundVisited=226,187,220
 
 [General]
 ColorScheme=Matugen
-ColorSchemeHash=1793470650
+ColorSchemeHash=1793573537
 UseSystemBell=true
 XftAntialias=true
 XftHintStyle=hintslight
@@ -178,7 +178,7 @@ Decoration position=2
 Preview Width=151
 Show Full Path=false
 Show Inline Previews=true
-Show Preview=true
+Show Preview=false
 Show Speedbar=true
 Show hidden files=false
 Sort by=Name
