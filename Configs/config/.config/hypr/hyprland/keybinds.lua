@@ -33,6 +33,7 @@ hl.bind(SUPER .. " + D", hl.dsp.exec_cmd(chatapp))
 hl.bind(SUPER .. " + W", hl.dsp.exec_cmd(browser))
 hl.bind(SUPER .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(SUPER .. " + E", hl.dsp.exec_cmd(fileManager))
+hl.bind(SUPER .. " + T", hl.dsp.exec_cmd(terminal))
 hl.bind(SUPER .. " + RETURN", hl.dsp.exec_cmd(terminal))
 hl.bind(
 	"SUPER + ALT + U",
