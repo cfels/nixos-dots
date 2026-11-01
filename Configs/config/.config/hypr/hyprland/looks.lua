@@ -32,6 +32,10 @@ hl.config({
 		rounding = 16,
 		active_opacity = 1.0,
 		inactive_opacity = 1.0,
+		motion_blur = {
+			enabled = true,
+			samples = 32,
+		},
 		blur = {
 			enabled = true,
 			size = 3,
