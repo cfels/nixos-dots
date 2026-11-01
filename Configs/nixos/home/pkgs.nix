@@ -42,7 +42,7 @@ in
           '';
       }
     ))
-    inputs.helium.packages.${system}.default
+    inputs.helium.packages.${pkgs.stdenv.hostPlatform.system}.default
     bubblewrap
     btop
     ripgrep
