@@ -17,6 +17,9 @@ class QmlPanelTests(unittest.TestCase):
     def test_existing_player_on_load(self):
         self.run_scenario(REPO / "tests/qml/PanelScenario.qml", initial_player=True)
 
+    def test_wallpaper_directory_changes_without_reload(self):
+        self.run_scenario(REPO / "tests/qml/WallpaperScenario.qml", real_wallpapers=True)
+
     def test_panel_with_real_artwork_fetcher(self):
         self.run_scenario(REPO / "tests/qml/PanelScenario.qml", real_artwork=True)
 
@@ -43,7 +46,7 @@ class QmlPanelTests(unittest.TestCase):
         self.assertEqual(len(images), 6)
         self.assertEqual(len(set(images.values())), 6)
 
-    def run_scenario(self, scenario, source=None, renderer="software", initial_player=False, installed_layout=False, real_artwork=False):
+    def run_scenario(self, scenario, source=None, renderer="software", initial_player=False, installed_layout=False, real_artwork=False, real_wallpapers=False):
         desktop = IsolatedDesktop()
         self.addCleanup(desktop.close)
         source = source or REPO / "Configs/config/.config/quickshell/moxi"
@@ -140,6 +143,22 @@ fi''',
         if real_artwork:
             for name in ("artwork-fetch.sh", "media-match.jq", "media-cache.py"):
                 shutil.copy2(REPO / "Configs/config/.config/hypr/scripts" / name, scripts / name)
+        if real_wallpapers:
+            shutil.copy2(REPO / "Configs/config/.config/hypr/scripts/wallpaper-list.sh", scripts / "wallpaper-list-real.sh")
+            (scripts / "wallpaper-list.sh").write_text('''#!/usr/bin/env bash
+set -euo pipefail
+listing="$(bash "$HOME/.config/hypr/scripts/wallpaper-list-real.sh")"
+if [[ -e /work/slow-wallpaper-scan ]]; then
+  touch /work/wallpaper-scan-started
+  sleep 0.5
+fi
+printf '%s\\n' "$listing"
+''')
+            walls = desktop.work / "walls"
+            walls.mkdir()
+            (walls / "first.png").write_text("first wallpaper")
+            (walls / "second.JPG").write_text("second wallpaper")
+            (desktop.home / "walls").symlink_to("/work/walls")
         (desktop.work / "image.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="600" height="600" fill="#ab3456"/></svg>')
         (desktop.work / "corrected.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="600" height="600" fill="#56ab34"/></svg>')
         (desktop.work / "tiny.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><rect width="60" height="60" fill="#3456ab"/></svg>')

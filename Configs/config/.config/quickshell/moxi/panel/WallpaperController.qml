@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import Qt.labs.folderlistmodel
 
 Scope {
 	id: wallpapers
@@ -13,6 +14,11 @@ Scope {
 	property bool wallpaperTool: false
 	property string previewWallpaper: ""
 	property string hoveredWallpaper: ""
+
+	onExpandedChanged: {
+		if (wallpapers.expanded)
+			refreshDebounce.restart()
+	}
 
 	function wallpaperIsVideo(path): bool {
 		return /\.(mp4|m4v|webm|mkv|mov|avi)$/i.test("" + path)
@@ -56,6 +62,15 @@ Scope {
 		setter.running = true
 	}
 
+	FolderListModel {
+		folder: "file://" + Quickshell.env("HOME") + "/walls"
+		showDirs: false
+		showHidden: true
+
+		onCountChanged: refreshDebounce.restart()
+		onDataChanged: refreshDebounce.restart()
+	}
+
 	Process {
 		id: scan
 
@@ -63,6 +78,7 @@ Scope {
 		property var thumbs: ({})
 		property var previews: ({})
 		property string signature: ""
+		property bool pending: false
 
 		command: ["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/wallpaper-list.sh"]
 
@@ -98,8 +114,15 @@ Scope {
 			scan.thumbs = ({})
 			scan.previews = ({})
 
-			if (wallpapers.wallpapers.indexOf(wallpapers.previewWallpaper) === -1 && wallpapers.wallpapers.length > 0)
-				wallpapers.previewWallpaper = wallpapers.wallpapers[0]
+			if (wallpapers.wallpapers.indexOf(wallpapers.previewWallpaper) === -1)
+				wallpapers.previewWallpaper = wallpapers.wallpapers.length > 0 ? wallpapers.wallpapers[0] : ""
+			if (wallpapers.wallpapers.indexOf(wallpapers.hoveredWallpaper) === -1)
+				wallpapers.hoveredWallpaper = ""
+
+			if (scan.pending) {
+				scan.pending = false
+				refreshDebounce.restart()
+			}
 		}
 	}
 
@@ -139,9 +162,14 @@ Scope {
 	}
 
 	Timer {
-		interval: 4000
-		running: wallpapers.expanded
-		repeat: true
-		onTriggered: scan.running = true
+		id: refreshDebounce
+
+		interval: 100
+		onTriggered: {
+			if (scan.running)
+				scan.pending = true
+			else
+				scan.running = true
+		}
 	}
 }

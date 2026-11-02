@@ -21,6 +21,7 @@
 v4l-utils
 krita
 gh
+imv
 file
 pipes-rs
 mesa-demos

@@ -1,9 +1,9 @@
 {
-  "accent": "#b3c5ff",
-  "foreground": "#e3e2e9",
-  "muted": "#c5c6d0",
-  "idle": "#45464f",
-  "background": "#121318",
-  "surface": "#292a2f",
+  "accent": "#dcc66e",
+  "foreground": "#e9e2d4",
+  "muted": "#cdc6b4",
+  "idle": "#4b4739",
+  "background": "#15130b",
+  "surface": "#2d2a21",
   "danger": "#ffb4ab"
 }

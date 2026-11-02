@@ -141,10 +141,10 @@ style = mono
 
 gradient = 1
 
-gradient_color_1 = '#b3c5ff'
-gradient_color_2 = '#e2bbdc'
-gradient_color_3 = '#c1c6dd'
-gradient_color_4 = '#b3c5ff'
-gradient_color_5 = '#e2bbdc'
-gradient_color_6 = '#c1c6dd'
-gradient_color_7 = '#b3c5ff'
+gradient_color_1 = '#dcc66e'
+gradient_color_2 = '#a9d0b3'
+gradient_color_3 = '#d1c6a1'
+gradient_color_4 = '#dcc66e'
+gradient_color_5 = '#a9d0b3'
+gradient_color_6 = '#d1c6a1'
+gradient_color_7 = '#dcc66e'
