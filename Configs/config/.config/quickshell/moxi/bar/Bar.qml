@@ -445,7 +445,7 @@ PanelWindow {
 								? theme.danger
 								: workspace.modelData.active
 									? bar.muted
-									: bar.idle
+									: Qt.rgba(bar.foreground.r, bar.foreground.g, bar.foreground.b, 0.3)
 
 						Behavior on width {
 							NumberAnimation {
