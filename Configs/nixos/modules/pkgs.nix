@@ -54,6 +54,7 @@ fastfetch
 pinentry-qt
 (pkgs.callPackage ../packages/neovim.nix { })
 pkgs.qt6.qtdeclarative
+pkgs.qt6.qtmultimedia
 git
 usbutils
 mold
@@ -66,7 +67,6 @@ cliphist
 wl-clipboard
 grim
 slurp
-awww
 mpvpaper
 doas
 jdk25

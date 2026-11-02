@@ -144,6 +144,11 @@ fi''',
             for name in ("artwork-fetch.sh", "media-match.jq", "media-cache.py"):
                 shutil.copy2(REPO / "Configs/config/.config/hypr/scripts" / name, scripts / name)
         if real_wallpapers:
+            (scripts / "wallpaper-set.sh").write_text('''#!/usr/bin/env bash
+set -euo pipefail
+sleep 0.3
+printf '%s\\n' "$1" >> /work/wallpaper-selections
+''')
             shutil.copy2(REPO / "Configs/config/.config/hypr/scripts/wallpaper-list.sh", scripts / "wallpaper-list-real.sh")
             (scripts / "wallpaper-list.sh").write_text('''#!/usr/bin/env bash
 set -euo pipefail

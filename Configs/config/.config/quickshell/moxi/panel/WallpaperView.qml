@@ -356,6 +356,6 @@ Item {
 		color: theme.danger
 		font.family: wallpaperView.fontFamily
 		font.pixelSize: 11
-		text: "install awww to set wallpapers"
+		text: "install Quickshell to set wallpapers"
 	}
 }

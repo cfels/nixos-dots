@@ -58,6 +58,10 @@ Scope {
 	}
 
 	function setWallpaper(path): void {
+		if (setter.running) {
+			setter.pendingTarget = path
+			return
+		}
 		setter.target = path
 		setter.running = true
 	}
@@ -143,7 +147,7 @@ Scope {
 	Process {
 		id: availability
 
-		command: ["bash", "-c", "command -v awww || command -v swww || true"]
+		command: ["bash", "-c", "command -v qs || true"]
 		running: true
 
 		stdout: SplitParser {
@@ -157,8 +161,17 @@ Scope {
 		id: setter
 
 		property string target: ""
+		property string pendingTarget: ""
 
 		command: [Quickshell.env("HOME") + "/.config/hypr/scripts/wallpaper-set.sh", setter.target]
+
+		onExited: {
+			if (setter.pendingTarget.length > 0) {
+				setter.target = setter.pendingTarget
+				setter.pendingTarget = ""
+				setter.running = true
+			}
+		}
 	}
 
 	Timer {

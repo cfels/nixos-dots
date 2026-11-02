@@ -2,7 +2,7 @@
 
 # 🌸🍙🌸 Moxi's Dots 🌸🍙🌸
 **An beautiful Quickshell rice i crafted** <br>
-it uses **Quickshell** + **Hyprland** also **awww**, **Hyprlock** for it's main features and components
+it uses **Quickshell** + **Hyprland**, **Hyprlock** for it's main features and components
 
 
 ### Installation

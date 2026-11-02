@@ -51,7 +51,7 @@ fi
 
 prune
 
-pkill quickshell >/dev/null 2>&1 || true
+qs -c "$config" kill >/dev/null 2>&1 || true
 sleep 0.2
 
 if command -v hyprctl >/dev/null 2>&1 && [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then

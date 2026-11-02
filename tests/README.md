@@ -25,6 +25,8 @@ The lyrics responses in `fixtures/lyrics/providers.json` are synthetic fixtures 
 
 Panel tests execute the existing JavaScript function bodies to check cancellation requests, track-key guards, and duration-only messages. They do not instantiate Quickshell, verify signal delivery order, or render animations. Process-group cancellation tests verify group cleanup, not Quickshell's process-tree termination semantics.
 
+Wallpaper command tests check renderer reuse, failure recovery, and cleanup after transition completion. The OpenGL scenario renders the actual grow mask from all four corners and checks its pixels, including PNG/JPG-to-video captures during the reveal. It also plays real video and GIF fixtures, verifies that both videos advance during a reveal, retires the outgoing decoder afterward, and checks queued selections. Desktop tests still need a running compositor to verify layer placement, hardware playback, and live Hyprglass sampling. The wallpaper renderer requires Qt Multimedia and runs separately from panel reloads.
+
 ## Installer contracts
 
 - `--user` / `-u`, `--help` / `-h`, and `--rollback_restore` / `-rr` remain available.

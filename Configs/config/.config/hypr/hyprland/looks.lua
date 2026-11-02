@@ -272,6 +272,8 @@ if hl.plugin.hyprglass then
 		default_theme = "dark",
 		default_preset = "glass",
 		layers = { enabled = false },
+		-- Layer-shell video can keep playing without invalidating the cached glass.
+		windows = { background_cache = false },
 	})
 end
 

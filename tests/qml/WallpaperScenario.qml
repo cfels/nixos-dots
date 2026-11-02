@@ -23,6 +23,18 @@ ShellRoot {
 		id: changeFiles
 	}
 
+	Process {
+		id: checkSwitches
+
+		command: ["cat", "/work/wallpaper-selections"]
+		stdout: StdioCollector {
+			onStreamFinished: {
+				if (text === "first\nlast\n")
+					scenario.step = 7
+			}
+		}
+	}
+
 	Timer {
 		interval: 100
 		running: true
@@ -63,10 +75,21 @@ ShellRoot {
 						return
 					scenario.check(subject.previewWallpaper === "", "empty directory clears preview")
 					changeFiles.command = ["bash", "-c", "touch /work/slow-wallpaper-scan \"$HOME/walls/queued-first.png\"; for attempt in {1..100}; do [[ -e /work/wallpaper-scan-started ]] && break; sleep 0.01; done; [[ -e /work/wallpaper-scan-started ]] || exit 1; touch \"$HOME/walls/queued-second.png\""]
-				} else {
+				} else if (scenario.step === 5) {
 					if (subject.wallpapers.indexOf(scenario.walls + "queued-second.png") === -1)
 						return
 					scenario.check(subject.wallpapers.length === 2, "changes during a running scan are queued")
+					subject.setWallpaper("first")
+					subject.setWallpaper("skipped")
+					subject.setWallpaper("last")
+					scenario.step = 6
+					scenario.attempts = 0
+					return
+				} else if (scenario.step === 6) {
+					if (!checkSwitches.running)
+						checkSwitches.running = true
+					return
+				} else {
 					console.log("PANEL_SCENARIO_OK")
 					Qt.quit()
 					return
