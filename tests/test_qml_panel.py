@@ -20,6 +20,9 @@ class QmlPanelTests(unittest.TestCase):
     def test_wallpaper_directory_changes_without_reload(self):
         self.run_scenario(REPO / "tests/qml/WallpaperScenario.qml", real_wallpapers=True)
 
+    def test_theme_colors_update_without_shell_reload(self):
+        self.run_scenario(REPO / "tests/qml/ThemeScenario.qml")
+
     def test_panel_with_real_artwork_fetcher(self):
         self.run_scenario(REPO / "tests/qml/PanelScenario.qml", real_artwork=True)
 

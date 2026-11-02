@@ -23,7 +23,8 @@ Item {
 		printErrors: false
 		watchChanges: true
 
-		onFileChanged: theme.reload()
+		onFileChanged: colors.reload()
+		onLoaded: theme.reload()
 	}
 
 	Component.onCompleted: theme.reload()
