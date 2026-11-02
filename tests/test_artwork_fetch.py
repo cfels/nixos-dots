@@ -147,6 +147,39 @@ else:
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.cached().read_bytes(), (self.desktop.work / "blue.png").read_bytes())
 
+    def test_small_player_cover_is_not_replaced_by_a_catalogue_match(self):
+        self.routes["https://itunes.apple.com/search"] = {"json": {"results": [
+            {"trackName": "Song", "artistName": "Artist", "collectionName": "Other Album", "artworkUrl100": "https://fixture.invalid/blue"},
+        ]}}
+        self.routes["https://fixture.invalid/blue"] = {"file": "/work/blue.png"}
+        result = self.fetch("file:///work/red.png")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(self.requests())
+        self.assertEqual(self.cached().read_bytes(), (self.desktop.work / "red.png").read_bytes())
+
+    def test_small_remote_cover_is_not_replaced_even_by_a_matching_album(self):
+        self.routes["https://fixture.invalid/player"] = {"file": "/work/red.png"}
+        self.routes["https://itunes.apple.com/search"] = {"json": {"results": [
+            {"trackName": "Song", "artistName": "Artist", "collectionName": "Album", "artworkUrl100": "https://fixture.invalid/blue"},
+        ]}}
+        self.routes["https://fixture.invalid/blue"] = {"file": "/work/blue.png"}
+        result = self.fetch("https://fixture.invalid/player")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.requests(), ["https://fixture.invalid/player"])
+        self.assertEqual(self.cached().read_bytes(), (self.desktop.work / "red.png").read_bytes())
+
+    def test_small_cached_cover_is_not_replaced_by_a_catalogue_match(self):
+        self.cached().parent.mkdir(parents=True)
+        shutil.copy2(self.desktop.work / "red.png", self.cached())
+        self.routes["https://itunes.apple.com/search"] = {"json": {"results": [
+            {"trackName": "Song", "artistName": "Artist", "collectionName": "Album", "artworkUrl100": "https://fixture.invalid/blue"},
+        ]}}
+        self.routes["https://fixture.invalid/blue"] = {"file": "/work/blue.png"}
+        result = self.fetch()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(self.requests())
+        self.assertEqual(self.cached().read_bytes(), (self.desktop.work / "red.png").read_bytes())
+
     def test_small_existing_cache_is_upgraded(self):
         self.cached().parent.mkdir(parents=True)
         shutil.copy2(self.desktop.work / "red.png", self.cached())

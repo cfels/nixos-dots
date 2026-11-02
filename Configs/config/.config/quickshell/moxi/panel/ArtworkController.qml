@@ -24,6 +24,9 @@ Scope {
 	readonly property string artCachePath: (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/moxi/art"
 	readonly property string artCacheKey: {
 		var source = JSON.stringify([artworkState.media.trackArtist, artworkState.media.trackTitle, artworkState.media.trackAlbum, artworkState.media.trackUrl])
+		// Chromium omits the recording URL and can deliver the corrected cover after the title.
+		if (artworkState.media.hasPlayer && !artworkState.media.trackUrl)
+			source += JSON.stringify([artworkState.media.player.dbusName, artworkState.media.player.metadata["mpris:trackid"], artworkState.media.artUrl])
 		var hash = 5381
 
 		for (var i = 0; i < source.length; ++i)
@@ -31,7 +34,7 @@ Scope {
 
 		return hash.toString(16)
 	}
-	readonly property string artCacheFile: artworkState.artCachePath + "/art-v3-" + artworkState.artCacheKey + ".img"
+	readonly property string artCacheFile: artworkState.artCachePath + "/art-v5-" + artworkState.artCacheKey + ".img"
 
 	function fetchArtwork(): void {
 		if (artCache.running) {

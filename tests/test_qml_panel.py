@@ -23,6 +23,9 @@ class QmlPanelTests(unittest.TestCase):
     def test_artwork_refresh_does_not_reanimate(self):
         self.run_scenario(REPO / "tests/qml/ArtworkScenario.qml")
 
+    def test_browser_artwork_refresh_without_track_url(self):
+        self.run_scenario(REPO / "tests/qml/BrowserArtworkScenario.qml", real_artwork=True)
+
     def test_search_progress_preserves_animation_position(self):
         self.run_scenario(REPO / "tests/qml/SearchProgressScenario.qml")
 
@@ -138,6 +141,7 @@ fi''',
             for name in ("artwork-fetch.sh", "media-match.jq", "media-cache.py"):
                 shutil.copy2(REPO / "Configs/config/.config/hypr/scripts" / name, scripts / name)
         (desktop.work / "image.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="600" height="600" fill="#ab3456"/></svg>')
+        (desktop.work / "corrected.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="600" height="600" fill="#56ab34"/></svg>')
         (desktop.work / "tiny.svg").write_text('<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><rect width="60" height="60" fill="#3456ab"/></svg>')
         (desktop.work / "wallpapers.tsv").write_text('/work/image.svg\t/work/image.svg\n/work/video.mp4\t/work/image.svg\t/work/preview.gif\n/work/image.svg\tignored\n')
         (desktop.work / "lyrics.jsonl").write_text('{"duration":180,"syncedLyrics":"[00:01.000]one\\n[00:02.000]two","plainLyrics":""}\n')

@@ -127,6 +127,12 @@ case "$track" in
 		;;
 esac
 
+# A larger catalogue image can belong to a different release of the same song.
+if [ "$best_size" -gt 0 ]; then
+	publish
+	exit 0
+fi
+
 if [ -n "$artist" ] && [ -n "$title" ]; then
 	query_artist="$(printf '%s' "$artist" | jq -L "$SCRIPT_DIR" -sRr 'include "media-match"; artists | join(" ")')"
 	query="$query_artist $title"

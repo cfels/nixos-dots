@@ -20,6 +20,7 @@
   environment.systemPackages = with pkgs; [
 v4l-utils
 krita
+gh
 file
 pipes-rs
 mesa-demos
@@ -55,7 +56,6 @@ pkgs.qt6.qtdeclarative
 git
 usbutils
 mold
-cachix
 ccache
 git-filter-repo
 git-crypt
