@@ -42,7 +42,9 @@ in
           '';
       }
     ))
-    inputs.helium.packages.${pkgs.stdenv.hostPlatform.system}.default
+    (pkgs.callPackage ../packages/helium.nix {
+      helium = inputs.helium.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    })
     bubblewrap
     btop
     ripgrep

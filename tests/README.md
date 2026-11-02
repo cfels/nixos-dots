@@ -10,6 +10,14 @@ The tests require Python, Bash, Bubblewrap, GNU Stow, and the existing GNU comma
 
 ## Isolation
 
+The optional Helium integration test requires a running systemd user session and
+the built launcher. Set `DOTS_HELIUM_LAUNCHER=/nix/store/...-helium/bin/helium`
+and run `python3 -B -m unittest discover -s tests -p test_helium.py -v`.
+It creates a disposable browser profile under the user runtime directory, uses an
+invisible display backend, and checks repeated handoffs from private PID and
+`/tmp` namespaces after the original opener exits. It never opens the real browser
+profile. Without that environment variable, the test is skipped.
+
 GRUB Secure Boot tests use synthetic boot files and mocked firmware commands.
 They cover signed-kernel handling, embedded paths, ESP detection, key reuse,
 and idempotent boot-entry creation. They never read private host keys or write
