@@ -180,6 +180,7 @@ local user_opts = {
     tooltip_hints = true,                  -- enable tooltips for most buttons. seek and volume tooltips are always enabled
 
     -- Progress bar settings
+    seekbar_adaptive_color = true,         -- extract seekbar and handle colors from the current video
     seek_handle_size = 0.8,                -- size ratio of the seek handle (range: 0 ~ 1)
     seek_handle_border_size = 0.42,        -- border thickness as a fraction of the handle radius
     seek_handle_border_hover_size = 0.31,  -- border thickness when handle is hovered (set equal to seek_handle_border_size to disable)
@@ -935,6 +936,10 @@ local function osc_color_convert(color)
 end
 
 local osc_styles
+local video_palette
+local function seekbar_color(name)
+    return user_opts.seekbar_adaptive_color and video_palette and video_palette[name] or user_opts[name]
+end
 local seekbar_height_style
 local hover_effects = { size = false, color = false, glow = false, box = false }
 
@@ -976,8 +981,8 @@ local function set_osc_styles()
         window_title = "{\\bord1\\1c&H" .. osc_color_convert(user_opts.window_title_color) .. "&\\3c&H0&\\fs".. user_opts.window_title_font_size .."\\q2\\fn" .. ui_font.regular .. "}",
         title = "{\\bord1\\1c&H" .. osc_color_convert(user_opts.title_color) .. "&\\3c&H0&\\fs".. user_opts.title_font_size .."\\q2\\fn" .. ui_font.regular .. "}",
         chapter_title = "{\\bord1\\1c&H" .. osc_color_convert(user_opts.chapter_title_color) .. "&\\3c&H0&\\fs" .. user_opts.chapter_title_font_size .. "\\q2\\fn" .. ui_font.regular .. "}",
-        seekbar_bg = "{\\1c&H" .. osc_color_convert(user_opts.seekbarbg_color) .. "&}",
-        seekbar_fg = "{\\blur1\\bord1\\1c&H" .. osc_color_convert(user_opts.seekbarfg_color) .. "&}",
+        seekbar_bg = "{\\1c&H" .. osc_color_convert(seekbar_color("seekbarbg_color")) .. "&}",
+        seekbar_fg = "{\\blur1\\bord1\\1c&H" .. osc_color_convert(seekbar_color("seekbarfg_color")) .. "&}",
         thumbnail = "{\\bord" .. user_opts.thumbnail_box_outline_size .. "\\1c&H" .. osc_color_convert(user_opts.thumbnail_box_color) .. "&\\3c&H" .. osc_color_convert(user_opts.thumbnail_box_outline) .. "&}",
         time = "{\\bord1\\1c&H" .. osc_color_convert(user_opts.time_color) .. "&\\3c&H0&\\fs" .. user_opts.time_font_size .. "\\fn" .. ui_font.regular .. "}",
         cache = "{\\bord1\\1c&H" .. osc_color_convert(user_opts.cache_info_color) .. "&\\3c&H0&\\fs" .. user_opts.cache_info_font_size .. "\\fn" .. ui_font.regular .. "}",
@@ -2113,6 +2118,61 @@ local function request_init()
     request_tick()
 end
 
+local sample_video
+do
+    local module = assert(mp.find_config_file("script-modules/video-accent.lua"), "Missing script-modules/video-accent.lua")
+    local extract = dofile(module)
+    local generation = 0
+    local pending = false
+    local last_position
+    local last_sample_time = -math.huge
+    local warned = false
+
+    sample_video = function()
+        if not user_opts.seekbar_adaptive_color or pending or state.idle_active
+            or not (state.osc_visible or user_opts.persistent_progress or state.persistent_progress_toggle)
+            or not mp.get_property_native("vo-configured") then return end
+        if mp.get_time() - last_sample_time < 3 then return end
+        local position = mp.get_property_number("time-pos")
+        if position == nil or position == last_position then return end
+        pending = true
+        last_sample_time = mp.get_time()
+        local current_generation = generation
+        mp.command_native_async({"screenshot-raw", "video"}, function(success, frame, err)
+            if current_generation ~= generation then return end
+            pending = false
+            if not success then
+                if not warned then msg.warn("Cannot sample seekbar color: " .. tostring(err)) end
+                warned = true
+                return
+            end
+            last_position = position
+            local palette = extract(frame)
+            if not palette then return end
+            if video_palette and video_palette.seekbarfg_color == palette.seekbarfg_color then return end
+            video_palette = palette
+            set_osc_styles()
+            request_init()
+        end)
+    end
+
+    mp.add_periodic_timer(3, sample_video)
+    mp.register_event("playback-restart", sample_video)
+    local function reset_palette()
+        -- An asynchronous screenshot from the previous file must not recolor the new one.
+        generation = generation + 1
+        pending = false
+        last_position = nil
+        last_sample_time = -math.huge
+        warned = false
+        video_palette = nil
+        set_osc_styles()
+        request_init()
+    end
+    mp.register_event("start-file", reset_palette)
+    mp.register_event("end-file", reset_palette)
+end
+
 -- Like request_init(), but also request an immediate update
 local function request_init_resize()
     request_init()
@@ -2571,7 +2631,7 @@ local function draw_seekbar_nibbles(element, elem_ass)
         elem_ass:draw_stop()
         elem_ass:merge(element.style_ass)
         ass_append_alpha(elem_ass, element.layout.alpha, bg_alpha)
-        elem_ass:append("{\\blur0\\bord0\\1c&H" .. osc_color_convert(user_opts.seekbarbg_color) .. "&}")
+        elem_ass:append("{\\blur0\\bord0\\1c&H" .. osc_color_convert(seekbar_color("seekbarbg_color")) .. "&}")
         elem_ass:merge(element.static_ass)
         draw_gap_segments(elem_ass, element, 1.5, elem_geo.w, slider_lo, elem_geo, radius)
         return
@@ -4519,8 +4579,8 @@ layouts["default"] = function ()
     lo.geometry = {x = sx0 + seek_w / 2, y = seek_cy, an = 5, w = seek_w, h = seekbar_h}
     lo.layer = 49
     lo.style = osc_styles.seekbar_fg
-    lo.slider.handle_color = user_opts.seek_handle_color
-    lo.slider.handle_border = user_opts.seek_handle_border_color
+    lo.slider.handle_color = seekbar_color("seek_handle_color")
+    lo.slider.handle_border = seekbar_color("seek_handle_border_color")
     lo.slider.gap = (seekbar_h - seekbar_bg_h) / 2.0
     lo.slider.radius = user_opts.slider_rounded_corners and seekbar_height_style.radius or 0
     lo.slider.tooltip_an = 2
@@ -4623,7 +4683,7 @@ layouts["default"] = function ()
             lo = add_layout("volumebar")
             lo.geometry = {x = x, y = cy, an = 4, w = w, h = 12}
             lo.style = user_opts.volumebar_match_seek_color and osc_styles.seekbar_fg or osc_styles.volumebar_fg
-            lo.slider.handle_color = user_opts.volumebar_match_seek_color and user_opts.seekbarfg_color or user_opts.side_buttons_color
+            lo.slider.handle_color = user_opts.volumebar_match_seek_color and seekbar_color("seekbarfg_color") or user_opts.side_buttons_color
             lo.slider.gap = 4
             lo.slider.radius = 2
             lo.slider.tooltip_an = 2
@@ -4873,8 +4933,8 @@ layouts["classic"] = function ()
     lo.geometry = {x = refX, y = refY - user_opts.osc_height, an = 5, w = osc_geo.w - 30, h = seekbar_h}
     lo.layer = 49
     lo.style = osc_styles.seekbar_fg
-    lo.slider.handle_color = user_opts.seek_handle_color
-    lo.slider.handle_border = user_opts.seek_handle_border_color
+    lo.slider.handle_color = seekbar_color("seek_handle_color")
+    lo.slider.handle_border = seekbar_color("seek_handle_border_color")
     lo.slider.gap = (seekbar_h - seekbar_bg_h) / 2.0
     lo.slider.radius = user_opts.slider_rounded_corners and seekbar_height_style.radius or 0
     lo.slider.tooltip_an = 2
@@ -4975,7 +5035,7 @@ layouts["classic"] = function ()
         lo = add_layout("volumebar")
         lo.geometry = {x = start_x, y = refY - (user_opts.osc_height / 2), an = 4, w = 55, h = 10}
         lo.style = user_opts.volumebar_match_seek_color and osc_styles.seekbar_fg or osc_styles.volumebar_fg
-        lo.slider.handle_color = user_opts.volumebar_match_seek_color and user_opts.seekbarfg_color or user_opts.side_buttons_color
+        lo.slider.handle_color = user_opts.volumebar_match_seek_color and seekbar_color("seekbarfg_color") or user_opts.side_buttons_color
         lo.slider.gap = 3
         lo.slider.radius = user_opts.slider_rounded_corners and 2 or 0
         lo.slider.tooltip_an = 2
@@ -5151,8 +5211,8 @@ layouts["compact"] = function ()
     lo.geometry = {x = refX, y = refY - user_opts.osc_height, an = 5, w = osc_geo.w - 30, h = seekbar_h}
     lo.layer = 49
     lo.style = osc_styles.seekbar_fg
-    lo.slider.handle_color = user_opts.seek_handle_color
-    lo.slider.handle_border = user_opts.seek_handle_border_color
+    lo.slider.handle_color = seekbar_color("seek_handle_color")
+    lo.slider.handle_border = seekbar_color("seek_handle_border_color")
     lo.slider.gap = (seekbar_h - seekbar_bg_h) / 2.0
     lo.slider.radius = user_opts.slider_rounded_corners and seekbar_height_style.radius or 0
     lo.slider.tooltip_an = 2
@@ -5264,7 +5324,7 @@ layouts["compact"] = function ()
             lo = add_layout("volumebar")
             lo.geometry = {x = start_x, y = refY - (user_opts.osc_height / 2), an = 4, w = 55, h = 10}
             lo.style = user_opts.volumebar_match_seek_color and osc_styles.seekbar_fg or osc_styles.volumebar_fg
-            lo.slider.handle_color = user_opts.volumebar_match_seek_color and user_opts.seekbarfg_color or user_opts.side_buttons_color
+            lo.slider.handle_color = user_opts.volumebar_match_seek_color and seekbar_color("seekbarfg_color") or user_opts.side_buttons_color
             lo.slider.gap = 3
             lo.slider.radius = user_opts.slider_rounded_corners and 2 or 0
             lo.slider.tooltip_an = 2
@@ -5362,8 +5422,8 @@ layouts["mini"] = function ()
     lo.geometry = {x = refX, y = refY - first_row_y - second_row_y, an = 5, w = osc_geo.w - 30, h = seekbar_h}
     lo.layer = 49
     lo.style = osc_styles.seekbar_fg
-    lo.slider.handle_color = user_opts.seek_handle_color
-    lo.slider.handle_border = user_opts.seek_handle_border_color
+    lo.slider.handle_color = seekbar_color("seek_handle_color")
+    lo.slider.handle_border = seekbar_color("seek_handle_border_color")
     lo.slider.gap = (seekbar_h - seekbar_bg_h) / 2.0
     lo.slider.radius = user_opts.slider_rounded_corners and seekbar_height_style.radius or 0
     lo.slider.tooltip_an = 2
@@ -5441,7 +5501,7 @@ layouts["mini"] = function ()
             lo = add_layout("volumebar")
             lo.geometry = {x = start_x, y = refY - first_row_y, an = 4, w = 55, h = 10}
             lo.style = user_opts.volumebar_match_seek_color and osc_styles.seekbar_fg or osc_styles.volumebar_fg
-            lo.slider.handle_color = user_opts.volumebar_match_seek_color and user_opts.seekbarfg_color or user_opts.side_buttons_color
+            lo.slider.handle_color = user_opts.volumebar_match_seek_color and seekbar_color("seekbarfg_color") or user_opts.side_buttons_color
             lo.slider.gap = 3
             lo.slider.radius = user_opts.slider_rounded_corners and 2 or 0
             lo.slider.tooltip_an = 2
@@ -5539,8 +5599,8 @@ layouts["seekbar"] = function ()
     lo.geometry = {x = refX, y = refY - first_row_y, an = 5, w = osc_geo.w - 30, h = seekbar_h}
     lo.layer = 49
     lo.style = osc_styles.seekbar_fg
-    lo.slider.handle_color = user_opts.seek_handle_color
-    lo.slider.handle_border = user_opts.seek_handle_border_color
+    lo.slider.handle_color = seekbar_color("seek_handle_color")
+    lo.slider.handle_border = seekbar_color("seek_handle_border_color")
     lo.slider.gap = (seekbar_h - seekbar_bg_h) / 2.0
     lo.slider.radius = user_opts.slider_rounded_corners and seekbar_height_style.radius or 0
     lo.slider.tooltip_an = 2
@@ -5669,6 +5729,7 @@ end
 
 local function osc_visible(visible)
     set_bar_visible("osc_visible", visible)
+    if visible then sample_video() end
 end
 
 local function wc_visible(visible)
