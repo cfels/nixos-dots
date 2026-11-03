@@ -4,6 +4,8 @@ import QtQuick.Effects
 Item {
 	id: canvas
 
+	property bool suspended: false
+	property string outputName: "default"
 	property int duration: 450
 	property int corner: 0
 	property int activeSlot: 0
@@ -24,8 +26,8 @@ Item {
 			return
 		}
 		if (currentPath === path) {
-			error = ""
-			phase = "ready"
+			error = current.playbackError
+			phase = error.length > 0 ? "failed" : "ready"
 			return
 		}
 		error = ""
@@ -63,22 +65,32 @@ Item {
 	WallpaperMedia {
 		id: first
 		anchors.fill: parent
+		outputName: canvas.outputName
+		suspended: canvas.suspended
+		presentationActive: canvas.current === first && canvas.phase !== "loading"
 		visible: path.length > 0
 		onReadyChanged: canvas.beginReveal()
 		onFailed: message => {
 			if (canvas.incoming === first && canvas.busy)
 				canvas.fail(message)
+			else if (canvas.current === first)
+				canvas.error = message
 		}
 	}
 
 	WallpaperMedia {
 		id: second
 		anchors.fill: parent
+		outputName: canvas.outputName
+		suspended: canvas.suspended
+		presentationActive: canvas.current === second && canvas.phase !== "loading"
 		visible: path.length > 0
 		onReadyChanged: canvas.beginReveal()
 		onFailed: message => {
 			if (canvas.incoming === second && canvas.busy)
 				canvas.fail(message)
+			else if (canvas.current === second)
+				canvas.error = message
 		}
 	}
 

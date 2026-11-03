@@ -21,7 +21,7 @@ Scope {
 	}
 
 	function wallpaperIsVideo(path): bool {
-		return /\.(mp4|m4v|webm|mkv|mov|avi)$/i.test("" + path)
+		return /\.(mp4|m4v|webm|mkv|mov|avi|premiumwall\.json)$/i.test("" + path)
 	}
 
 	function wallpaperIsAnimated(path): bool {

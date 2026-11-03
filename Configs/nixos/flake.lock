@@ -486,11 +486,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1793578559,
-        "narHash": "sha256-05dRd7vfSlbFPovb2cM+kw1xORK4vIpzdgmI03qZKbo=",
+        "lastModified": 1793605555,
+        "narHash": "sha256-XNs7pmJdFdLcMeidrbleceG6sks8A1fDuDOQEbpUSx8=",
         "owner": "FlameFlag",
         "repo": "nixcord",
-        "rev": "324dd47a6c3280bb5d8be168bc817adb92bcdec3",
+        "rev": "ddb50a3aeda9ff2e5fbbbb140dda5bf1e216e764",
         "type": "github"
       },
       "original": {
@@ -644,11 +644,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1793341285,
-        "narHash": "sha256-Y1CiZ4SoBUjLQyQM/pY+rS2dXD3CHLPstF0lmOc73D4=",
+        "lastModified": 1793540411,
+        "narHash": "sha256-fiPJ88izTVucjeo2EQ3jk4aWmLg03I1D4vxnX2QjEgE=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "1c89083e451e891152365b799595cf7790a43325",
+        "rev": "0bb2eedc20e4739f29e8045034f2828ad7054f8f",
         "type": "github"
       },
       "original": {
@@ -881,11 +881,11 @@
         "twintail_x86_64": "twintail_x86_64"
       },
       "locked": {
-        "lastModified": 1793439061,
-        "narHash": "sha256-1vKsKsUA6jFk7AxEqE0fDdbz+sGo0GVC/hvhn5fTFhM=",
+        "lastModified": 1793616790,
+        "narHash": "sha256-3iQ5mLlLV9OxGcjfj10zm7jDqFoMXluYY/RCFgefSQg=",
         "owner": "madebycli",
         "repo": "twintail-nix",
-        "rev": "ac4616df6d1e17bd64f94a27f28dc38ccb2c092d",
+        "rev": "c1e0f066e6be5a0cedafb43f37a532f037572bd0",
         "type": "github"
       },
       "original": {

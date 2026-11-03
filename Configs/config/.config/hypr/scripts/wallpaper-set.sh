@@ -18,6 +18,11 @@ flock 9
 extension="${image##*.}"
 extension="${extension,,}"
 
+palette_source="$image"
+if [[ "$image" == *.premiumwall.json ]]; then
+	palette_source="$(python3 "$SCRIPT_DIR/premium-wallpaper.py" preview "$image")"
+fi
+
 is_video=0
 case "$extension" in
 mp4 | m4v | webm | mkv | mov | avi) is_video=1 ;;
@@ -70,7 +75,7 @@ if command -v matugen >/dev/null 2>&1; then
 	matugen_ok=0
 
 	if [ "$is_video" -eq 0 ]; then
-		matugen image "$image" --mode dark --prefer saturation >/dev/null 2>&1 && matugen_ok=1 || true
+		matugen image "$palette_source" --mode dark --prefer saturation >/dev/null 2>&1 && matugen_ok=1 || true
 	fi
 
 	if [ "$matugen_ok" -eq 0 ]; then

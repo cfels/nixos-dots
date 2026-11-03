@@ -52,7 +52,9 @@ class Renderer:
         )
 
     def ensure_running(self):
-        if self.ipc("ping").returncode == 0:
+        if (
+            result := self.ipc("ping")
+        ).returncode == 0 and result.stdout.strip() == "ready":
             return
         environment = renderer_environment()
         with (self.runtime / "renderer.log").open("w") as log:
@@ -67,7 +69,9 @@ class Renderer:
             )
         deadline = time.monotonic() + 5
         while time.monotonic() < deadline:
-            if self.ipc("ping").returncode == 0:
+            if (
+                result := self.ipc("ping")
+            ).returncode == 0 and result.stdout.strip() == "ready":
                 return
             if process.poll() is not None:
                 break
@@ -95,6 +99,10 @@ class Renderer:
                 raise RuntimeError(
                     result.stderr.strip() or "wallpaper renderer disconnected"
                 )
+            if not result.stdout.strip():
+                # Quickshell can briefly acknowledge IPC without a reply during reload.
+                time.sleep(0.02)
+                continue
             status = json.loads(result.stdout)
             if status["request"] != request:
                 raise RuntimeError("wallpaper request was replaced by another client")

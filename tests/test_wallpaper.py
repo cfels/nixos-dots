@@ -55,6 +55,10 @@ if name == 'qs':
     elif command[0] == 'set':
         state_path.write_text(json.dumps({'request': command[2], 'path': command[1], 'polls': 0}))
     elif command == ['status']:
+        empty = Path('/work/empty-status-once')
+        if empty.exists():
+            empty.unlink()
+            sys.exit(0)
         state = json.loads(state_path.read_text())
         state['polls'] += 1
         state_path.write_text(json.dumps(state))
@@ -127,6 +131,12 @@ done
         self.assertFalse(
             any(command[0] in ("pkill", "awww", "swww") for command in self.commands())
         )
+
+    def test_empty_status_during_reload_is_retried(self):
+        (self.desktop.work / "empty-status-once").touch()
+        result = self.run_switches("/work/still.png")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.current(), "/work/still.png")
 
     def test_missing_file_does_not_start_renderer(self):
         result = self.run_switches("/work/missing.png")

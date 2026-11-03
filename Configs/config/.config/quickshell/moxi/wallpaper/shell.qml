@@ -32,6 +32,7 @@ ShellRoot {
 		WallpaperOutput {
 			required property var modelData
 			screen: modelData
+			outputName: modelData.name
 			Component.onCompleted: {
 				if (root.targetPath.length > 0)
 					canvas.setWallpaper(root.targetPath, root.corner)
@@ -68,6 +69,8 @@ ShellRoot {
 				}
 				details.push({
 					path: canvas.currentPath,
+					playbackState: canvas.current.playbackState,
+					playbackError: canvas.current.playbackError,
 					phase: canvas.phase,
 					progress: canvas.progress,
 					outgoingPosition: canvas.current.position,

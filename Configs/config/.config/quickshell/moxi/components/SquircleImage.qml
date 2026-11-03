@@ -12,6 +12,7 @@ Item {
 	property int sourceHeight: 400
 	property bool animated: false
 	property bool playing: true
+	readonly property bool failed: root.animated ? animation.status === Image.Error : image.status === Image.Error
 	property bool ready: root.animated ? animation.status === AnimatedImage.Ready : image.status === Image.Ready
 
 	Image {

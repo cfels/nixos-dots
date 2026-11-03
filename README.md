@@ -51,3 +51,5 @@ for restoring ur old setup use `-h, --help` flag it'll tell u what to do
 |:---:|
 | ![Logout](./assets/logout.png) |
 
+
+Velina animated wallpaper: [PremiumWalls setup and controls](Configs/config/.config/quickshell/moxi/wallpaper/README.md).

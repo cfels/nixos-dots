@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Shapes
@@ -10,31 +11,38 @@ Item {
 	required property Theme theme
 	property string fontFamily: ""
 	readonly property bool hovered: gridHover.hovered
+	// Scene coordinates stay stable while the grid scrolls under the pointer.
+	readonly property point pointerScenePosition: gridHover.point.scenePosition
+	readonly property int tileInset: 6
 
-	function updateWallpaperHover(pos): void {
-		if (!wallpaperView.controller.expanded || wallpaperView.controller.wallpapers.length === 0)
-			return
-		var cw = grid.cellWidth
-		var ch = grid.cellHeight
+	onPointerScenePositionChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
 
-		if (cw <= 0 || ch <= 0)
-			return
-		var columns = Math.max(1, Math.floor(grid.width / cw))
-		var col = Math.floor((grid.contentX + pos.x) / cw)
-		var row = Math.floor((grid.contentY + pos.y) / ch)
-		var index = row * columns + col
-
-		if (col < 0 || col >= columns || index < 0 || index >= wallpaperView.controller.wallpapers.length) {
-			wallpaperView.controller.hoveredWallpaper = ""
-			return
+	Connections {
+		target: wallpaperView.controller
+		function onExpandedChanged(): void {
+			Qt.callLater(wallpaperView.updateWallpaperHover)
 		}
+		function onWallpapersChanged(): void {
+			Qt.callLater(wallpaperView.updateWallpaperHover)
+		}
+	}
 
-		var path = wallpaperView.controller.wallpapers[index]
-
-		if (wallpaperView.controller.hoveredWallpaper === path)
-			return
+	function updateWallpaperHover(): void {
+		let path = ""
+		if (wallpaperView.controller.expanded && gridHover.hovered) {
+			const pos = grid.mapFromItem(null, wallpaperView.pointerScenePosition.x, wallpaperView.pointerScenePosition.y)
+			const index = grid.indexAt(grid.contentX + pos.x, grid.contentY + pos.y)
+			const tile = grid.itemAtIndex(index)
+			if (index >= 0 && index < wallpaperView.controller.wallpapers.length && tile && pos.x >= 0 && pos.y >= 0 && pos.x < grid.width && pos.y < grid.height) {
+				const local = tile.mapFromItem(grid, pos.x, pos.y)
+				const inset = wallpaperView.tileInset
+				if (local.x >= inset && local.y >= inset && local.x < tile.width - inset && local.y < tile.height - inset)
+					path = wallpaperView.controller.wallpapers[index]
+			}
+		}
 		wallpaperView.controller.hoveredWallpaper = path
-		wallpaperView.controller.previewWallpaper = path
+		if (path.length > 0)
+			wallpaperView.controller.previewWallpaper = path
 	}
 
 	Text {
@@ -112,7 +120,8 @@ Item {
 			sourceWidth: 560
 			sourceHeight: 320
 
-			onSourceChanged: previewFrame.cross()
+			onSourceChanged: Qt.callLater(previewFrame.cross)
+			onAnimatedChanged: Qt.callLater(previewFrame.cross)
 			onReadyChanged: {
 				if (ready && previewFrame.waitingReady) {
 					previewFrame.waitingReady = false
@@ -154,7 +163,7 @@ Item {
 				property: "ghostProgress"
 				from: 1
 				to: 0
-				duration: 430
+				duration: 180
 				easing.type: Easing.OutCubic
 			}
 			NumberAnimation {
@@ -162,7 +171,7 @@ Item {
 				property: "scale"
 				from: 1.02
 				to: 1
-				duration: 430
+				duration: 180
 				easing.type: Easing.OutCubic
 			}
 		}
@@ -187,11 +196,15 @@ Item {
 
 		HoverHandler {
 			id: gridHover
-
-			onPointChanged: wallpaperView.updateWallpaperHover(gridHover.point.position)
-			onHoveredChanged: if (!hovered)
-				wallpaperView.controller.hoveredWallpaper = ""
+			parent: grid
+			onHoveredChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
 		}
+
+		onContentXChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
+		onContentYChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
+		onWidthChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
+		onHeightChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
+		onCountChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
 
 		function glideBy(delta): void {
 			var maximum = Math.max(0, contentHeight - height)
@@ -232,8 +245,8 @@ Item {
 				id: thumb
 
 				anchors.centerIn: parent
-				width: parent.width - 12
-				height: parent.height - 12
+				width: parent.width - wallpaperView.tileInset * 2
+				height: parent.height - wallpaperView.tileInset * 2
 				radius: 14
 				color: "transparent"
 				scale: wallpaperView.controller.hoveredWallpaper === modelData ? 1.06 : 1

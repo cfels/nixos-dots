@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Effects
 import "../components"
@@ -37,7 +38,11 @@ Item {
 		fillColor: "white"
 	}
 
-	readonly property bool ready: artworkIn.ready || artworkOut.ready
+	property int activeSlot: 0
+	readonly property SquircleImage currentImage: activeSlot === 0 ? artworkOut : artworkIn
+	readonly property SquircleImage nextImage: activeSlot === 0 ? artworkIn : artworkOut
+	readonly property bool ready: currentImage.ready || (artSwap.running && nextImage.ready)
+	property string shownKey: ""
 	property string shown: ""
 	property string incoming: ""
 	property string incomingKey: ""
@@ -53,89 +58,120 @@ Item {
 	}
 
 	function swap(dir): void {
-		var next = artwork.artSourceNow()
-
-		if (next.length === 0)
+		const next = artwork.artSourceNow()
+		if (next.length === 0 || (next === artwork.shown && !artwork.pending && !artSwap.running))
 			return
-		if (next === artwork.shown && !artwork.pending)
+		if (next === artwork.incoming && (artwork.pending || artSwap.running))
 			return
-		if (next === artwork.incoming)
-			return
-		if (artwork.pending || artSwap.running) {
+		if (artSwap.running) {
 			artSwap.stop()
-			artwork.pending = false
 			artwork.finish()
+		} else if (artwork.pending) {
+			artwork.cancelPending()
 		}
 
-		artwork.animateSwap = !artwork.controller.artUnchanged && artwork.incomingKey !== artwork.controller.artTrackKey
+		artwork.animateSwap = !artwork.controller.artUnchanged && artwork.shownKey !== artwork.controller.artTrackKey
 		artwork.incomingKey = artwork.controller.artTrackKey
 		artwork.swapDir = dir
 		artwork.incoming = next
 		artwork.pending = true
-		artReadyTimer.restart()
+		artwork.nextImage.x = 0
+		artwork.nextImage.opacity = 0
+		artwork.nextImage.source = next
 		artwork.maybeStart()
 	}
 
-	function maybeStart(force): void {
+	function maybeStart(): void {
 		if (!artwork.pending)
 			return
-		if (!force && artwork.incoming.length > 0 && !artworkIn.ready)
+		if (artwork.nextImage.failed) {
+			artwork.cancelPending()
 			return
-		artReadyTimer.stop()
+		}
+		if (!artwork.nextImage.ready)
+			return
 		artwork.pending = false
 		if (!artwork.animateSwap) {
 			artwork.finish()
 			return
 		}
-		artworkOut.source = artwork.shown
-		artworkOut.x = 0
-		artworkOut.opacity = artwork.shown.length > 0 ? 1 : 0
-		artworkIn.opacity = 1
-		artworkIn.x = 170 * artwork.swapDir
+		artwork.currentImage.x = 0
+		artwork.currentImage.opacity = 1
+		artwork.nextImage.x = artwork.width * artwork.swapDir
+		artwork.nextImage.opacity = 1
 		artSwap.restart()
 	}
 
 	function finish(): void {
-		artwork.shown = artwork.incoming
-		artworkOut.source = artwork.shown
-		artworkOut.x = 0
-		artworkOut.opacity = 1
-		artworkIn.x = 0
-		artworkIn.opacity = 1
+		if (!artwork.nextImage.ready)
+			return
+		const previous = artwork.currentImage
+		artwork.activeSlot = 1 - artwork.activeSlot
+		artwork.shown = artwork.currentImage.source
+		artwork.shownKey = artwork.incomingKey
+		artwork.currentImage.x = 0
+		artwork.currentImage.opacity = 1
+		// Reuse the decoded incoming image instead of reloading it into another item.
+		previous.source = ""
+		previous.x = 0
+		previous.opacity = 0
+	}
+
+	function cancelPending(): void {
+		if (artSwap.running) {
+			artSwap.stop()
+			artwork.finish()
+		}
+		artwork.pending = false
+		artwork.nextImage.source = ""
+		artwork.nextImage.opacity = 0
+		artwork.nextImage.x = 0
+		artwork.incoming = artwork.shown
+		artwork.incomingKey = artwork.shownKey
 	}
 
 	function reset(): void {
 		artSwap.stop()
-		artReadyTimer.stop()
+		playerLossTimer.stop()
 		artwork.pending = false
 		artwork.shown = ""
+		artwork.shownKey = ""
 		artwork.incoming = ""
 		artwork.incomingKey = ""
 		artworkOut.source = ""
+		artworkIn.source = ""
 		artworkOut.x = 0
-		artworkOut.opacity = 0
 		artworkIn.x = 0
+		artworkOut.opacity = 0
+		artworkIn.opacity = 0
 		artwork.controller.artSource = ""
 		artwork.controller.artSourceKey = ""
 		artwork.controller.artShownFile = ""
 	}
 
 	Timer {
-		id: artReadyTimer
-
-		interval: 800
-		onTriggered: artwork.maybeStart(true)
+		id: playerLossTimer
+		interval: 750
+		onTriggered: {
+			if (!artwork.controller.media.hasPlayer)
+				artwork.reset()
+		}
 	}
 
 	Connections {
 		target: artwork.controller
 
 		function onArtSourceChanged() {
+			if (artwork.controller.artSource.length === 0)
+				return
 			artwork.swap(artwork.transportDirection !== 0 ? artwork.transportDirection : 1)
 		}
 
 		function onArtFailed() {
-			artwork.reset()
+			if (artwork.ready)
+				artwork.cancelPending()
+			else
+				artwork.reset()
 		}
 	}
 
@@ -143,20 +179,38 @@ Item {
 		target: artwork.controller.media
 
 		function onHasPlayerChanged() {
-			if (artwork.controller.media.hasPlayer)
+			if (artwork.controller.media.hasPlayer) {
+				playerLossTimer.stop()
 				return
-			artwork.reset()
+			}
+			artwork.controller.artSource = ""
+			artwork.controller.artSourceKey = ""
+			// Browsers briefly drop their MPRIS metadata between recordings.
+			playerLossTimer.restart()
 		}
 	}
 
 	Connections {
 		target: artworkIn
-
 		function onReadyChanged() {
-			artwork.maybeStart()
+			Qt.callLater(artwork.maybeStart)
+		}
+		function onFailedChanged() {
+			Qt.callLater(artwork.maybeStart)
 		}
 	}
 
+	Connections {
+		target: artworkOut
+		function onReadyChanged() {
+			Qt.callLater(artwork.maybeStart)
+		}
+		function onFailedChanged() {
+			Qt.callLater(artwork.maybeStart)
+		}
+	}
+
+	// The outer mask clips the frame; covers meet at a straight sliding edge.
 	SquircleImage {
 		id: artworkOut
 
@@ -164,7 +218,7 @@ Item {
 		y: 0
 		width: parent.width
 		height: parent.height
-		radius: 26
+		radius: 0
 		power: 4
 		sourceWidth: 400
 		sourceHeight: 400
@@ -177,8 +231,7 @@ Item {
 		y: 0
 		width: parent.width
 		height: parent.height
-		source: artwork.incoming
-		radius: 26
+		radius: 0
 		power: 4
 		sourceWidth: 400
 		sourceHeight: 400
@@ -189,16 +242,16 @@ Item {
 
 		ParallelAnimation {
 			NumberAnimation {
-				target: artworkOut
+				target: artwork.currentImage
 				property: "x"
-				to: -170 * artwork.swapDir
+				to: -artwork.width * artwork.swapDir
 				duration: 360
 				easing.type: Easing.OutCubic
 			}
 			NumberAnimation {
-				target: artworkIn
+				target: artwork.nextImage
 				property: "x"
-				from: 170 * artwork.swapDir
+				from: artwork.width * artwork.swapDir
 				to: 0
 				duration: 360
 				easing.type: Easing.OutCubic

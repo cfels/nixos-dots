@@ -1,10 +1,12 @@
-from pathlib import Path
 import os
 import re
 import shutil
+import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 
-from support import IsolatedDesktop, REPO
+from support import REPO, IsolatedDesktop
 
 
 class QmlPanelTests(unittest.TestCase):
@@ -28,6 +30,38 @@ class QmlPanelTests(unittest.TestCase):
 
     def test_artwork_refresh_does_not_reanimate(self):
         self.run_scenario(REPO / "tests/qml/ArtworkScenario.qml")
+
+    @unittest.skipUnless(
+        shutil.which("Xvfb"), "Xvfb is required for artwork transition rendering"
+    )
+    def test_artwork_transitions_keep_previous_cover(self):
+        images = self.run_scenario(
+            REPO / "tests/qml/ArtworkTransitionScenario.qml", renderer="opengl"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "artwork.png"
+            image.write_bytes(images["panel-artwork-mid.png"])
+            raw = subprocess.check_output(
+                [
+                    "ffmpeg",
+                    "-v",
+                    "error",
+                    "-i",
+                    str(image),
+                    "-f",
+                    "rawvideo",
+                    "-pix_fmt",
+                    "rgb24",
+                    "-",
+                ]
+            )
+        for x, expected in ((20, (171, 52, 86)), (145, (86, 171, 52))):
+            offset = (83 * 166 + x) * 3
+            actual = raw[offset : offset + 3]
+            self.assertTrue(
+                all(abs(a - b) <= 5 for a, b in zip(actual, expected)),
+                (x, tuple(actual), expected),
+            )
 
     def test_browser_artwork_refresh_without_track_url(self):
         self.run_scenario(REPO / "tests/qml/BrowserArtworkScenario.qml", real_artwork=True)
@@ -80,7 +114,7 @@ class QmlPanelTests(unittest.TestCase):
         if player_view.exists():
             player_view.write_text(player_view.read_text().replace("id: playerView\n", "id: playerView\n\tproperty alias testTimeline: progressTrack\n\tproperty alias testLyricsView: lyricsView.testList\n\tproperty alias testArtworkView: artwork\n", 1).replace("id: progressTrack\n", "id: progressTrack\n\t\tproperty alias testSweep: progressFill.sweep\n", 1))
             artwork_view = target / "panel/ArtworkView.qml"
-            artwork_view.write_text(artwork_view.read_text().replace("id: artwork\n", "id: artwork\n\tproperty int testTransitions: 0\n", 1).replace("id: artSwap\n", "id: artSwap\n\t\tonStarted: artwork.testTransitions += 1\n", 1))
+            artwork_view.write_text(artwork_view.read_text().replace("id: artwork\n", "id: artwork\n\tproperty int testTransitions: 0\n\tproperty alias testSwap: artSwap\n\tproperty alias testFirst: artworkOut\n\tproperty alias testSecond: artworkIn\n", 1).replace("id: artSwap\n", "id: artSwap\n\t\tonStarted: artwork.testTransitions += 1\n", 1))
         else:
             text = text.replace("playerView.testTimeline", "progressTrack").replace("playerView.testLyricsView", "lyricsView")
         panel.write_text(text)
