@@ -11,12 +11,11 @@ it uses **Quickshell** + **Hyprland**, **Hyprlock** for it's main features and c
 
 ```
 nix-shell -p stow git wget aria2
+cd ~
+git clone https://github.com/cfels/nixos-dots.git --recurse-submodules
 cd ~/nixos-dots/
-git submodule update --init --recursive
 bash ./installer
 ```
-
-Wallpapers (including Velina's videos, original sound, posters, and particle texture) live in [dots-wallpapers](https://github.com/cfels/dots-wallpapers), checked out at `Configs/walls/walls`. The installer initializes this submodule too. After pulling dotfiles updates, run `git submodule update --init --recursive` to fetch the pinned assets. To update the assets independently, pull inside that submodule and commit its new revision in the dotfiles repo. `~/walls` keeps its existing Stow link.
 
 Secure boot for ppl with fresh install:
 
