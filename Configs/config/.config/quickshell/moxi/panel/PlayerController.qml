@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Services.Mpris
 import QtQuick
+import "../components"
 
 Scope {
 	id: media
@@ -79,6 +80,8 @@ Scope {
 
 	function pickPlayer(): var {
 		var list = Mpris.players.values
+		var preferred = Preferences.value("media.preferredPlayer", "")
+		if (preferred.length > 0) list = list.slice().sort((a, b) => (b && b.dbusName === preferred ? 1 : 0) - (a && a.dbusName === preferred ? 1 : 0))
 
 		for (var i = 0; i < list.length; ++i) {
 			var candidate = list[i]

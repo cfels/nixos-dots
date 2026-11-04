@@ -21,6 +21,7 @@ Item {
 		}
 	]
 	Behavior on progress {
+		enabled: !Preferences.reducedMotion
 		SpringAnimation {
 			spring: 2.8
 			damping: 0.3

@@ -2,6 +2,7 @@ import Quickshell
 import QtQuick
 import QtQuick.Layouts
 import "../components"
+import "../settings"
 
 PanelWindow {
 	id: panel
@@ -23,7 +24,7 @@ PanelWindow {
 
 	PlayerController {
 		id: playerController
-		expanded: panel.expanded
+		expanded: pager.desktopActive
 		dragging: playerView.dragging
 		lookupDuration: lyricsController.lookupDuration
 		onSeeked: {
@@ -59,7 +60,7 @@ PanelWindow {
 
 	WallpaperController {
 		id: wallpaperController
-		expanded: panel.expanded
+		expanded: (pager.desktopActive && Preferences.value("bar.wallpapers", true)) || (panel.expanded && pager.settingsOpen && pager.settingsItem && pager.settingsItem.category === "wallpaper")
 	}
 
 	Theme {
@@ -68,6 +69,10 @@ PanelWindow {
 
 	readonly property bool hovered: cardHover.hovered || playerView.hovered || wallpaperView.hovered
 	property bool expanded: false
+	property bool inputReady: true
+	property alias settingsVisible: pager.settingsOpen
+	property real settingsHeight: 600
+	readonly property real preferredHeight: settingsVisible ? settingsHeight : 420
 	property var surfaceHost: null
 	visible: surfaceHost === null
 
@@ -93,6 +98,8 @@ PanelWindow {
 			surfaceTimer.restart()
 		}
 	}
+
+	function showSettings(page: string): void { pager.showSettings(page) }
 
 	function setAnchor(width: real, height: real, y: real): void {
 		panel.anchorWidth = width
@@ -122,7 +129,10 @@ PanelWindow {
 	Timer {
 		id: surfaceTimer
 		interval: 210
-		onTriggered: panel.surfaceVisible = false
+		onTriggered: {
+			panel.surfaceVisible = false
+			pager.settingsOpen = false
+		}
 	}
 
 	anchors {
@@ -132,7 +142,7 @@ PanelWindow {
 	}
 
 	margins.top: 6
-	implicitHeight: 490
+	implicitHeight: preferredHeight + 70
 	exclusionMode: ExclusionMode.Ignore
 	color: "transparent"
 	mask: Region {
@@ -146,7 +156,7 @@ PanelWindow {
 		anchors.top: parent.top
 		y: panel.expanded ? 50 : panel.anchorY
 		width: panel.expanded ? 920 : panel.anchorWidth
-		height: panel.expanded ? 420 : panel.anchorHeight
+		height: panel.expanded ? panel.preferredHeight : panel.anchorHeight
 		opacity: panel.surfaceVisible ? 1 : 0
 
 		Behavior on opacity {
@@ -197,13 +207,27 @@ PanelWindow {
 				anchors.fill: parent
 				power: panel.cornerPower
 				radius: panel.cornerRadius
-				fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.7)
+				fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, Preferences.opacity(0.7))
 				strokeColor: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.24)
 				strokeWidth: 1
 			}
 
+			PanelPager {
+				id: pager
+				anchors.fill: parent
+				panelExpanded: panel.expanded
+				opacity: panel.contentVisible ? 1 : 0
+				settingsComponent: SettingsContent {
+					wallpaperLibrary: wallpaperController
+					active: panel.expanded && pager.settingsOpen
+					embedded: true
+					onCloseRequested: pager.navigate()
+				}
+			}
+
 			RowLayout {
 				id: layout
+				parent: pager.desktopHost
 
 				anchors.fill: parent
 				anchors.margins: 20
@@ -219,6 +243,7 @@ PanelWindow {
 
 				Calendar {
 					id: calendar
+					visible: Preferences.value("bar.calendar", true)
 
 					Layout.preferredWidth: panel.playerSideWidth
 					Layout.fillHeight: true
@@ -229,6 +254,7 @@ PanelWindow {
 				}
 
 				Rectangle {
+					visible: calendar.visible
 					Layout.fillHeight: true
 					width: 1
 					color: Qt.rgba(theme.foreground.r, theme.foreground.g, theme.foreground.b, 0.12)
@@ -236,6 +262,8 @@ PanelWindow {
 
 				PlayerView {
 					id: playerView
+					// The opening press must not activate a control as the island unfolds.
+					enabled: panel.expanded && panel.contentVisible && panel.inputReady && pager.desktopActive
 
 					Layout.preferredWidth: 340
 					Layout.minimumWidth: 340
@@ -251,6 +279,7 @@ PanelWindow {
 				}
 
 				Rectangle {
+					visible: wallpaperView.visible
 					Layout.fillHeight: true
 					width: 1
 					color: Qt.rgba(theme.foreground.r, theme.foreground.g, theme.foreground.b, 0.12)
@@ -258,6 +287,8 @@ PanelWindow {
 
 				WallpaperView {
 					id: wallpaperView
+					active: pager.desktopActive && Preferences.value("bar.wallpapers", true)
+					visible: Preferences.value("bar.wallpapers", true)
 
 					Layout.preferredWidth: panel.playerSideWidth
 					Layout.fillHeight: true

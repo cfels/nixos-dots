@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import glob
 import json
 import os
@@ -36,14 +37,14 @@ class Renderer:
         if executable is None:
             raise RuntimeError("Quickshell is required for wallpaper switching")
         self.config = (
-            Path(__file__).resolve().parents[2] / "quickshell/moxi/wallpaper/shell.qml"
+            Path(__file__).resolve().parents[2] / "quickshell/moxi/wallpaper.qml"
         )
         self.command = [executable, "-p", str(self.config)]
         self.runtime = runtime
 
     def ipc(self, *arguments):
         return subprocess.run(
-            [*self.command, "ipc", "call", "wallpaper", *arguments],
+            [*self.command, "ipc", "call", "--", "wallpaper", *arguments],
             stdin=subprocess.DEVNULL,
             capture_output=True,
             text=True,
@@ -57,7 +58,7 @@ class Renderer:
         ).returncode == 0 and result.stdout.strip() == "ready":
             return
         environment = renderer_environment()
-        with (self.runtime / "renderer.log").open("w") as log:
+        with (self.runtime / "renderer-start.log").open("w") as log:
             process = subprocess.Popen(
                 [*self.command, "--no-duplicate", "--no-color"],
                 stdin=subprocess.DEVNULL,
@@ -84,8 +85,42 @@ class Renderer:
                 process.kill()
                 process.wait()
         raise RuntimeError(
-            f"wallpaper renderer did not start; see {self.runtime}/renderer.log"
+            f"wallpaper renderer did not start; see {self.runtime}/renderer-start.log"
         )
+
+    def retire_legacy(self):
+        # Leave the old wallpaper visible until this renderer completes a handoff.
+        # Opening/audio reservations are session files, shared by both entry paths.
+        legacy = self.config.parent / "wallpaper/shell.qml"
+        result = subprocess.run(
+            [
+                self.command[0],
+                "-p",
+                str(legacy),
+                "ipc",
+                "call",
+                "--",
+                "wallpaper",
+                "ping",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=2,
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout.strip() == "ready":
+            stopped = subprocess.run(
+                [self.command[0], "-p", str(legacy), "kill"],
+                capture_output=True,
+                text=True,
+                timeout=3,
+                check=False,
+            )
+            if stopped.returncode:
+                raise RuntimeError(
+                    stopped.stderr.strip()
+                    or "Could not stop the legacy wallpaper renderer"
+                )
 
     def set_wallpaper(self, path):
         request = secrets.token_hex(8)
@@ -109,19 +144,39 @@ class Renderer:
             if status["state"] == "failed":
                 raise RuntimeError(status["error"])
             if status["state"] == "ready":
+                self.retire_legacy()
+                startup_log = self.runtime / "renderer-start.log"
+                if startup_log.exists():
+                    startup_log.replace(self.runtime / "renderer.log")
                 return
             time.sleep(0.02)
         raise TimeoutError("wallpaper transition did not finish")
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Control the independent wallpaper renderer"
+    )
+    parser.add_argument("path", nargs="?")
+    parser.add_argument("--status", action="store_true")
+    args = parser.parse_args()
     runtime = (
         Path(os.environ.get("XDG_RUNTIME_DIR", str(Path.home() / ".cache")))
         / "moxi-wallpaper"
     )
     renderer = Renderer(runtime)
+    if args.status:
+        result = renderer.ipc("status")
+        if result.returncode or not result.stdout.strip():
+            raise RuntimeError(
+                result.stderr.strip() or "Wallpaper renderer is not running"
+            )
+        print(json.dumps(json.loads(result.stdout)))
+        return
+    if args.path is None:
+        parser.error("choose a wallpaper or use --status")
     renderer.ensure_running()
-    renderer.set_wallpaper(sys.argv[1])
+    renderer.set_wallpaper(args.path)
 
 
 if __name__ == "__main__":

@@ -3,11 +3,11 @@
 ---------------------------------\
 
 -- programiczkus --------------
-local terminal = "kitty"
-local fileManager = "dolphin"
-local chatapp = "discord"
-local browser = "helium"
-local code = "codium"
+local terminal = [[python3 "$HOME/.config/hypr/scripts/moxi-settings.py" launch terminal]]
+local fileManager = [[python3 "$HOME/.config/hypr/scripts/moxi-settings.py" launch fileManager]]
+local chatapp = [[python3 "$HOME/.config/hypr/scripts/moxi-settings.py" launch chat]]
+local browser = [[python3 "$HOME/.config/hypr/scripts/moxi-settings.py" launch browser]]
+local code = [[python3 "$HOME/.config/hypr/scripts/moxi-settings.py" launch editor]]
 local screenlock = "$HOME/.config/hypr/scripts/lock-screen.sh"
 
 -- your "windows" key
@@ -115,6 +115,7 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true 
 ---------------------------------\
 
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("qs -c moxi ipc call launcher toggle"), { description = "Launcher" })
+hl.bind("SUPER + I", hl.dsp.exec_cmd("qs -c moxi ipc call -- settings show"), { description = "Settings" })
 hl.bind(
 	"SUPER + ALT + C",
 	hl.dsp.exec_cmd("qs -c moxi ipc call clipboard toggle"),

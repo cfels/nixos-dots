@@ -6,15 +6,17 @@ import sys
 import unittest
 from pathlib import Path
 
-from support import REPO, IsolatedDesktop
+from support import REPO, IsolatedDesktop, install_preferences, install_qml_preferences
 
 
 class WallpaperCommandTests(unittest.TestCase):
     def setUp(self):
         self.desktop = IsolatedDesktop()
+        install_qml_preferences(self.desktop.work)
         self.addCleanup(self.desktop.close)
         scripts = self.desktop.repo / "Configs/config/.config/hypr/scripts"
         scripts.mkdir(parents=True)
+        install_preferences(scripts)
         for name in ("wallpaper-set.sh", "wallpaper-render.py"):
             shutil.copy2(
                 REPO / "Configs/config/.config/hypr/scripts" / name, scripts / name
@@ -42,6 +44,15 @@ log(name, *args)
 ready = Path('/work/renderer-ready')
 state_path = Path('/work/renderer-state.json')
 if name == 'qs':
+    if len(args) > 1 and args[1].endswith('/wallpaper/shell.qml'):
+        legacy = Path('/work/legacy-renderer')
+        if not legacy.exists(): sys.exit(1)
+        if args[-1] == 'kill':
+            legacy.unlink()
+            log('legacy-stop')
+        else:
+            print('ready')
+        sys.exit(0)
     if 'ipc' not in args:
         assert '--no-duplicate' in args, args
         ready.touch()
@@ -100,6 +111,35 @@ done
     def current(self):
         return (self.desktop.home / ".cache/current-wallpaper").read_text().strip()
 
+    def test_cached_gallery_scan_skips_decoding_and_reuses_atomic_previews(self):
+        script = self.desktop.work / "wallpaper-list.sh"
+        shutil.copy2(REPO / "Configs/config/.config/hypr/scripts/wallpaper-list.sh", script)
+        library = self.desktop.work / "library"
+        library.mkdir()
+        (library / "video.mp4").write_text("mock video")
+        (library / "still.png").write_text("mock image")
+        (self.desktop.work / "list.sh").write_text('exec bash /work/wallpaper-list.sh /work/library "$@"\n')
+
+        cold = self.desktop.run("/work/list.sh", "--cached")
+        self.assertEqual(cold.returncode, 0, cold.stderr)
+        self.assertIn("/work/library/video.mp4\t\t\n", cold.stdout)
+        self.assertEqual(self.commands(), [])
+
+        generated = self.desktop.run("/work/list.sh")
+        self.assertEqual(generated.returncode, 0, generated.stderr)
+        video = next(line.split("\t") for line in generated.stdout.splitlines() if line.startswith("/work/library/video.mp4"))
+        self.assertTrue(video[1].endswith(".jpg"), video)
+        self.assertTrue(video[2].endswith(".gif"), video)
+        commands = self.commands()
+        self.assertEqual(len(commands), 2)
+        self.assertTrue(all(command[0] == "ffmpeg" and "/." in command[-1] for command in commands))
+        self.assertEqual(len(list((self.desktop.home / ".cache/moxi-wallpapers").iterdir())), 2)
+
+        warm = self.desktop.run("/work/list.sh", "--cached")
+        self.assertEqual(warm.returncode, 0, warm.stderr)
+        self.assertEqual(warm.stdout, generated.stdout)
+        self.assertEqual(self.commands(), commands)
+
     def test_one_renderer_handles_png_video_and_gif(self):
         result = self.run_switches(
             "/work/video.mp4", "/work/still.png", "/work/animated.gif"
@@ -138,6 +178,17 @@ done
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.current(), "/work/still.png")
 
+    def test_nested_entry_is_retired_after_successful_handoff(self):
+        (self.desktop.work / "legacy-renderer").touch()
+        result = self.run_switches("/work/video.mp4")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        commands = self.commands()
+        self.assertLess(
+            commands.index(["reveal-complete", "/work/video.mp4"]),
+            commands.index(["legacy-stop"]),
+        )
+        self.assertFalse((self.desktop.work / "legacy-renderer").exists())
+
     def test_missing_file_does_not_start_renderer(self):
         result = self.run_switches("/work/missing.png")
         self.assertNotEqual(result.returncode, 0)
@@ -165,8 +216,103 @@ done
     shutil.which("Xvfb"), "Xvfb is required for wallpaper shader checks"
 )
 class WallpaperRenderingTests(unittest.TestCase):
+    def test_production_renderer_accepts_picker_requests_and_reports_status(self):
+        desktop = IsolatedDesktop()
+        self.addCleanup(desktop.close)
+        shell = desktop.home / ".config/quickshell/moxi"
+        shutil.copytree(REPO / "Configs/config/.config/quickshell/moxi", shell)
+        scripts = desktop.home / ".config/hypr/scripts"
+        install_preferences(scripts)
+        for name in ("wallpaper-set.sh", "wallpaper-render.py"):
+            shutil.copy2(
+                REPO / "Configs/config/.config/hypr/scripts" / name, scripts / name
+            )
+        # Replace only layer-shell placement; exercise the production root, IPC,
+        # preference imports, canvas and picker command with a private display.
+        output = shell / "wallpaper/WallpaperOutput.qml"
+        text = output.read_text().replace("PanelWindow {", "FloatingWindow {", 1)
+        start = text.index("\tanchors {\n")
+        end = text.index("\n\tWallpaperCanvas {", start)
+        text = (
+            text[:start]
+            + "\timplicitWidth: 320\n\timplicitHeight: 180\n\tvisible: true\n"
+            + text[end:]
+        )
+        output.write_text(text)
+        for color in ("red", "blue"):
+            subprocess.run(
+                [
+                    "ffmpeg",
+                    "-v",
+                    "error",
+                    "-f",
+                    "lavfi",
+                    "-i",
+                    f"color={color}:s=320x180",
+                    "-frames:v",
+                    "1",
+                    "-threads",
+                    "1",
+                    str(desktop.work / (color + ".png")),
+                ],
+                check=True,
+                capture_output=True,
+            )
+        (desktop.work / "run-renderer.sh").write_text("""#!/usr/bin/env bash
+set -euo pipefail
+mkdir -p /tmp/runtime
+chmod 700 /tmp/runtime
+Xvfb :99 -screen 0 640x480x24 -nolisten tcp >/work/xvfb.log 2>&1 &
+server=$!
+trap 'python3 "$HOME/.config/hypr/scripts/wallpaper-render.py" --status > /work/final-status.json || true; cp /tmp/runtime/moxi-wallpaper/renderer.log /work/renderer.log 2>/dev/null || true; kill "$server"; wait "$server" || true' EXIT
+for attempt in {1..100}; do
+    [[ -S /tmp/.X11-unix/X99 ]] && break
+    sleep 0.02
+done
+if python3 "$HOME/.config/hypr/scripts/wallpaper-render.py" --status; then
+    exit 1
+fi
+bash "$HOME/.config/hypr/scripts/wallpaper-set.sh" /work/red.png --restore
+bash "$HOME/.config/hypr/scripts/wallpaper-set.sh" /work/blue.png --restore
+python3 "$HOME/.config/hypr/scripts/wallpaper-render.py" --status > /work/status.json
+""")
+        result = desktop.run(
+            "/work/run-renderer.sh",
+            QT_QPA_PLATFORM="xcb",
+            QT_QUICK_BACKEND="",
+            DISPLAY=":99",
+            XDG_RUNTIME_DIR="/tmp/runtime",
+            QSG_RHI_BACKEND="opengl",
+            LIBGL_ALWAYS_SOFTWARE="1",
+            QML_IMPORT_PATH="/run/current-system/sw/lib/qt-6/qml",
+            LIBGL_DRIVERS_PATH=str(Path("/run/opengl-driver/lib/dri").resolve()),
+            LD_LIBRARY_PATH=str(Path("/run/opengl-driver/lib").resolve()),
+            DBUS_SESSION_BUS_ADDRESS="unix:path=/tmp/no-bus",
+        )
+        log = desktop.work / "renderer.log"
+        diagnostic = (
+            (desktop.work / "final-status.json").read_text()
+            if (desktop.work / "final-status.json").exists()
+            else ""
+        )
+        self.assertEqual(
+            result.returncode,
+            0,
+            result.stdout
+            + result.stderr
+            + diagnostic
+            + (log.read_text() if log.exists() else ""),
+        )
+        state = json.loads((desktop.work / "status.json").read_text())
+        self.assertEqual(state["state"], "ready", state)
+        self.assertTrue(
+            all(item["path"] == "/work/blue.png" for item in state["outputs"]), state
+        )
+        self.assertNotIn("ReferenceError", log.read_text())
+
     def test_grow_geometry_and_live_media_lifetimes(self):
         desktop = IsolatedDesktop()
+        install_qml_preferences(desktop.work)
         self.addCleanup(desktop.close)
         source = REPO / "Configs/config/.config/quickshell/moxi/wallpaper"
         shutil.copytree(source, desktop.work / "wallpaper")

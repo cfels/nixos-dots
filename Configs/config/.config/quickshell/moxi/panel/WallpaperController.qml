@@ -1,12 +1,31 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "../components"
 import Qt.labs.folderlistmodel
 
 Scope {
 	id: wallpapers
 
 	property bool expanded: false
+	property bool initialized: false
+	property string error: ""
+	readonly property string libraryDirectory: Preferences.value("wallpaper.libraryDirectory", "~/walls").replace(/^~(?=\/)/, Quickshell.env("HOME"))
+	onLibraryDirectoryChanged: if (initialized)
+		refreshDebounce.restart()
+	Component.onCompleted: {
+		initialized = true
+		startScan(true)
+	}
+	function startScan(cachedOnly): void {
+		if (scan.running) {
+			scan.pending = true
+			return
+		}
+		scan.directory = libraryDirectory
+		scan.cachedOnly = cachedOnly
+		scan.running = true
+	}
 
 	property var wallpapers: []
 	property var wallThumbs: ({})
@@ -16,7 +35,7 @@ Scope {
 	property string hoveredWallpaper: ""
 
 	onExpandedChanged: {
-		if (wallpapers.expanded)
+		if (wallpapers.expanded && initialized)
 			refreshDebounce.restart()
 	}
 
@@ -67,7 +86,7 @@ Scope {
 	}
 
 	FolderListModel {
-		folder: "file://" + Quickshell.env("HOME") + "/walls"
+		folder: "file://" + wallpapers.libraryDirectory
 		showDirs: false
 		showHidden: true
 
@@ -83,10 +102,10 @@ Scope {
 		property var previews: ({})
 		property string signature: ""
 		property bool pending: false
+		property bool cachedOnly: true
+		property string directory: ""
 
-		command: ["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/wallpaper-list.sh"]
-
-		running: true
+		command: ["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/wallpaper-list.sh", directory].concat(cachedOnly ? ["--cached"] : [])
 
 		stdout: SplitParser {
 			onRead: line => {
@@ -101,15 +120,28 @@ Scope {
 					scan.thumbs[path] = fields[1]
 				if (fields[2] && fields[2].length > 0)
 					scan.previews[path] = fields[2]
+				if (!scan.cachedOnly && scan.directory === wallpapers.libraryDirectory) {
+					if (fields[1] && wallpapers.wallThumbs[path] !== fields[1]) {
+						const thumbs = Object.assign({}, wallpapers.wallThumbs)
+						thumbs[path] = fields[1]
+						wallpapers.wallThumbs = thumbs
+					}
+					if (fields[2] && wallpapers.wallPreviews[path] !== fields[2]) {
+						const previews = Object.assign({}, wallpapers.wallPreviews)
+						previews[path] = fields[2]
+						wallpapers.wallPreviews = previews
+					}
+				}
 			}
 		}
 
 		onExited: {
 			var signature = scan.found.join("\n") + "|" + JSON.stringify(scan.thumbs) + "|" + JSON.stringify(scan.previews)
 
-			if (signature !== scan.signature) {
+			if (scan.directory === wallpapers.libraryDirectory && signature !== scan.signature) {
 				scan.signature = signature
-				wallpapers.wallpapers = scan.found
+				if (JSON.stringify(wallpapers.wallpapers) !== JSON.stringify(scan.found))
+					wallpapers.wallpapers = scan.found
 				wallpapers.wallThumbs = scan.thumbs
 				wallpapers.wallPreviews = scan.previews
 			}
@@ -123,10 +155,12 @@ Scope {
 			if (wallpapers.wallpapers.indexOf(wallpapers.hoveredWallpaper) === -1)
 				wallpapers.hoveredWallpaper = ""
 
-			if (scan.pending) {
-				scan.pending = false
-				refreshDebounce.restart()
-			}
+			const refresh = scan.pending || scan.directory !== wallpapers.libraryDirectory
+			scan.pending = false
+			if (refresh || scan.cachedOnly)
+				Qt.callLater(function () {
+					wallpapers.startScan(refresh)
+				})
 		}
 	}
 
@@ -164,8 +198,12 @@ Scope {
 		property string pendingTarget: ""
 
 		command: [Quickshell.env("HOME") + "/.config/hypr/scripts/wallpaper-set.sh", setter.target]
+		stderr: StdioCollector {
+			id: switchError
+		}
 
-		onExited: {
+		onExited: (code, status) => {
+			wallpapers.error = code === 0 ? "" : switchError.text.trim() || "Wallpaper selection failed"
 			if (setter.pendingTarget.length > 0) {
 				setter.target = setter.pendingTarget
 				setter.pendingTarget = ""
@@ -182,7 +220,7 @@ Scope {
 			if (scan.running)
 				scan.pending = true
 			else
-				scan.running = true
+				wallpapers.startScan(true)
 		}
 	}
 }

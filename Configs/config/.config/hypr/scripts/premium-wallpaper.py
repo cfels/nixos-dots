@@ -8,6 +8,8 @@ import os
 import sys
 from pathlib import Path
 
+from moxi_settings import premium_overrides
+
 
 def describe(path):
     path = Path(path).resolve(strict=True)
@@ -18,7 +20,7 @@ def describe(path):
         or data.get("type") != "velina"
     ):
         raise ValueError("expected a version 1 Velina PremiumWalls manifest")
-    result = {"id": "velina", "name": "Velina"}
+    result = {"id": "velina", "name": "Velina", "manifestPath": str(path)}
     for key in ("opening", "showcase", "poster", "openingPoster", "leafTexture"):
         value = data.get(key)
         if not isinstance(value, str) or not value or "\n" in value or "\t" in value:
@@ -41,6 +43,19 @@ def describe(path):
     if fit not in ("cover", "contain"):
         raise ValueError("fit must be cover or contain")
     result["fit"] = fit
+    result["defaults"] = {
+        key: result[key]
+        for key in (
+            "openingEnabled",
+            "startupAudio",
+            "loop",
+            "pauseWhenFullscreen",
+            "effectsQuality",
+            "fit",
+        )
+    }
+    for key, value in premium_overrides(path).items():
+        result[key.removeprefix("premium.")] = value
     return result
 
 

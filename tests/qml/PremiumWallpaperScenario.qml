@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Window
 import Quickshell.Io
 import "wallpaper"
+import "components"
 
 ShellRoot {
 	id: scenario
@@ -15,6 +16,16 @@ ShellRoot {
 	property bool waitedForAudio: false
 	property int waitingSamples: 0
 	property int captures: 0
+	property bool openingPreferenceApplied: false
+
+	Connections {
+		target: loader.item ? loader.item.current.premiumPlayer : null
+		function onConfigChanged(): void {
+			const subject = loader.item.current.premiumPlayer
+			if (subject && subject.playbackState === "OPENING" && subject.config.effectsQuality === "low")
+				scenario.openingPreferenceApplied = true
+		}
+	}
 
 	function check(condition, message): void {
 		if (!condition)
@@ -77,11 +88,14 @@ ShellRoot {
 					scenario.check(subject.useOpening && subject.startupSound, "first load reserves opening and audio")
 					scenario.check(subject.openingVideo.player.hasAudio, "opening retains its audio stream")
 					scenario.check(!subject.openingVideo.player.audioOutput.muted, "opening audio output is unmuted")
+					Preferences.set("premium.effectsQuality", "low", "/work/Velina.premiumwall.json")
 					scenario.step = 1
 				} else if (scenario.step === 1) {
 					if (subject.playbackState !== "SHOWCASE_LOOP")
 						return
 					scenario.check(subject.showcaseDisplayed && subject.openingRetired && subject.openingVideo === null, "handoff displays prepared showcase and releases opening decoder")
+					scenario.check(scenario.openingPreferenceApplied, "user preferences applied during opening without replacing the player")
+					Preferences.reset("premium.effectsQuality", "/work/Velina.premiumwall.json")
 					scenario.previousPosition = subject.position
 					scenario.step = 2
 				} else if (scenario.step === 2) {

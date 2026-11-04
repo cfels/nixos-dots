@@ -5,7 +5,7 @@ import subprocess
 import sys
 import unittest
 
-from support import IsolatedDesktop, REPO
+from support import IsolatedDesktop, REPO, install_preferences
 
 
 FETCH = "/work/repo/Configs/config/.config/hypr/scripts/artwork-fetch.sh"
@@ -18,6 +18,7 @@ class ArtworkFetchTests(unittest.TestCase):
         self.addCleanup(self.desktop.close)
         scripts = self.desktop.repo / "Configs/config/.config/hypr/scripts"
         scripts.mkdir(parents=True)
+        install_preferences(scripts)
         for name in ("artwork-fetch.sh", "media-match.jq", "media-cache.py"):
             shutil.copy2(REPO / "Configs/config/.config/hypr/scripts" / name, scripts / name)
         for color in ("red", "blue"):

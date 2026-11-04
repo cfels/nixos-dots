@@ -9,6 +9,24 @@ import tempfile
 REPO = Path(__file__).resolve().parents[1]
 
 
+def install_preferences(scripts):
+    """Deploy the shared settings dependency alongside a test's real helpers."""
+    scripts.mkdir(parents=True, exist_ok=True)
+    for name in ("moxi_settings.py", "moxi-settings.py"):
+        shutil.copy2(REPO / "Configs/config/.config/hypr/scripts" / name, scripts / name)
+    shell = scripts.parents[1] / "quickshell/moxi"
+    if not shell.is_symlink():
+        (shell / "settings").mkdir(parents=True, exist_ok=True)
+        shutil.copy2(REPO / "Configs/config/.config/quickshell/moxi/settings/schema.json", shell / "settings/schema.json")
+
+
+def install_qml_preferences(root):
+    """Wallpaper-only scenarios now share preferences with the main shell."""
+    shutil.copytree(REPO / "Configs/config/.config/quickshell/moxi/components", root / "components", dirs_exist_ok=True)
+    (root / "settings").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(REPO / "Configs/config/.config/quickshell/moxi/settings/schema.json", root / "settings/schema.json")
+
+
 class IsolatedDesktop:
     def __init__(self):
         self.temporary = tempfile.TemporaryDirectory(prefix="dots-tests-")

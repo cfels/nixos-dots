@@ -1,5 +1,7 @@
 pragma ComponentBehavior: Bound
+import Quickshell
 import QtQuick
+import QtQuick.Window
 import QtQuick.Effects
 import QtQuick.Shapes
 import "../components"
@@ -10,12 +12,24 @@ Item {
 	required property WallpaperController controller
 	required property Theme theme
 	property string fontFamily: ""
+	property bool expandedGallery: false
+	property bool active: controller.expanded
+	property int columns: 2
+	property real previewHeight: 140
 	readonly property bool hovered: gridHover.hovered
 	// Scene coordinates stay stable while the grid scrolls under the pointer.
 	readonly property point pointerScenePosition: gridHover.point.scenePosition
-	readonly property int tileInset: 6
+	readonly property int tileInset: expandedGallery ? 12 : 6
+	implicitHeight: expandedGallery ? grid.y + grid.height + 8 + (hint.visible ? hint.implicitHeight : 0) : 0
+
+	TransformWatcher {
+		a: wallpaperView.expandedGallery && wallpaperView.Window.window ? wallpaperView.Window.window.contentItem : null
+		b: wallpaperView.expandedGallery ? grid : null
+		onTransformChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
+	}
 
 	onPointerScenePositionChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
+	onActiveChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
 
 	Connections {
 		target: wallpaperView.controller
@@ -29,7 +43,7 @@ Item {
 
 	function updateWallpaperHover(): void {
 		let path = ""
-		if (wallpaperView.controller.expanded && gridHover.hovered) {
+		if (wallpaperView.active && gridHover.hovered) {
 			const pos = grid.mapFromItem(null, wallpaperView.pointerScenePosition.x, wallpaperView.pointerScenePosition.y)
 			const index = grid.indexAt(grid.contentX + pos.x, grid.contentY + pos.y)
 			const tile = grid.itemAtIndex(index)
@@ -62,7 +76,7 @@ Item {
 		anchors.topMargin: 10
 		anchors.left: parent.left
 		anchors.right: parent.right
-		height: 140
+		height: wallpaperView.previewHeight
 		color: "transparent"
 		clip: true
 
@@ -114,11 +128,11 @@ Item {
 			anchors.fill: parent
 			source: wallpaperView.controller.wallpaperSource(wallpaperView.controller.previewWallpaper).length > 0 ? "file://" + wallpaperView.controller.wallpaperSource(wallpaperView.controller.previewWallpaper) : ""
 			animated: wallpaperView.controller.wallpaperSourceAnimated(wallpaperView.controller.previewWallpaper)
-			playing: wallpaperView.controller.expanded
+			playing: wallpaperView.active
 			radius: 30
 			power: 4
-			sourceWidth: 560
-			sourceHeight: 320
+			sourceWidth: wallpaperView.expandedGallery ? Math.ceil(previewFrame.width) : 560
+			sourceHeight: wallpaperView.expandedGallery ? Math.ceil(previewFrame.height) : 320
 
 			onSourceChanged: Qt.callLater(previewFrame.cross)
 			onAnimatedChanged: Qt.callLater(previewFrame.cross)
@@ -142,11 +156,11 @@ Item {
 			animated: previewFrame.previousAnimated
 			radius: 30
 			power: 4
-			sourceWidth: 560
-			sourceHeight: 320
+			sourceWidth: wallpaperView.expandedGallery ? Math.ceil(previewFrame.width) : 560
+			sourceHeight: wallpaperView.expandedGallery ? Math.ceil(previewFrame.height) : 320
 			opacity: previewFrame.ghostProgress
 			visible: previewFrame.ghostProgress > 0.001
-			playing: visible && wallpaperView.controller.expanded
+			playing: visible && wallpaperView.active
 			layer.enabled: visible
 			layer.effect: MultiEffect {
 				blurEnabled: true
@@ -184,11 +198,11 @@ Item {
 		anchors.topMargin: 12
 		anchors.left: parent.left
 		anchors.right: parent.right
-		anchors.bottom: hint.top
-		anchors.bottomMargin: 8
-		clip: true
-		cellWidth: Math.max(1, Math.floor(width / 2))
-		cellHeight: Math.max(1, Math.floor(height / 2))
+		height: wallpaperView.expandedGallery ? Math.ceil(count / wallpaperView.columns) * cellHeight : Math.max(0, hint.y - 8 - y)
+		clip: !wallpaperView.expandedGallery
+		interactive: !wallpaperView.expandedGallery
+		cellWidth: Math.max(1, Math.floor(width / wallpaperView.columns))
+		cellHeight: wallpaperView.expandedGallery ? Math.max(1, Math.round((cellWidth - wallpaperView.tileInset * 2) * 9 / 16) + wallpaperView.tileInset * 2) : Math.max(1, Math.floor(height / 2))
 		boundsBehavior: Flickable.StopAtBounds
 		flickDeceleration: 1400
 		maximumFlickVelocity: 2600
@@ -224,6 +238,7 @@ Item {
 		}
 
 		WheelHandler {
+			enabled: !wallpaperView.expandedGallery
 			onWheel: wheel => {
 				var step = wheel.pixelDelta.y !== 0 ? wheel.pixelDelta.y * 2 : wheel.angleDelta.y / 120 * grid.cellHeight
 
@@ -261,11 +276,14 @@ Item {
 
 				SquircleImage {
 					anchors.fill: parent
-					source: "file://" + (wallpaperView.controller.wallpaperIsVideo(modelData) ? wallpaperView.controller.wallpaperThumb(modelData) : modelData)
+					source: {
+						const path = wallpaperView.controller.wallpaperIsVideo(modelData) ? wallpaperView.controller.wallpaperThumb(modelData) : modelData
+						return path.length > 0 ? "file://" + path : ""
+					}
 					radius: 13
 					power: 4
-					sourceWidth: 168
-					sourceHeight: 120
+					sourceWidth: wallpaperView.expandedGallery ? Math.ceil(thumb.width) : 168
+					sourceHeight: wallpaperView.expandedGallery ? Math.ceil(thumb.height) : 120
 				}
 
 				Rectangle {
@@ -353,6 +371,7 @@ Item {
 				}
 
 				WheelHandler {
+					enabled: !wallpaperView.expandedGallery
 					onWheel: wheel => wheel.accepted = false
 				}
 			}

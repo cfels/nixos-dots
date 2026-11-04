@@ -42,6 +42,7 @@ globalThis.panel = {
   applyPlainLyrics() { this.appliedPlain = true; }
 };
 globalThis.lyricsState = panel;
+globalThis.Preferences = { value(key, fallback) { return fallback; } };
 panel.media = panel;
 globalThis.lyricsFetch = { running: false };
 globalThis.lyricsRetry = { running: false, restarts: 0, stop() { this.running = false; }, restart() { this.running = true; this.restarts++; } };

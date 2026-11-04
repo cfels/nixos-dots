@@ -14,7 +14,8 @@ PanelWindow {
 	}
 
 	property var items: []
-	property bool muted: false
+	readonly property bool muted: Preferences.value("notifications.dnd", false)
+	onMutedChanged: if (muted) root.items = []
 
 	readonly property color accent: theme.accent
 	readonly property color foreground: theme.foreground
@@ -55,7 +56,7 @@ PanelWindow {
 
 		var next = [notification]
 
-		for (var i = 0; i < root.items.length && i < 3; ++i) next.push(root.items[i])
+		for (var i = 0; i < root.items.length && i < Preferences.value("notifications.maximum", 4) - 1; ++i) next.push(root.items[i])
 
 		root.items = next
 	}
@@ -71,18 +72,13 @@ PanelWindow {
 	}
 
 	function setMuted(value): void {
-		root.muted = value
-
-		if (value) root.items = []
-
-		stateWrite.command = ["bash", "-c", value ? "mkdir -p \"$HOME/.cache\" && touch \"$HOME/.cache/moxi-dnd\"" : "rm -f \"$HOME/.cache/moxi-dnd\""]
-		stateWrite.running = true
+		Preferences.set("notifications.dnd", value)
 	}
 
 	function expireMs(notification): int {
 		if (!notification) return 0
 
-		return 5000
+		return Preferences.value("notifications.duration", 5) * 1000
 	}
 
 	function defaultAction(notification): var {
@@ -163,20 +159,6 @@ PanelWindow {
 		onNotification: (notification) => root.push(notification)
 	}
 
-	Process {
-		id: stateRead
-
-		command: ["bash", "-c", "test -f \"$HOME/.cache/moxi-dnd\" && echo on || echo off"]
-		running: true
-
-		stdout: SplitParser {
-			onRead: (line) => root.muted = line === "on"
-		}
-	}
-
-	Process {
-		id: stateWrite
-	}
 
 	Process {
 		id: focusProcess
@@ -294,7 +276,9 @@ PanelWindow {
 				Timer {
 					id: expiry
 
-					interval: root.expireMs(card.modelData)
+					property int lifetime: 0
+					Component.onCompleted: lifetime = root.expireMs(card.modelData)
+					interval: lifetime
 					running: interval > 0 && !card.closing
 					onTriggered: card.modelData.expire()
 				}
@@ -315,7 +299,7 @@ PanelWindow {
 						anchors.fill: parent
 						power: 3
 						radius: 22
-						fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.8)
+						fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, Preferences.opacity(0.8))
 						strokeColor: Qt.rgba(theme.foreground.r, theme.foreground.g, theme.foreground.b, card.hovered ? 0.16 : 0.08)
 						strokeWidth: 1
 					}

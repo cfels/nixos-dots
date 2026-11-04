@@ -6,7 +6,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from support import REPO, IsolatedDesktop
+from support import REPO, IsolatedDesktop, install_preferences, install_qml_preferences
 
 
 def environment():
@@ -30,6 +30,7 @@ def environment():
 
 def run(report, measure_only):
     desktop = IsolatedDesktop()
+    install_qml_preferences(desktop.work)
     try:
         shutil.copytree(
             REPO / "Configs/config/.config/quickshell/moxi/wallpaper",
@@ -37,6 +38,7 @@ def run(report, measure_only):
         )
         helper = desktop.home / ".config/hypr/scripts/premium-wallpaper.py"
         helper.parent.mkdir(parents=True)
+        install_preferences(helper.parent)
         shutil.copy2(
             REPO / "Configs/config/.config/hypr/scripts/premium-wallpaper.py", helper
         )

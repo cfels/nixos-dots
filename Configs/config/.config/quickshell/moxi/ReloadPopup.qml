@@ -80,7 +80,7 @@ Scope {
 						anchors.fill: parent
 						radius: 18
 						power: 4
-						fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.7)
+						fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, Preferences.opacity(0.7))
 						strokeColor: root.failed
 							? Qt.rgba(theme.danger.r, theme.danger.g, theme.danger.b, 0.24)
 							: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.24)

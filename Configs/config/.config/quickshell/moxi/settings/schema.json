@@ -1,0 +1,578 @@
+{
+  "version": 1,
+  "settings": [
+    {
+      "key": "appearance.followWallpaper",
+      "label": "Follow wallpaper colors",
+      "default": true,
+      "kind": "toggle",
+      "description": "Generate the desktop palette with Matugen after selecting a wallpaper.",
+      "category": "appearance"
+    },
+    {
+      "key": "appearance.shellOpacity",
+      "label": "Surface opacity",
+      "default": 1.0,
+      "kind": "slider",
+      "description": "Scale the existing bar, panel, tray and notification opacity. 1 keeps the original surfaces.",
+      "category": "appearance",
+      "min": 0.3,
+      "max": 1.3,
+      "step": 0.05,
+      "integer": false
+    },
+    {
+      "key": "appearance.gapsIn",
+      "label": "Inner window gaps",
+      "default": 4,
+      "kind": "slider",
+      "description": "",
+      "category": "appearance",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "integer": true,
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.gapsOut",
+      "label": "Outer window gaps",
+      "default": 6,
+      "kind": "slider",
+      "description": "",
+      "category": "appearance",
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "integer": true,
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.borderSize",
+      "label": "Window border",
+      "default": 2,
+      "kind": "slider",
+      "description": "",
+      "category": "appearance",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "integer": true,
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.rounding",
+      "label": "Window rounding",
+      "default": 16,
+      "kind": "slider",
+      "description": "",
+      "category": "appearance",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "integer": true,
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.activeOpacity",
+      "label": "Active window opacity",
+      "default": 1.0,
+      "kind": "slider",
+      "description": "",
+      "category": "appearance",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.05,
+      "integer": false,
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.inactiveOpacity",
+      "label": "Inactive window opacity",
+      "default": 1.0,
+      "kind": "slider",
+      "description": "",
+      "category": "appearance",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.05,
+      "integer": false,
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.dimStrength",
+      "label": "Inactive dim strength",
+      "default": 0.15,
+      "kind": "slider",
+      "description": "",
+      "category": "appearance",
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.05,
+      "integer": false,
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.dimInactive",
+      "label": "Dim inactive windows",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "appearance",
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.blur",
+      "label": "Background blur",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "appearance",
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.shadows",
+      "label": "Window shadows",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "appearance",
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.motionBlur",
+      "label": "Motion blur",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "appearance",
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.animations",
+      "label": "Window and workspace animations",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "appearance",
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.blurSize",
+      "label": "Blur size",
+      "default": 3,
+      "kind": "slider",
+      "description": "",
+      "category": "appearance",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "integer": true,
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.blurPasses",
+      "label": "Blur passes",
+      "default": 3,
+      "kind": "slider",
+      "description": "",
+      "category": "appearance",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "integer": true,
+      "apply": "hyprland"
+    },
+    {
+      "key": "appearance.reducedMotion",
+      "label": "Reduce shell motion",
+      "default": false,
+      "kind": "toggle",
+      "description": "Reduce shell geometry, scrolling and transition effects. Wallpaper video keeps playing.",
+      "category": "appearance"
+    },
+    {
+      "key": "wallpaper.libraryDirectory",
+      "label": "Wallpaper library",
+      "default": "~/walls",
+      "kind": "path",
+      "description": "Top-level images, GIFs, videos and Velina manifests.",
+      "category": "wallpaper"
+    },
+    {
+      "key": "wallpaper.revealDuration",
+      "label": "Wallpaper reveal duration",
+      "default": 450,
+      "kind": "slider",
+      "description": "Milliseconds. Applies to the next selection.",
+      "category": "wallpaper",
+      "min": 0,
+      "max": 2000,
+      "step": 50,
+      "integer": true
+    },
+    {
+      "key": "wallpaper.origin",
+      "label": "Wallpaper reveal origin",
+      "default": "random",
+      "kind": "choice",
+      "description": "",
+      "category": "wallpaper",
+      "choices": [
+        "random",
+        "top-left",
+        "top-right",
+        "bottom-left",
+        "bottom-right"
+      ]
+    },
+    {
+      "key": "wallpaper.fit",
+      "label": "Image and video fit",
+      "default": "cover",
+      "kind": "choice",
+      "description": "",
+      "category": "wallpaper",
+      "choices": [
+        "cover",
+        "contain"
+      ]
+    },
+    {
+      "key": "wallpaper.pauseFullscreen",
+      "label": "Pause ordinary video and GIF in fullscreen",
+      "default": false,
+      "kind": "toggle",
+      "description": "Only the output containing the focused fullscreen window is suspended.",
+      "category": "wallpaper"
+    },
+    {
+      "key": "premium.openingEnabled",
+      "label": "Play opening",
+      "default": true,
+      "kind": "toggle",
+      "description": "Saved for this wallpaper only. Opening/audio eligibility is preserved for this graphical session.",
+      "category": "wallpaper"
+    },
+    {
+      "key": "premium.startupAudio",
+      "label": "Opening sound",
+      "default": true,
+      "kind": "toggle",
+      "description": "Saved for this wallpaper only. Opening/audio eligibility is preserved for this graphical session.",
+      "category": "wallpaper"
+    },
+    {
+      "key": "premium.loop",
+      "label": "Loop showcase",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "wallpaper"
+    },
+    {
+      "key": "premium.pauseWhenFullscreen",
+      "label": "Pause PremiumWalls in fullscreen",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "wallpaper"
+    },
+    {
+      "key": "premium.effectsQuality",
+      "label": "Leaf effects",
+      "default": "high",
+      "kind": "choice",
+      "description": "",
+      "category": "wallpaper",
+      "choices": [
+        "off",
+        "low",
+        "high"
+      ]
+    },
+    {
+      "key": "premium.fit",
+      "label": "PremiumWalls fit",
+      "default": "cover",
+      "kind": "choice",
+      "description": "",
+      "category": "wallpaper",
+      "choices": [
+        "cover",
+        "contain"
+      ]
+    },
+    {
+      "key": "bar.clockFormat",
+      "label": "Clock format",
+      "default": "24-hour",
+      "kind": "choice",
+      "description": "",
+      "category": "bar",
+      "choices": [
+        "24-hour",
+        "12-hour"
+      ]
+    },
+    {
+      "key": "bar.media",
+      "label": "Show media information",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "bar"
+    },
+    {
+      "key": "bar.visualizer",
+      "label": "Audio visualizer",
+      "default": true,
+      "kind": "toggle",
+      "description": "Disabling also stops its CAVA process.",
+      "category": "bar"
+    },
+    {
+      "key": "bar.tray",
+      "label": "System tray",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "bar"
+    },
+    {
+      "key": "bar.calendar",
+      "label": "Panel calendar",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "bar"
+    },
+    {
+      "key": "bar.wallpapers",
+      "label": "Panel wallpaper picker",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "bar"
+    },
+    {
+      "key": "bar.holdDelay",
+      "label": "Panel long-press delay",
+      "default": 420,
+      "kind": "slider",
+      "description": "",
+      "category": "bar",
+      "min": 150,
+      "max": 1500,
+      "step": 10,
+      "integer": true
+    },
+    {
+      "key": "bar.closeDelay",
+      "label": "Panel close delay",
+      "default": 320,
+      "kind": "slider",
+      "description": "",
+      "category": "bar",
+      "min": 100,
+      "max": 2000,
+      "step": 10,
+      "integer": true
+    },
+    {
+      "key": "advanced.trayOpenDelay",
+      "label": "Tray open delay",
+      "default": 160,
+      "kind": "slider",
+      "description": "",
+      "category": "bar",
+      "min": 0,
+      "max": 1500,
+      "step": 10,
+      "integer": true
+    },
+    {
+      "key": "advanced.trayCloseDelay",
+      "label": "Tray close delay",
+      "default": 320,
+      "kind": "slider",
+      "description": "",
+      "category": "bar",
+      "min": 100,
+      "max": 2000,
+      "step": 10,
+      "integer": true
+    },
+    {
+      "key": "advanced.motionSamples",
+      "label": "Motion blur samples",
+      "default": 32,
+      "kind": "slider",
+      "description": "",
+      "category": "appearance",
+      "min": 1,
+      "max": 64,
+      "step": 1,
+      "integer": true,
+      "apply": "hyprland"
+    },
+    {
+      "key": "notifications.dnd",
+      "label": "Do Not Disturb",
+      "default": false,
+      "kind": "toggle",
+      "description": "",
+      "category": "notifications"
+    },
+    {
+      "key": "notifications.duration",
+      "label": "Notification duration",
+      "default": 5,
+      "kind": "slider",
+      "description": "Seconds; applies to new notifications.",
+      "category": "notifications",
+      "min": 1,
+      "max": 30,
+      "step": 1,
+      "integer": true
+    },
+    {
+      "key": "notifications.maximum",
+      "label": "Visible notifications",
+      "default": 4,
+      "kind": "slider",
+      "description": "Maximum number of cards.",
+      "category": "notifications",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "integer": true
+    },
+    {
+      "key": "desktop.keyboardLayout",
+      "label": "Keyboard layout",
+      "default": "pl",
+      "kind": "text",
+      "description": "XKB layout names, separated by commas. Changes the session, not the greeter or console.",
+      "category": "desktop",
+      "apply": "hyprland"
+    },
+    {
+      "key": "desktop.sensitivity",
+      "label": "Pointer sensitivity",
+      "default": -0.8,
+      "kind": "slider",
+      "description": "Hyprland sensitivity; separate from hardware DPI.",
+      "category": "desktop",
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.05,
+      "integer": false,
+      "apply": "hyprland"
+    },
+    {
+      "key": "desktop.screenshotDirectory",
+      "label": "Screenshot folder",
+      "default": "~/screenshots",
+      "kind": "path",
+      "description": "",
+      "category": "desktop"
+    },
+    {
+      "key": "desktop.clipboardPreviews",
+      "label": "Clipboard image previews",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "desktop"
+    },
+    {
+      "key": "applications.terminal",
+      "label": "Terminal",
+      "default": "kitty",
+      "kind": "application",
+      "description": "Application used by the existing keyboard shortcuts; does not change MIME associations.",
+      "category": "desktop"
+    },
+    {
+      "key": "applications.browser",
+      "label": "Browser",
+      "default": "helium",
+      "kind": "application",
+      "description": "Application used by the existing keyboard shortcuts; does not change MIME associations.",
+      "category": "desktop"
+    },
+    {
+      "key": "applications.fileManager",
+      "label": "File manager",
+      "default": "dolphin",
+      "kind": "application",
+      "description": "Application used by the existing keyboard shortcuts; does not change MIME associations.",
+      "category": "desktop"
+    },
+    {
+      "key": "applications.editor",
+      "label": "Editor",
+      "default": "codium",
+      "kind": "application",
+      "description": "Application used by the existing keyboard shortcuts; does not change MIME associations.",
+      "category": "desktop"
+    },
+    {
+      "key": "applications.chat",
+      "label": "Chat",
+      "default": "discord",
+      "kind": "application",
+      "description": "Application used by the existing keyboard shortcuts; does not change MIME associations.",
+      "category": "desktop"
+    },
+    {
+      "key": "audio.scrollStep",
+      "label": "Bar volume step",
+      "default": 5,
+      "kind": "slider",
+      "description": "Percentage points per scroll step.",
+      "category": "audio",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "integer": true
+    },
+    {
+      "key": "media.preferredPlayer",
+      "label": "Preferred media player",
+      "default": "",
+      "kind": "player",
+      "description": "Empty means Auto. If unavailable, fall back to the first eligible player.",
+      "category": "audio"
+    },
+    {
+      "key": "media.autoLyrics",
+      "label": "Automatic lyrics lookup",
+      "default": true,
+      "kind": "toggle",
+      "description": "",
+      "category": "audio"
+    },
+    {
+      "key": "media.lyricsOffset",
+      "label": "Lyrics synchronization offset",
+      "default": 0.0,
+      "kind": "slider",
+      "description": "Seconds added to playback time when selecting the active lyric.",
+      "category": "audio",
+      "min": -10.0,
+      "max": 10.0,
+      "step": 0.1,
+      "integer": false
+    },
+    {
+      "key": "media.onlineArtwork",
+      "label": "Online artwork lookup",
+      "default": true,
+      "kind": "toggle",
+      "description": "Local artwork and cached covers remain available.",
+      "category": "audio"
+    }
+  ]
+}

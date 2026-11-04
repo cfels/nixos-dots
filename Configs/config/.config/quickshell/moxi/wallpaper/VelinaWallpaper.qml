@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "../components" as Shared
 
 Item {
 	id: wallpaper
@@ -96,6 +97,12 @@ Item {
 			description.running = true
 		}
 	}
+
+	Connections {
+		target: Shared.Preferences
+		function onWallpapersChanged(): void { metadataRefresh.restart() }
+	}
+	Timer { id: metadataRefresh; interval: 100; onTriggered: { if (description.running) restart(); else description.running = true } }
 
 	Process {
 		id: description

@@ -6,10 +6,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from support import REPO, IsolatedDesktop
+from support import REPO, IsolatedDesktop, install_preferences
 
 
 class QmlPanelTests(unittest.TestCase):
+    def test_settings_panel_swipes_and_lifecycle(self):
+        self.run_scenario(REPO / "tests/qml/PanelSettingsScenario.qml")
+
     def test_panel_runtime(self):
         self.run_scenario(REPO / "tests/qml/PanelScenario.qml")
 
@@ -21,6 +24,9 @@ class QmlPanelTests(unittest.TestCase):
 
     def test_wallpaper_directory_changes_without_reload(self):
         self.run_scenario(REPO / "tests/qml/WallpaperScenario.qml", real_wallpapers=True)
+
+    def test_wallpaper_cached_list_precedes_preview_generation(self):
+        self.run_scenario(REPO / "tests/qml/WallpaperLoadingScenario.qml", progressive_wallpapers=True)
 
     def test_theme_colors_update_without_shell_reload(self):
         self.run_scenario(REPO / "tests/qml/ThemeScenario.qml")
@@ -120,7 +126,7 @@ class QmlPanelTests(unittest.TestCase):
         self.assertEqual(len(images), 6)
         self.assertEqual(len(set(images.values())), 6)
 
-    def run_scenario(self, scenario, source=None, renderer="software", initial_player=False, installed_layout=False, real_artwork=False, real_wallpapers=False):
+    def run_scenario(self, scenario, source=None, renderer="software", initial_player=False, installed_layout=False, real_artwork=False, real_wallpapers=False, progressive_wallpapers=False):
         desktop = IsolatedDesktop()
         self.addCleanup(desktop.close)
         source = source or REPO / "Configs/config/.config/quickshell/moxi"
@@ -142,6 +148,9 @@ class QmlPanelTests(unittest.TestCase):
             "testArtworkView": "playerView.testArtworkView",
             "testSurface": "cardSource",
             "testCalendar": "calendar",
+            "testPager": "pager",
+            "testPlayerView": "playerView",
+            "testWallpaperView": "wallpaperView",
         }
         text = text.replace("\tid: panel\n", "\tid: panel\n" + ''.join(f'\tproperty alias {key}: {value}\n' for key, value in aliases.items()), 1)
         lyrics_view = target / "panel/LyricsView.qml"
@@ -155,6 +164,14 @@ class QmlPanelTests(unittest.TestCase):
         else:
             text = text.replace("playerView.testTimeline", "progressTrack").replace("playerView.testLyricsView", "lyricsView")
         panel.write_text(text)
+        settings_content = target / "settings/SettingsContent.qml"
+        settings_content.write_text(settings_content.read_text().replace(
+            "id: window\n", "id: window\n\tproperty alias testCrossover: pageCrossover\n", 1
+        ))
+        wallpaper_controller = target / "panel/WallpaperController.qml"
+        wallpaper_controller.write_text(wallpaper_controller.read_text().replace(
+            "id: wallpapers\n", "id: wallpapers\n\tproperty alias testScan: scan\n", 1
+        ))
         media = target / "panel/PlayerController.qml"
         if not media.exists():
             media = panel
@@ -188,6 +205,10 @@ done
             (home_config / "moxi").symlink_to("/work/moxi")
         scripts = desktop.home / ".config/hypr/scripts"
         scripts.mkdir(parents=True)
+        install_preferences(scripts)
+        if installed_layout:
+            # Stow must publish its own schema, just like the remaining QML components.
+            (home_config / "moxi/settings/schema.json").unlink()
         mocks = {
             "wallpaper-list.sh": 'cat /work/wallpapers.tsv',
             "wallpaper-set.sh": 'printf "%s\\n" "$1" > /work/set-wallpaper',
@@ -214,6 +235,18 @@ fi''',
             script = scripts / name
             script.write_text('#!/usr/bin/env bash\n' + body + '\n')
             script.chmod(0o755)
+        if progressive_wallpapers:
+            (scripts / "wallpaper-list.sh").write_text('''#!/usr/bin/env bash
+set -euo pipefail
+if [[ "${2:-}" == --cached ]]; then
+  printf '/work/first.mp4\\t\\t\\n/work/second.mp4\\t\\t\\n'
+else
+  sleep 0.5
+  printf '/work/first.mp4\\t/work/first.jpg\\t/work/first.gif\\n'
+  sleep 0.5
+  printf '/work/second.mp4\\t/work/second.jpg\\t/work/second.gif\\n'
+fi
+''')
         if real_artwork:
             for name in ("artwork-fetch.sh", "media-match.jq", "media-cache.py"):
                 shutil.copy2(REPO / "Configs/config/.config/hypr/scripts" / name, scripts / name)
@@ -226,7 +259,7 @@ printf '%s\\n' "$1" >> /work/wallpaper-selections
             shutil.copy2(REPO / "Configs/config/.config/hypr/scripts/wallpaper-list.sh", scripts / "wallpaper-list-real.sh")
             (scripts / "wallpaper-list.sh").write_text('''#!/usr/bin/env bash
 set -euo pipefail
-listing="$(bash "$HOME/.config/hypr/scripts/wallpaper-list-real.sh")"
+listing="$(bash "$HOME/.config/hypr/scripts/wallpaper-list-real.sh" "$@")"
 if [[ -e /work/slow-wallpaper-scan ]]; then
   touch /work/wallpaper-scan-started
   sleep 0.5

@@ -255,7 +255,7 @@ PanelWindow {
 				anchors.fill: parent
 				power: 4
 				radius: emoji.cornerRadius
-				fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.74)
+				fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, Preferences.opacity(0.74))
 				strokeColor: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.26)
 				strokeWidth: 1
 			}

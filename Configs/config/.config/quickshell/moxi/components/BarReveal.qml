@@ -30,7 +30,7 @@ Item {
 		id: motion
 		NumberAnimation {
 			id: animation
-			duration: motion.targetValue > reveal.progress ? 520 : 380
+			duration: Preferences.motion(motion.targetValue > reveal.progress ? 520 : 380)
 			easing.type: motion.targetValue > reveal.progress ? Easing.OutBack : Easing.InBack
 			easing.overshoot: 0.7
 		}

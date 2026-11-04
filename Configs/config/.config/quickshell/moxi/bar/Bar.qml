@@ -19,12 +19,19 @@ PanelWindow {
 	}
 
 	signal panelRequested()
+	signal settingsRequested()
 
 	property bool flash: false
 	property bool panelOpen: false
 	property bool hovered: pillHover.hovered
 	property bool held: false
 	property bool holdHandled: false
+	function openPanelFromHold(): void {
+		if (bar.holdHandled) return
+		bar.held = true
+		bar.holdHandled = true
+		bar.panelRequested()
+	}
 	property bool expanded: bar.hovered || bar.flash || mediaPulse.running || volumeTimer.running
 	property bool pillShown: true
 	property real popupPush: 0
@@ -32,7 +39,7 @@ PanelWindow {
 	readonly property real pillReveal: 1 - Math.min(1, bar.islandProgress * 4)
 	property bool volumeVisible: bar.audioReady && volumeTimer.running
 	property real titleWidth: 170
-	property real mediaWidth: bar.hasPlayer && (songInfo.shownTitle.length > 0 || bar.playing) ? mediaRow.implicitWidth : 0
+	property real mediaWidth: Preferences.value("bar.media", true) && bar.hasPlayer && (songInfo.shownTitle.length > 0 || bar.playing) ? mediaRow.implicitWidth : 0
 	property real volumeWidth: bar.volumeVisible ? volumeRow.implicitWidth : 0
 	property real dateWidth: bar.hovered ? dateLabel.implicitWidth : 0
 	readonly property real pillWidth: pill.width * pill.scale
@@ -87,6 +94,8 @@ PanelWindow {
 
 	function pickPlayer(): var {
 		var list = Mpris.players.values
+		var preferred = Preferences.value("media.preferredPlayer", "")
+		if (preferred.length > 0) list = list.slice().sort((a, b) => (b && b.dbusName === preferred ? 1 : 0) - (a && a.dbusName === preferred ? 1 : 0))
 
 		for (var i = 0; i < list.length; ++i) {
 			var candidate = list[i]
@@ -215,12 +224,10 @@ PanelWindow {
 
 	Timer {
 		id: holdTimer
-		interval: 420
+		interval: Preferences.value("bar.holdDelay", 420)
 
 		onTriggered: {
-			bar.held = true
-			bar.holdHandled = true
-			bar.panelRequested()
+			bar.openPanelFromHold()
 		}
 	}
 
@@ -299,7 +306,7 @@ PanelWindow {
 			}
 		}
 
-		color: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, bar.hovered ? 0.78 : 0.66)
+		color: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, Preferences.opacity(bar.hovered ? 0.78 : 0.66))
 		border.width: 1
 		border.color: bar.flash
 			? bar.accent
@@ -334,6 +341,9 @@ PanelWindow {
 			property real pressX: 0
 			property real pressY: 0
 			property bool swiping: false
+			property double pressedAt: 0
+			property bool activePress: false
+			property bool pressHadOverlay: false
 
 			anchors.fill: parent
 			enabled: bar.pillShown
@@ -343,6 +353,9 @@ PanelWindow {
 				pressX = mouse.x
 				pressY = mouse.y
 				swiping = false
+				pressedAt = Date.now()
+				activePress = true
+				pressHadOverlay = bar.panelOpen
 
 				if (mouse.button === Qt.RightButton) return
 
@@ -368,8 +381,10 @@ PanelWindow {
 			}
 
 			onReleased: (mouse) => {
+				if (!activePress) return
+				activePress = false
 				if (mouse.button === Qt.RightButton) {
-					Quickshell.execDetached(["pavucontrol"])
+					bar.settingsRequested()
 					return
 				}
 
@@ -384,7 +399,13 @@ PanelWindow {
 					return
 				}
 
-				if (bar.held || bar.holdHandled || bar.panelOpen) {
+				// A busy frame can deliver release before the hold timer callback.
+				if (!pressHadOverlay && Date.now() - pressedAt >= holdTimer.interval) {
+					bar.openPanelFromHold()
+					return
+				}
+
+				if (bar.held || bar.holdHandled || bar.panelOpen || pressHadOverlay) {
 					bar.held = false
 					return
 				}
@@ -395,7 +416,7 @@ PanelWindow {
 			onWheel: (wheel) => {
 				if (!bar.sinkAudio) return
 
-				var step = wheel.angleDelta.y > 0 ? 0.05 : -0.05
+				var step = (wheel.angleDelta.y > 0 ? 1 : -1) * Preferences.value("audio.scrollStep", 5) / 100
 				var next = Math.max(0, Math.min(1, bar.sinkVolume + step))
 
 				bar.sinkAudio.muted = false
@@ -403,6 +424,7 @@ PanelWindow {
 			}
 
 			onCanceled: {
+				activePress = false
 				holdTimer.stop()
 				swiping = false
 				bar.songSwipe = 0
@@ -483,7 +505,7 @@ PanelWindow {
 				font.family: bar.fontFamily
 				font.pixelSize: 14
 				font.weight: Font.Medium
-				text: Qt.formatDateTime(clock.date, "HH:mm")
+				text: Qt.formatDateTime(clock.date, Preferences.value("bar.clockFormat", "24-hour") === "12-hour" ? "h:mm AP" : "HH:mm")
 			}
 
 			Item {
@@ -735,7 +757,8 @@ PanelWindow {
 
 					AudioVisualizer {
 						Layout.alignment: Qt.AlignVCenter
-						active: bar.playing && bar.sink !== null && !bar.sinkMuted
+						visible: Preferences.value("bar.visualizer", true)
+						active: Preferences.value("bar.visualizer", true) && Preferences.value("bar.media", true) && bar.playing && bar.sink !== null && !bar.sinkMuted
 						color: bar.accent
 					}
 				}

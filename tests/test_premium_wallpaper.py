@@ -5,14 +5,16 @@ import os
 import shutil
 import struct
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from support import REPO, IsolatedDesktop
+from support import REPO, IsolatedDesktop, install_preferences, install_qml_preferences
 
 HELPER = REPO / "Configs/config/.config/hypr/scripts/premium-wallpaper.py"
+sys.path.insert(0, str(HELPER.parent))
 SPEC = importlib.util.spec_from_file_location("premium_wallpaper", HELPER)
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
@@ -94,6 +96,7 @@ class PremiumManifestTests(unittest.TestCase):
 class PremiumPlaybackTests(unittest.TestCase):
     def test_startup_handoff_loops_pause_and_component_reload(self):
         desktop = IsolatedDesktop()
+        install_qml_preferences(desktop.work)
         self.addCleanup(desktop.close)
         shutil.copytree(
             REPO / "Configs/config/.config/quickshell/moxi/wallpaper",
@@ -101,6 +104,7 @@ class PremiumPlaybackTests(unittest.TestCase):
         )
         helper = desktop.home / ".config/hypr/scripts/premium-wallpaper.py"
         helper.parent.mkdir(parents=True)
+        install_preferences(helper.parent)
         shutil.copy2(HELPER, helper)
         shutil.copy2(
             REPO / "tests/qml/PremiumWallpaperScenario.qml", desktop.work / "shell.qml"

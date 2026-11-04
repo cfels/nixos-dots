@@ -1,11 +1,24 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "../components"
 
 Scope {
 	id: artworkState
 
 	required property PlayerController media
+	property bool previousOnline: true
+	Connections {
+		target: Preferences
+		function onValuesChanged(): void {
+			const online = Preferences.value("media.onlineArtwork", true)
+			if (online === artworkState.previousOnline) return
+			artworkState.previousOnline = online
+			artworkState.artWanted = false
+			artCache.running = false
+			artworkState.scheduleArt(80)
+		}
+	}
 	signal artFailed
 	property bool artWanted: false
 	property int artVersion: 0

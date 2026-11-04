@@ -716,6 +716,8 @@ Item {
 			onTapped: {
 				lyricsPop.restart()
 				playerView.lyricsController.showLyrics = !playerView.lyricsController.showLyrics
+				if (playerView.lyricsController.showLyrics && playerView.lyricsController.lyrics.length === 0)
+					playerView.lyricsController.fetchLyrics()
 			}
 		}
 	}

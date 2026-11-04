@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import os
 from pathlib import Path
 import tempfile
@@ -29,7 +30,9 @@ class MediaCacheTests(unittest.TestCase):
             recent_lyrics = lyrics / "recent.json"
             recent_artwork = artwork / "art-recent.img"
             for index, path in enumerate((old_lyrics, old_artwork, recent_lyrics, recent_artwork)):
-                path.write_bytes(b"x" * 300)
+                # Lyrics fixtures must be valid successes; malformed/empty entries expire.
+                text = json.dumps({"syncedLyrics": "[00:01]remembered lyrics", "plainLyrics": ""}) if path.suffix == ".json" else "artwork"
+                path.write_text(text.ljust(300))
                 os.utime(path, (index + 1,) * 2)
             with patch.object(media_cache, "MAX_CACHE_BYTES", 700):
                 media_cache.prune(root)
@@ -45,7 +48,7 @@ class MediaCacheTests(unittest.TestCase):
             lyrics = root / "lyrics/v1"
             lyrics.mkdir(parents=True)
             old = lyrics / "old.json"
-            old.write_text("remembered lyrics")
+            old.write_text(json.dumps({"syncedLyrics": "[00:01]remembered lyrics"}))
             os.utime(old, (1, 1))
             unrelated = root / "unrelated.bin"
             unrelated.write_bytes(b"x" * 1000)

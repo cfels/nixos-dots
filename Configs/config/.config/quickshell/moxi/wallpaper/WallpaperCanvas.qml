@@ -1,4 +1,5 @@
 import QtQuick
+import "../components" as Shared
 import QtQuick.Effects
 
 Item {
@@ -6,7 +7,7 @@ Item {
 
 	property bool suspended: false
 	property string outputName: "default"
-	property int duration: 450
+	property int duration: Shared.Preferences.reducedMotion ? 0 : Shared.Preferences.value("wallpaper.revealDuration", 450)
 	property int corner: 0
 	property int activeSlot: 0
 	property real progress: 0
@@ -18,6 +19,13 @@ Item {
 	readonly property var incoming: activeSlot === 0 ? second : first
 	readonly property string currentPath: current.path
 	readonly property bool busy: phase === "loading" || phase === "animating"
+	onDurationChanged: {
+		if (duration === 0 && phase === "animating") {
+			reveal.stop()
+			progress = 1
+			finishReveal()
+		}
+	}
 
 	function setWallpaper(path, origin): void {
 		if (busy) {
@@ -48,6 +56,7 @@ Item {
 			finishReveal()
 			return
 		}
+		if (duration === 0) { finishReveal(); return }
 		phase = "animating"
 		reveal.restart()
 	}

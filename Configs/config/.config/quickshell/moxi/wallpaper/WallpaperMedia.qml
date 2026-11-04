@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 import QtQuick
+import "../components" as Shared
 import QtQuick.Window
 import QtMultimedia
 
@@ -9,6 +10,9 @@ Item {
 	property string path: ""
 	property bool presentationActive: false
 	property bool suspended: false
+	readonly property bool paused: suspended && Shared.Preferences.value("wallpaper.pauseFullscreen", false)
+	readonly property bool contain: Shared.Preferences.value("wallpaper.fit", "cover") === "contain"
+	onPausedChanged: if (player && videoReady) { if (paused) player.pause(); else player.play() }
 	property string outputName: "default"
 	readonly property VelinaWallpaper premiumPlayer: premiumPlayback.item as VelinaWallpaper
 	readonly property bool premium: /\.premiumwall\.json$/i.test(path)
@@ -31,7 +35,7 @@ Item {
 		anchors.fill: parent
 		visible: !media.video && !media.animated && !media.premium
 		source: !media.video && !media.animated && !media.premium ? media.sourceUrl : ""
-		fillMode: Image.PreserveAspectCrop
+		fillMode: media.contain ? Image.PreserveAspectFit : Image.PreserveAspectCrop
 		sourceSize: Qt.size(Math.ceil(width * Screen.devicePixelRatio), Math.ceil(height * Screen.devicePixelRatio))
 		asynchronous: true
 		onStatusChanged: {
@@ -45,8 +49,8 @@ Item {
 		anchors.fill: parent
 		visible: media.animated
 		source: media.animated ? media.sourceUrl : ""
-		fillMode: Image.PreserveAspectCrop
-		playing: media.animated && media.path.length > 0
+		fillMode: media.contain ? Image.PreserveAspectFit : Image.PreserveAspectCrop
+		playing: media.animated && media.path.length > 0 && !media.paused
 		cache: false
 		onStatusChanged: {
 			if (status === Image.Error)
@@ -71,7 +75,7 @@ Item {
 		id: videoSurface
 		anchors.fill: parent
 		visible: media.video
-		fillMode: VideoOutput.PreserveAspectCrop
+		fillMode: media.contain ? VideoOutput.PreserveAspectFit : VideoOutput.PreserveAspectCrop
 	}
 
 	Loader {
@@ -91,7 +95,7 @@ Item {
 		target: videoSurface.videoSink
 		function onVideoFrameChanged(): void {
 			if (media.player && media.player.hasVideo)
-				media.videoReady = true
+				{ media.videoReady = true; if (media.paused) media.player.pause() }
 		}
 	}
 }

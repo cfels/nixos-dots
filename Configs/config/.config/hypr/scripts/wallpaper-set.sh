@@ -71,7 +71,8 @@ printf '%s\n' "$image" >"${HOME}/.cache/current-wallpaper"
 # Unlock/startup only needs the wallpaper, not a palette or shell reload.
 [ "$restore" -eq 0 ] || exit 0
 
-if command -v matugen >/dev/null 2>&1; then
+follow_colors="$(python3 "$SCRIPT_DIR/moxi-settings.py" get appearance.followWallpaper)"
+if [ "$follow_colors" = true ] && command -v matugen >/dev/null 2>&1; then
 	matugen_ok=0
 
 	if [ "$is_video" -eq 0 ]; then

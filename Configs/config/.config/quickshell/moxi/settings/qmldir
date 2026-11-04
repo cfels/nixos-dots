@@ -1,0 +1,16 @@
+AudioBackend 1.0 AudioBackend.qml
+AudioNode 1.0 AudioNode.qml
+AudioPage 1.0 AudioPage.qml
+SettingRow 1.0 SettingRow.qml
+SettingsButton 1.0 SettingsButton.qml
+SettingsChoice 1.0 SettingsChoice.qml
+SettingsField 1.0 SettingsField.qml
+SettingsSlider 1.0 SettingsSlider.qml
+singleton SettingsStyle 1.0 SettingsStyle.qml
+SettingsToggle 1.0 SettingsToggle.qml
+WallpapersPage 1.0 WallpapersPage.qml
+SettingsContent 1.0 SettingsContent.qml
+SettingsIcon 1.0 SettingsIcon.qml
+SettingsCategoryButton 1.0 SettingsCategoryButton.qml
+SettingsCrossover 1.0 SettingsCrossover.qml
+SettingsPopupSurface 1.0 SettingsPopupSurface.qml

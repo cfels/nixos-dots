@@ -149,7 +149,7 @@ PopupWindow {
 			anchors.fill: parent
 			radius: 24
 			power: 3
-			fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.94)
+			fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, Preferences.opacity(0.94))
 			strokeColor: Qt.rgba(theme.foreground.r, theme.foreground.g, theme.foreground.b, 0.12)
 			strokeWidth: 1
 		}

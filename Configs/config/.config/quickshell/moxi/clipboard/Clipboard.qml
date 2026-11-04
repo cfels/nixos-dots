@@ -33,8 +33,19 @@ PanelWindow {
 	property string pendingSelection: ""
 	property string previewDir: Quickshell.env("HOME") + "/.cache/moxi-clip"
 	property var revealedIds: []
+	property bool previousPreviews: true
+	Connections {
+		target: Preferences
+		function onValuesChanged(): void {
+			const enabled = Preferences.value("desktop.clipboardPreviews", true)
+			if (enabled === clipboard.previousPreviews) return
+			clipboard.previousPreviews = enabled
+			if (!enabled) previewDump.running = false
+			else { clipboard.previewsDirty = true; if (clipboard.open) clipboard.refresh(true) }
+		}
+	}
 	readonly property var selectedEntry: selected >= 0 && selected < entries.length ? entries[selected] : null
-	readonly property bool selectedImage: selectedEntry !== null && clipboard.isImage(selectedEntry.preview)
+	readonly property bool selectedImage: Preferences.value("desktop.clipboardPreviews", true) && selectedEntry !== null && clipboard.isImage(selectedEntry.preview)
 
 	function isImage(preview): bool {
 		return clipboard.isBinary(preview) && /\b(?:png|jpe?g|webp|gif|bmp|tiff|image\/[a-z0-9.+-]+)\b/i.test(preview)
@@ -88,7 +99,7 @@ PanelWindow {
 	}
 
 	function hasPreview(entry): bool {
-		return entry && entry.binary && clipboard.readyIds.indexOf(entry.id) !== -1
+		return Preferences.value("desktop.clipboardPreviews", true) && entry && entry.binary && clipboard.readyIds.indexOf(entry.id) !== -1
 	}
 
 	function isBinary(preview): bool {
@@ -201,7 +212,7 @@ PanelWindow {
 					binary: binary
 				}])
 
-				if (binary && clipboard.isImage(preview)) lister.binaryIds = lister.binaryIds.concat([id])
+				if (Preferences.value("desktop.clipboardPreviews", true) && binary && clipboard.isImage(preview)) lister.binaryIds = lister.binaryIds.concat([id])
 			}
 		}
 	}
@@ -214,7 +225,7 @@ PanelWindow {
 			"bash",
 			Quickshell.shellDir + "/clipboard/preview-images.sh",
 			clipboard.previewDir,
-			Quickshell.env("HOME") + "/screenshots"
+			Preferences.value("desktop.screenshotDirectory", "~/screenshots").replace(/^~(?=\/)/, Quickshell.env("HOME"))
 		].concat(previewDump.requestedIds)
 
 		stdout: SplitParser {
@@ -384,7 +395,7 @@ PanelWindow {
 				anchors.fill: parent
 				power: 4
 				radius: clipboard.cornerRadius
-				fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, 0.74)
+				fillColor: Qt.rgba(theme.background.r, theme.background.g, theme.background.b, Preferences.opacity(0.74))
 				strokeColor: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.26)
 				strokeWidth: 1
 			}

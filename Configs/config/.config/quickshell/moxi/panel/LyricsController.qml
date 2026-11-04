@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "../components"
 
 Scope {
 	id: lyricsState
@@ -22,6 +23,7 @@ Scope {
 	}
 
 	function scheduleFetch(): void {
+		if (!Preferences.value("media.autoLyrics", true)) return
 		lyricsDebounce.restart()
 	}
 
@@ -42,7 +44,7 @@ Scope {
 	property int activeLyric: -1
 	property bool showLyrics: false
 	property real lyricsOffset: 0
-	property real lyricsSyncOffset: 0
+	property real lyricsSyncOffset: Preferences.value("media.lyricsOffset", 0)
 	property real lyricsMix: lyricsState.showLyrics ? 1 : 0
 	readonly property real lyricsFade: Math.max(0, Math.min(1, lyricsState.lyricsMix))
 	readonly property real lyricsBlur: Math.sin(Math.PI * lyricsState.lyricsFade)
@@ -244,6 +246,7 @@ Scope {
 	}
 
 	function retryLyrics(): void {
+		if (!Preferences.value("media.autoLyrics", true)) return
 		if (!lyricsState.lyricsRetryable || lyricsFetch.running)
 			return
 		lyricsState.lyricsRetries = 0
@@ -252,6 +255,7 @@ Scope {
 
 	function retryAfterFailure(): void {
 		lyricsState.lyricsRetryable = true
+		if (!Preferences.value("media.autoLyrics", true)) return
 		if (lyricsState.lyricsRetries >= 2)
 			return
 		lyricsRetry.interval = 15000 * Math.pow(3, lyricsState.lyricsRetries)
@@ -322,6 +326,15 @@ Scope {
 			lyricsState.lyricsWanted = false
 			lyricsState.lyricsFetchKey = lyricsState.lyricsKey
 			lyricsFetch.running = true
+		}
+	}
+
+	Connections {
+		target: Preferences
+		function onRefreshed(): void {
+			if (!Preferences.value("media.autoLyrics", true)) {
+				lyricsDebounce.stop(); lyricsRetry.stop(); lyricsState.lyricsWanted = false; lyricsFetch.running = false
+			}
 		}
 	}
 

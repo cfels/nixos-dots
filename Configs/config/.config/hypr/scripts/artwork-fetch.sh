@@ -61,7 +61,7 @@ download() {
 	local url="$1"
 
 	case "$url" in
-		http://*|https://*) ;;
+		http://* | https://*) ;;
 		*) return 1 ;;
 	esac
 
@@ -106,14 +106,24 @@ if [ -f "$dest" ]; then
 	fi
 fi
 
+online="$(python3 "$SCRIPT_DIR/moxi-settings.py" get media.onlineArtwork)"
+
 # Try to get artwork from various sources in order of preference
 case "$art" in
-	http://*|https://*) download "$art" && exit 0 ;;
+	http://* | https://*) [ "$online" != true ] || { download "$art" && exit 0; } ;;
 	*) local_image "$art" && exit 0 ;;
 esac
 
+if [ "$online" != true ]; then
+	if [ "$best_size" -gt 0 ]; then
+		publish
+		exit 0
+	fi
+	exit 1
+fi
+
 case "$track" in
-	*"youtube.com/watch?v="*|*"youtu.be/"*)
+	*"youtube.com/watch?v="* | *"youtu.be/"*)
 		id="$(printf '%s' "$track" | sed -n 's/.*[?&]v=\([A-Za-z0-9_-]\{6,\}\).*/\1/p')"
 
 		if [ -z "$id" ]; then

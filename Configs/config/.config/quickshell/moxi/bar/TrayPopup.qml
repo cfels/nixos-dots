@@ -11,7 +11,7 @@ Scope {
 	required property var barWindow
 	property bool open: false
 	readonly property real push: tray.barWindow.panelOpen ? 0 : Math.max(0, Math.min(1, card.progress))
-	readonly property bool available: SystemTray.items.values.length > 0
+	readonly property bool available: Preferences.value("bar.tray", true) && SystemTray.items.values.length > 0
 	readonly property string focusScript: Quickshell.env("HOME") + "/.config/hypr/scripts/focus-app.sh"
 
 	function appNames(app): var {
@@ -111,13 +111,13 @@ Scope {
 
 	Timer {
 		id: openDelay
-		interval: 160
+		interval: Preferences.value("advanced.trayOpenDelay", 160)
 		onTriggered: tray.open = true
 	}
 
 	Timer {
 		id: closeDelay
-		interval: 320
+		interval: Preferences.value("advanced.trayCloseDelay", 320)
 		onTriggered: tray.open = false
 	}
 
@@ -166,7 +166,7 @@ Scope {
 					anchors.fill: parent
 					radius: 19
 					color: Qt.rgba(theme.background.r, theme.background.g, theme.background.b,
-						(popupHover.hovered || tray.barWindow.hovered) ? 0.78 : 0.66)
+						Preferences.opacity((popupHover.hovered || tray.barWindow.hovered) ? 0.78 : 0.66))
 					border.color: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.16)
 					border.width: 1
 

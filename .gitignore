@@ -73,6 +73,10 @@ minidumps/
 saved-telemetry-pings/
 shield-preference-experiments.json
 settings/
+!Configs/config/.config/quickshell/moxi/settings/
+!Configs/config/.config/quickshell/moxi/settings/**
+!Configs/config/.config/quickshell/moxi/assets/symbols/settings/
+!Configs/config/.config/quickshell/moxi/assets/symbols/settings/*.svg
 times.json
 compatibility.ini
 
@@ -101,4 +105,5 @@ __pycache__/
 
 # generated editor logs and Home Manager font links
 nvim.log
+docs/
 Configs/config/.config/fontconfig/conf.d/*-hm-*.conf

@@ -1,0 +1,8 @@
+BarReveal 1.0 BarReveal.qml
+IslandWindow 1.0 IslandWindow.qml
+NotificationMotion 1.0 NotificationMotion.qml
+singleton Preferences 1.0 Preferences.qml
+SearchBackdrop 1.0 SearchBackdrop.qml
+Squircle 1.0 Squircle.qml
+SquircleImage 1.0 SquircleImage.qml
+Theme 1.0 Theme.qml

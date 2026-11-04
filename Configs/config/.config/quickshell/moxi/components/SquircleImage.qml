@@ -25,8 +25,8 @@ Item {
 		asynchronous: true
 		cache: true
 		scale: root.imageScale
-		sourceSize.width: root.sourceWidth
-		sourceSize.height: root.sourceHeight
+		sourceSize.width: Math.max(1, root.sourceWidth)
+		sourceSize.height: Math.max(1, root.sourceHeight)
 	}
 
 	AnimatedImage {
@@ -39,8 +39,10 @@ Item {
 		playing: root.animated && root.playing
 		cache: false
 		scale: root.imageScale
-		sourceSize.width: root.sourceWidth
-		sourceSize.height: root.sourceHeight
+		// Layouts can briefly be empty while a page loads. Qt's GIF decoder
+		// crashes when starting a movie with a zero-sized frame.
+		sourceSize.width: Math.max(1, root.sourceWidth)
+		sourceSize.height: Math.max(1, root.sourceHeight)
 	}
 
 	Squircle {

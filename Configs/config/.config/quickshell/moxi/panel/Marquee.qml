@@ -1,4 +1,5 @@
 import QtQuick
+import "../components"
 
 Item {
 	id: marquee
@@ -9,7 +10,7 @@ Item {
 	property int pixelSize: 13
 	property int fontWeight: Font.Normal
 	property int gap: 44
-	property bool scroll: label.implicitWidth > marquee.width + 2
+	property bool scroll: label.implicitWidth > marquee.width + 2 && !Preferences.reducedMotion
 
 	clip: true
 	implicitHeight: label.implicitHeight
@@ -58,14 +59,14 @@ Item {
 		running: marquee.scroll && marquee.visible
 		loops: Animation.Infinite
 
-		PauseAnimation { duration: 1500 }
+		PauseAnimation { duration: Preferences.motion(1500)}
 
 		NumberAnimation {
 			target: contentRow
 			property: "x"
 			from: 0
 			to: -(label.implicitWidth + marquee.gap)
-			duration: Math.max(1800, label.implicitWidth * 24)
+			duration: Preferences.motion(Math.max(1800, label.implicitWidth * 24))
 			easing.type: Easing.Linear
 		}
 	}

@@ -22,6 +22,19 @@ ShellRoot {
 	property bool panelExpanded: false
 	property bool panelEntered: false
 	property string openOverlay: ""
+	function showSettings(page): void {
+		closeTimer.stop()
+		openGrace.restart()
+		panel.setAnchor(pill.pillWidth, pill.pillHeight, pill.pillTop)
+		root.panelExpanded = true
+		panel.showSettings(page || "appearance")
+	}
+
+	IpcHandler {
+		target: "settings"
+		function show(): void { root.showSettings("appearance") }
+		function audio(): void { root.showSettings("audio") }
+	}
 
 	IslandWindow {
 		id: island
@@ -29,9 +42,15 @@ ShellRoot {
 		mode: root.openOverlay
 		launcherHeight: launcher.preferredHeight
 		emojiHeight: emojiPicker.preferredHeight
+		panelHeight: panel.preferredHeight
+		panelSettings: panel.settingsVisible
 	}
 
 	function updatePanel(): void {
+		if (panel.settingsVisible) {
+			closeTimer.stop()
+			return
+		}
 		if (panel.hovered) {
 			root.panelEntered = true
 			closeTimer.stop()
@@ -84,7 +103,7 @@ ShellRoot {
 
 	Timer {
 		id: closeTimer
-		interval: 320
+		interval: Preferences.value("bar.closeDelay", 320)
 		onTriggered: root.panelExpanded = false
 	}
 
@@ -95,6 +114,7 @@ ShellRoot {
 
 	BarModule.Bar {
 		id: pill
+		onSettingsRequested: root.showSettings("audio")
 
 		popupPush: Math.max(reloadPopup.push, trayPopup.push)
 		islandProgress: island.progress
@@ -156,9 +176,12 @@ ShellRoot {
 		PanelModule.Panel {
 			id: panel
 
+			settingsHeight: Math.max(420, Math.min(600, island.screen.height - island.margins.top - 24))
 			surfaceHost: island.panelHost
 			expanded: root.panelExpanded
+			inputReady: island.progress >= 0.999
 			onHoveredChanged: root.updatePanel()
+			onSettingsVisibleChanged: root.updatePanel()
 		}
 
 	ScreenshotModule.Screenshot {
