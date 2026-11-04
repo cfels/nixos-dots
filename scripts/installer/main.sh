@@ -99,6 +99,11 @@ if [[ "$USER_EXISTS" == 0 ]]; then
 fi
 echo "installing for user '$USER_NAME'"
 
+if [[ -f "$REPO/.gitmodules" ]]; then
+  echo "fetching wallpapers"
+  git -C "$REPO" submodule update --init --recursive -- Configs/walls/walls
+fi
+
 echo "check stuff"
 "$REPO/scripts/installer/checkstuff.sh"
 

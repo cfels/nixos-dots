@@ -47,6 +47,11 @@ def run(report, measure_only):
             REPO / "Configs/walls/walls/Velina.premiumwall.json",
             desktop.work / "Velina.premiumwall.json",
         )
+        # Native visual checks have no speakers; the synthetic scenario captures audio.
+        manifest = desktop.work / "Velina.premiumwall.json"
+        manifest.write_text(
+            json.dumps({**json.loads(manifest.read_text()), "startupAudio": False})
+        )
         shutil.copy2(
             REPO / "tests/qml/PremiumWallpaperNativeScenario.qml",
             desktop.work / "shell.qml",

@@ -1,0 +1,3 @@
+[submodule "wallpapers"]
+	path = Configs/walls/walls
+	url = https://github.com/cfels/dots-wallpapers.git

@@ -28,6 +28,7 @@ Item {
 	readonly property bool ready: claimDone && config !== null && poster.status === Image.Ready && showcase.ready && (!useOpening || openingRetired || (openingVideo !== null && openingVideo.ready))
 	readonly property int position: playbackState === "OPENING" && openingVideo ? openingVideo.position : showcase.position
 	readonly property bool paused: suspended && config !== null && config.pauseWhenFullscreen
+	readonly property bool waitingForAudio: useOpening && openingVideo !== null && !openingVideo.audioReady
 
 	signal failed(string message)
 
@@ -46,7 +47,7 @@ Item {
 	}
 
 	function advance(): void {
-		if (!ready || !presentationActive || playbackState !== "INITIALIZING" || paused)
+		if (!ready || !presentationActive || playbackState !== "INITIALIZING" || paused || waitingForAudio)
 			return
 		setPlaybackState(useOpening ? "OPENING" : "TRANSITIONING")
 	}
@@ -71,6 +72,11 @@ Item {
 
 	onReadyChanged: advance()
 	onPresentationActiveChanged: advance()
+	onWaitingForAudioChanged: {
+		if (waitingForAudio)
+			console.info("PremiumWalls:", outputName, "waiting for an audio output")
+		advance()
+	}
 	onPausedChanged: {
 		if (paused && playbackState !== "PAUSED" && playbackState !== "ERROR") {
 			previousState = playbackState
@@ -153,7 +159,7 @@ Item {
 	Image {
 		id: poster
 		anchors.fill: parent
-		source: wallpaper.config ? wallpaper.useOpening ? wallpaper.config.openingPoster : wallpaper.config.poster : ""
+		source: wallpaper.claimDone && wallpaper.config ? wallpaper.useOpening ? wallpaper.config.openingPoster : wallpaper.config.poster : ""
 		fillMode: wallpaper.config && wallpaper.config.fit === "contain" ? Image.PreserveAspectFit : Image.PreserveAspectCrop
 		asynchronous: true
 		onStatusChanged: if (status === Image.Error)
@@ -167,7 +173,7 @@ Item {
 		cover: !wallpaper.config || wallpaper.config.fit === "cover"
 		loop: wallpaper.config !== null && wallpaper.config.loop
 		playing: wallpaper.playbackState === "TRANSITIONING" || wallpaper.playbackState === "SHOWCASE_LOOP"
-		visible: !wallpaper.useOpening || wallpaper.showcaseDisplayed
+		visible: wallpaper.claimDone && (!wallpaper.useOpening || wallpaper.showcaseDisplayed)
 		onReadyChanged: wallpaper.advance()
 		onPositionChanged: {
 			if (wallpaper.playbackState === "SHOWCASE_LOOP") {

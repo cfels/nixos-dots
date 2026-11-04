@@ -3,6 +3,7 @@ import importlib.util
 import json
 import os
 import shutil
+import struct
 import subprocess
 import tempfile
 import unittest
@@ -86,7 +87,10 @@ class PremiumManifestTests(unittest.TestCase):
             self.assertTrue(MODULE.claim("DP-2", True)["audio"])
 
 
-@unittest.skipUnless(shutil.which("Xvfb"), "Xvfb is required for playback checks")
+@unittest.skipUnless(
+    all(shutil.which(tool) for tool in ("Xvfb", "pulseaudio", "pactl", "parec")),
+    "Xvfb and PulseAudio test tools are required for playback checks",
+)
 class PremiumPlaybackTests(unittest.TestCase):
     def test_startup_handoff_loops_pause_and_component_reload(self):
         desktop = IsolatedDesktop()
@@ -133,29 +137,32 @@ class PremiumPlaybackTests(unittest.TestCase):
                 str(desktop.work / f"{name}.mp4"),
             ]
             subprocess.run(command, check=True, capture_output=True)
-        subprocess.run(
-            [
-                "ffmpeg",
-                "-v",
-                "error",
-                "-i",
-                str(desktop.work / "showcase.mp4"),
-                "-frames:v",
-                "1",
-                "-threads",
-                "1",
-                str(desktop.work / "poster.png"),
-            ],
-            check=True,
-            capture_output=True,
-        )
+        for name, color in (("poster", "blue"), ("opening-poster", "green")):
+            subprocess.run(
+                [
+                    "ffmpeg",
+                    "-v",
+                    "error",
+                    "-f",
+                    "lavfi",
+                    "-i",
+                    f"color={color}:s=320x180",
+                    "-frames:v",
+                    "1",
+                    "-threads",
+                    "1",
+                    str(desktop.work / f"{name}.png"),
+                ],
+                check=True,
+                capture_output=True,
+            )
         settings = {
             "version": 1,
             "type": "velina",
             "opening": "opening.mp4",
             "showcase": "showcase.mp4",
             "poster": "poster.png",
-            "openingPoster": "poster.png",
+            "openingPoster": "opening-poster.png",
             "leafTexture": "poster.png",
         }
         (desktop.work / "Velina.premiumwall.json").write_text(json.dumps(settings))
@@ -163,11 +170,26 @@ class PremiumPlaybackTests(unittest.TestCase):
 set -euo pipefail
 Xvfb :99 -screen 0 640x360x24 -nolisten tcp >/work/xvfb.log 2>&1 &
 server=$!
-trap 'kill "$server"; wait "$server" || true' EXIT
+pulseaudio -n --daemonize=no --use-pid-file=no --exit-idle-time=-1 \
+    --load='module-native-protocol-unix socket=/tmp/premium-pulse auth-anonymous=1' \
+    >/work/pulse.log 2>&1 &
+audio=$!
+recorder=''
+trap 'kill "$server" "$audio" ${recorder:+"$recorder"} 2>/dev/null || true; wait || true' EXIT
 for attempt in {1..100}; do
-    [[ -S /tmp/.X11-unix/X99 ]] && break
+    [[ -S /tmp/.X11-unix/X99 && -S /tmp/premium-pulse ]] && break
     sleep 0.02
 done
+# Capture only this isolated server, never the desktop's audio.
+(
+    for attempt in {1..300}; do
+        if [[ "$(pactl list short sinks)" == *premium_test* ]]; then
+            exec parec --device=premium_test.monitor --format=s16le --rate=48000 --channels=1 --raw >/work/opening-audio.raw
+        fi
+        sleep 0.02
+    done
+) &
+recorder=$!
 qs -p /work/shell.qml --no-color
 """)
         multimedia = Path(max(Path("/nix/store").glob("*-qtmultimedia-*/lib/qt-6")))
@@ -187,6 +209,7 @@ qs -p /work/shell.qml --no-color
                 LIBGL_DRIVERS_PATH=str(Path("/run/opengl-driver/lib/dri").resolve()),
                 LD_LIBRARY_PATH=str(Path("/run/opengl-driver/lib").resolve()),
                 DBUS_SESSION_BUS_ADDRESS="unix:path=/tmp/no-bus",
+                PULSE_SERVER="unix:/tmp/premium-pulse",
                 LANG="C.UTF-8",
             )
         except subprocess.TimeoutExpired as error:
@@ -196,6 +219,34 @@ qs -p /work/shell.qml --no-color
         output = result.stdout + result.stderr
         self.assertEqual(result.returncode, 0, output)
         self.assertIn("PREMIUM_WALLPAPER_OK", output)
+        audio = (desktop.work / "opening-audio.raw").read_bytes()
+        samples = struct.unpack(f"<{len(audio) // 2}h", audio)
+        self.assertGreater(sum(abs(value) > 500 for value in samples), 4000)
+        captures = sorted(desktop.work.glob("startup-*.png"))
+        self.assertGreater(len(captures), 8)
+        for capture in captures:
+            pixels = subprocess.check_output(
+                [
+                    "ffmpeg",
+                    "-v",
+                    "error",
+                    "-i",
+                    str(capture),
+                    "-vf",
+                    "scale=1:1",
+                    "-f",
+                    "rawvideo",
+                    "-pix_fmt",
+                    "rgb24",
+                    "-threads",
+                    "1",
+                    "-",
+                ]
+            )
+            self.assertTrue(
+                all(value > 235 for value in pixels),
+                f"startup exposed a poster or empty frame: {capture.name} {list(pixels)}",
+            )
         for error in (
             "TypeError",
             "ReferenceError",

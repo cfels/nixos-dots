@@ -43,8 +43,26 @@ Item {
 		if (phase !== "loading" || !incoming.ready)
 			return
 		loadTimeout.stop()
+		if (currentPath.length === 0) {
+			// A login has no outgoing wallpaper to reveal over.
+			finishReveal()
+			return
+		}
 		phase = "animating"
 		reveal.restart()
+	}
+
+	function finishReveal(): void {
+		const outgoing = current
+		activeSlot = 1 - activeSlot
+		phase = "ready"
+		// Only retire the old decoder after the new wallpaper covers the screen.
+		outgoing.path = ""
+		if (pendingPath.length > 0) {
+			const path = pendingPath
+			pendingPath = ""
+			setWallpaper(path, pendingCorner)
+		}
 	}
 
 	function fail(message): void {
@@ -140,18 +158,7 @@ Item {
 		duration: canvas.duration
 		easing.type: Easing.BezierSpline
 		easing.bezierCurve: [0.54, 0, 0.34, 0.99, 1, 1]
-		onFinished: {
-			const outgoing = canvas.current
-			canvas.activeSlot = 1 - canvas.activeSlot
-			canvas.phase = "ready"
-			// Only retire the old decoder after the new wallpaper covers the screen.
-			outgoing.path = ""
-			if (canvas.pendingPath.length > 0) {
-				const path = canvas.pendingPath
-				canvas.pendingPath = ""
-				canvas.setWallpaper(path, canvas.pendingCorner)
-			}
-		}
+		onFinished: canvas.finishReveal()
 	}
 
 	Timer {

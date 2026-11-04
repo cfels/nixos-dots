@@ -102,6 +102,3 @@ __pycache__/
 # generated editor logs and Home Manager font links
 nvim.log
 Configs/config/.config/fontconfig/conf.d/*-hm-*.conf
-
-# Generated PremiumWalls media (prepared locally from extracted assets).
-Configs/walls/walls/PremiumWalls/Velina/

@@ -12,6 +12,9 @@ ShellRoot {
 	property int previousPosition: 0
 	property int pausedPosition: 0
 	property real pausedEffects: 0
+	property bool waitedForAudio: false
+	property int waitingSamples: 0
+	property int captures: 0
 
 	function check(condition, message): void {
 		if (!condition)
@@ -28,9 +31,15 @@ ShellRoot {
 			anchors.fill: parent
 			sourceComponent: WallpaperCanvas {
 				outputName: "DP-1"
+				onPhaseChanged: scenario.check(phase !== "animating", "startup must not reveal over an empty wallpaper")
 				Component.onCompleted: setWallpaper("/work/Velina.premiumwall.json", 0)
 			}
 		}
+	}
+
+	Process {
+		id: connectAudio
+		command: ["pactl", "load-module", "module-null-sink", "sink_name=premium_test"]
 	}
 
 	FileView {
@@ -51,11 +60,23 @@ ShellRoot {
 				const subject = loader.item ? loader.item.current.premiumPlayer : null
 				if (subject)
 					scenario.check(subject.error.length === 0, subject.error)
+				if (subject && ((subject.playbackState === "OPENING" && subject.position > 80) || subject.playbackState === "TRANSITIONING" || (subject.playbackState === "SHOWCASE_LOOP" && scenario.step === 1))) {
+					const frame = scenario.captures++;
+					loader.item.grabToImage(result => result.saveToFile("/work/startup-" + frame + ".png"), Qt.size(160, 90))
+				}
 				if (scenario.step === 0) {
+					if (subject && subject.waitingForAudio) {
+						scenario.check(subject.playbackState === "INITIALIZING" && subject.openingVideo.position === 0, "opening waits for the startup audio device")
+						scenario.waitedForAudio = true
+						if (++scenario.waitingSamples === 12)
+							connectAudio.running = true
+					}
 					if (!subject || subject.playbackState !== "OPENING")
 						return
+					scenario.check(scenario.waitedForAudio, "late audio output was exercised")
 					scenario.check(subject.useOpening && subject.startupSound, "first load reserves opening and audio")
 					scenario.check(subject.openingVideo.player.hasAudio, "opening retains its audio stream")
+					scenario.check(!subject.openingVideo.player.audioOutput.muted, "opening audio output is unmuted")
 					scenario.step = 1
 				} else if (scenario.step === 1) {
 					if (subject.playbackState !== "SHOWCASE_LOOP")

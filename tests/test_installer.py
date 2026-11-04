@@ -257,6 +257,16 @@ class RestoreTests(InstallerTestCase):
 
 
 class ApplyTests(InstallerTestCase):
+    def test_missing_wallpaper_submodule_fails_before_replacing_configuration(self):
+        (self.desktop.repo / ".gitmodules").write_text("[submodule]\n")
+        result = self.desktop.run(APPLY)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("submodule update --init --recursive", result.stderr)
+        self.assertEqual(
+            (self.desktop.home / ".config/original").read_text(), ".config"
+        )
+        self.assertEqual(self.desktop.commands(), [])
+
     def test_hardware_generation_fallback_is_still_available(self):
         (self.desktop.etc / "nixos/hardware-configuration.nix").unlink()
         self.backup()
@@ -385,6 +395,33 @@ sys.exit(int(os.environ.get("TELEMETRY_STATUS", "0")))
         commands = self.desktop.commands()
         activation = next(index for index, command in enumerate(commands) if command[0] == "nixos-rebuild")
         self.assertGreater(commands.index(self.telemetry_calls()[0]), activation)
+
+    def test_failed_wallpaper_fetch_stops_before_backup_or_configuration_changes(self):
+        (self.desktop.repo / ".gitmodules").write_text("[submodule]\n")
+        result = self.desktop.run(
+            MAIN, "--user", "audituser", FAIL_COMMAND="git", FAULT_MATCH="submodule"
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.desktop.home / "dots-backup").exists())
+        self.assertEqual(
+            (self.desktop.home / ".config/original").read_text(), ".config"
+        )
+        self.assertEqual(
+            self.desktop.commands(),
+            [
+                [
+                    "git",
+                    "-C",
+                    "/work/repo",
+                    "submodule",
+                    "update",
+                    "--init",
+                    "--recursive",
+                    "--",
+                    "Configs/walls/walls",
+                ]
+            ],
+        )
 
     def test_telemetry_failure_does_not_fail_installation(self):
         result = self.desktop.run(MAIN, "--user", "audituser", TELEMETRY_STATUS="28")

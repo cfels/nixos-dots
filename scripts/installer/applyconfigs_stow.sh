@@ -5,6 +5,10 @@ umask 077
 
 REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$REPO/scripts/installer/common.sh"
+if [[ -f "$REPO/.gitmodules" && ! -f "$REPO/Configs/walls/walls/Velina.premiumwall.json" ]]; then
+  dots_error "wallpapers are missing; run: git -C '$REPO' submodule update --init --recursive"
+  exit 1
+fi
 dots_resolve_user
 dots_require_root "$0" "$@"
 dots_lock

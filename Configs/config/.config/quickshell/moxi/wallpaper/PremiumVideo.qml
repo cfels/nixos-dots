@@ -11,6 +11,7 @@ Item {
 	property bool cover: true
 	property bool ready: false
 	property bool started: false
+	readonly property bool audioReady: !audioEnabled || devices.audioOutputs.length > 0
 	readonly property int position: playback.position
 	readonly property int duration: playback.duration
 	readonly property MediaPlayer player: playback
@@ -23,7 +24,8 @@ Item {
 		if (ready) {
 			if (playing) {
 				if (!started) {
-					playback.position = 0
+					if (playback.position > 0)
+						playback.position = 0
 					started = true
 				}
 				playback.play()
@@ -43,12 +45,17 @@ Item {
 		endOfStreamPolicy: VideoOutput.KeepLastFrame
 	}
 
+	MediaDevices {
+		id: devices
+	}
+
 	MediaPlayer {
 		id: playback
 		source: video.source
 		videoOutput: surface
 		loops: video.loop ? MediaPlayer.Infinite : 1
 		audioOutput: AudioOutput {
+			device: devices.defaultAudioOutput
 			muted: !video.audioEnabled || !video.playing
 		}
 		onMediaStatusChanged: {
@@ -64,12 +71,15 @@ Item {
 	Connections {
 		target: surface.videoSink
 		function onVideoFrameChanged(): void {
-			if (!playback.hasVideo || playback.mediaStatus === MediaPlayer.EndOfMedia)
+			if (!playback.hasVideo || playback.mediaStatus === MediaPlayer.EndOfMedia || surface.videoSink.videoSize.width <= 0 || surface.videoSink.videoSize.height <= 0)
 				return
-			video.ready = true
-			if (!video.playing)
+			if (!video.ready) {
+				// Pause before publishing readiness: it can synchronously start playback.
 				playback.pause()
-			else
+				video.ready = true
+				return
+			}
+			if (video.playing)
 				video.presented()
 		}
 	}

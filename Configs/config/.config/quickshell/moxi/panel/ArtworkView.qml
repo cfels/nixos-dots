@@ -21,10 +21,11 @@ Item {
 	layer.effect: MultiEffect {
 		maskEnabled: true
 		maskSource: artworkMask
-		blurEnabled: artwork.lyricsBlur > 0.01
+		blurEnabled: true
 		blur: artwork.lyricsBlur
 		blurMax: 20
-		autoPaddingEnabled: true
+		// Keep the mask aligned with the cover throughout the lyrics blur.
+		autoPaddingEnabled: false
 	}
 
 	Squircle {

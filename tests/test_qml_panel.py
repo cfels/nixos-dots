@@ -66,6 +66,43 @@ class QmlPanelTests(unittest.TestCase):
     def test_browser_artwork_refresh_without_track_url(self):
         self.run_scenario(REPO / "tests/qml/BrowserArtworkScenario.qml", real_artwork=True)
 
+    @unittest.skipUnless(shutil.which("Xvfb"), "Xvfb is required for artwork masking")
+    def test_artwork_corners_stay_masked_when_returning_from_lyrics(self):
+        images = self.run_scenario(
+            REPO / "tests/qml/ArtworkLyricsCornersScenario.qml", renderer="opengl"
+        )
+        self.assertEqual(len(images), 10)
+        visible_frames = 0
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "artwork.png"
+            for name, data in images.items():
+                image.write_bytes(data)
+                raw = subprocess.check_output(
+                    [
+                        "ffmpeg",
+                        "-v",
+                        "error",
+                        "-i",
+                        str(image),
+                        "-f",
+                        "rawvideo",
+                        "-pix_fmt",
+                        "rgb24",
+                        "-",
+                    ]
+                )
+                # Compare to the center: visibility/opacity differs across the fade.
+                center = raw[(85 * 170 + 85) * 3]
+                if center == 0:
+                    continue
+                visible_frames += 1
+                for x, y in ((3, 3), (166, 3), (3, 166), (166, 166)):
+                    corner = raw[(y * 170 + x) * 3]
+                    self.assertLessEqual(
+                        corner, max(3, center * 0.02), (name, x, y, corner, center)
+                    )
+        self.assertGreaterEqual(visible_frames, 8)
+
     def test_search_progress_preserves_animation_position(self):
         self.run_scenario(REPO / "tests/qml/SearchProgressScenario.qml")
 
