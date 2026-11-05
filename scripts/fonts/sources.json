@@ -1,0 +1,13 @@
+{
+  "family": "Moxi Trust",
+  "style": "ExtraBold",
+  "weight": 800,
+  "sources": {
+    "momotrust.ttf": "2e16de5b61266c3c413660ea9039ba5204b6ebd603a86b0d670a57cb4e5b4bba",
+    "NotoSans-ExtraBold-RU.ttf": "57bcedfff2473aee63d7cb42455e52f979adf2718cc645f37f4a5d8b4ec776c0",
+    "NotoSansJP-ExtraBold.ttf": "30bda59cd7230e324566ec48683ed180f98ad44ddf7d027c366ec5d2e9d67d7d",
+    "NotoSansKR-ExtraBold.ttf": "0cf9b50edb488028e138b928ce1ff50dd143d907f14f247ca462d3cad561ca41"
+  },
+  "revision": "d126322ad0883a2aeaccbf4ad5553c927482e72a",
+  "directory": "Configs/config/.config/quickshell/moxi/fonts"
+}

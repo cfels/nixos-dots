@@ -9,6 +9,10 @@ Item {
 	property Component settingsComponent
 	property bool panelExpanded: false
 	property bool settingsOpen: false
+	property real outgoingWidth: 0
+	property real outgoingHeight: 0
+	onWidthChanged: if (settingsOpen) outgoingWidth = width
+	onHeightChanged: if (settingsOpen) outgoingHeight = height
 	readonly property int direction: settingsOpen ? -1 : 1
 	property string requestedPage: ""
 	property real dragDistance: 0
@@ -56,6 +60,10 @@ Item {
 		reveal = settingsOpen ? 1 : 0
 	}
 	onSettingsOpenChanged: {
+		if (settingsOpen) {
+			outgoingWidth = width
+			outgoingHeight = height
+		}
 		if (!panelExpanded || Preferences.reducedMotion)
 			settle()
 		else {
@@ -98,11 +106,13 @@ Item {
 
 	Loader {
 		id: settings
-		width: pager.width
-		height: pager.height
+		// Resizing the outgoing controls would relayout the whole page each frame.
+		width: !pager.settingsOpen && pager.transitioning ? pager.outgoingWidth : pager.width
+		height: !pager.settingsOpen && pager.transitioning ? pager.outgoingHeight : pager.height
 		x: pager.direction * width * 0.35 * (1 - pager.reveal) + pager.dragOffset
 		opacity: pager.blend
 		active: pager.panelExpanded && (pager.settingsOpen || swipe.active || pager.transitioning)
+		asynchronous: !Preferences.reducedMotion
 		enabled: pager.settingsOpen && !pager.transitioning
 		sourceComponent: pager.settingsComponent
 		onLoaded: {
@@ -111,6 +121,19 @@ Item {
 				pager.requestedPage = ""
 			}
 		}
+	}
+	ShaderEffectSource {
+		id: outgoingSettings
+		x: settings.x
+		width: settings.width
+		height: settings.height
+		opacity: settings.opacity
+		visible: sourceItem !== null
+		sourceItem: !pager.settingsOpen && pager.transitioning && GraphicsInfo.api !== GraphicsInfo.Software ? settings.item as Item : null
+		// Keep the exit on the GPU, without a readback or repainting every control.
+		live: false
+		hideSource: true
+		smooth: true
 	}
 
 	DragHandler {

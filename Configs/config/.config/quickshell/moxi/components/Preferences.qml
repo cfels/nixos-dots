@@ -17,6 +17,12 @@ Scope {
 	property string saveError: ""
 	property string applyError: ""
 	property string message: ""
+	onMessageChanged: {
+		if (message)
+			messageExpiry.restart()
+		else
+			messageExpiry.stop()
+	}
 	property bool ready: false
 	property var pending: []
 	readonly property bool saving: writer.running || restorer.running || pending.length > 0
@@ -158,6 +164,11 @@ Scope {
 			error = "Settings definitions are unavailable: " + problem
 		}
 		refresh()
+	}
+	Timer {
+		id: messageExpiry
+		interval: 3500
+		onTriggered: preferences.message = ""
 	}
 	Timer {
 		id: applyDelay

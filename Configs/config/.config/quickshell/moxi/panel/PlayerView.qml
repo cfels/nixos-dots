@@ -87,13 +87,14 @@ Item {
 		anchors.right: parent.right
 		color: playerView.theme.foreground
 		elide: Text.ElideRight
-		font.family: playerView.fonts.lyricFont(title.text)
+		font.family: playerView.fonts.fontFamily
 		font.contextFontMerging: true
 		renderTypeQuality: Text.HighRenderTypeQuality
 		font.pixelSize: 15
-		font.weight: playerView.fonts.lyricWeight(title.text, true)
+		font.weight: Font.Normal
 		horizontalAlignment: Text.AlignHCenter
-		text: playerView.media.trackTitle.length > 0 ? playerView.media.trackTitle : playerView.media.emptyPhrase
+		text: Fonts.styled(playerView.media.trackTitle.length > 0 ? playerView.media.trackTitle : playerView.media.emptyPhrase)
+		textFormat: Text.StyledText
 		wrapMode: Text.NoWrap
 	}
 
@@ -106,13 +107,14 @@ Item {
 		anchors.right: parent.right
 		color: playerView.media.trackArtist.length > 0 ? playerView.theme.accent : playerView.theme.muted
 		elide: Text.ElideRight
-		font.family: playerView.fonts.lyricFont(artist.text)
+		font.family: playerView.fonts.fontFamily
 		font.contextFontMerging: true
 		renderTypeQuality: Text.HighRenderTypeQuality
 		font.pixelSize: 13
-		font.weight: playerView.fonts.lyricWeight(artist.text, false)
+		font.weight: Font.Normal
 		horizontalAlignment: Text.AlignHCenter
-		text: playerView.media.trackArtist.length > 0 ? playerView.media.trackArtist : (playerView.media.trackAlbum.length > 0 ? playerView.media.trackAlbum : "—")
+		text: Fonts.styled(playerView.media.trackArtist.length > 0 ? playerView.media.trackArtist : (playerView.media.trackAlbum.length > 0 ? playerView.media.trackAlbum : "—"))
+		textFormat: Text.StyledText
 		wrapMode: Text.NoWrap
 	}
 

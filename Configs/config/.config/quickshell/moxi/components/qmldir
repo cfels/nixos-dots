@@ -1,4 +1,5 @@
 BarReveal 1.0 BarReveal.qml
+singleton Fonts 1.0 Fonts.qml
 IslandWindow 1.0 IslandWindow.qml
 NotificationMotion 1.0 NotificationMotion.qml
 singleton Preferences 1.0 Preferences.qml

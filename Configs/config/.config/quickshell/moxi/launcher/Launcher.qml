@@ -41,7 +41,7 @@ PanelWindow {
 	readonly property color accent: theme.accent
 	readonly property color foreground: theme.foreground
 	readonly property color muted: theme.muted
-	readonly property string fontFamily: momo.status === FontLoader.Ready ? momo.name : ""
+	readonly property string fontFamily: Fonts.family
 	readonly property real cornerRadius: launcher.open ? 30 : 19
 	readonly property string iconScanScript: Quickshell.shellDir + "/launcher/icon-scan.sh"
 
@@ -49,11 +49,6 @@ PanelWindow {
 		launcher.buildIndex()
 		launcher.refresh(true)
 		iconScan.running = true
-	}
-
-	FontLoader {
-		id: momo
-		source: "../fonts/momotrust.ttf"
 	}
 
 	anchors {

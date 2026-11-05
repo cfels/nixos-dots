@@ -69,25 +69,9 @@ PanelWindow {
 	readonly property color foreground: theme.foreground
 	readonly property color muted: theme.muted
 	readonly property color idle: theme.idle
-	readonly property string fontFamily: momo.status === FontLoader.Ready ? momo.name : ""
-	readonly property string cyrillicFont: ruFont.status === FontLoader.Ready ? ruFont.name : bar.fontFamily
-	readonly property string japaneseFont: jpFont.status === FontLoader.Ready ? jpFont.name : bar.fontFamily
-	readonly property string koreanFont: krFont.status === FontLoader.Ready ? krFont.name : bar.fontFamily
+	readonly property string fontFamily: Fonts.family
 	readonly property string glyphFont: Qt.fontFamilies().indexOf("Symbols Nerd Font") !== -1 ? "Symbols Nerd Font" : ""
-
-	function songFont(text): string {
-		var value = "" + text
-
-		if (/[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318F]/.test(value)) return bar.koreanFont
-		if (/[\u3040-\u30FF\u31F0-\u31FF\u4E00-\u9FFF\uF900-\uFAFF]/.test(value)) return bar.japaneseFont
-		if (/[\u0400-\u04FF\u0500-\u052F]/.test(value)) return bar.cyrillicFont
-
-		return bar.fontFamily
-	}
-
-	function songWeight(text): int {
-		return bar.songFont(text) !== bar.fontFamily ? Font.ExtraBold : Font.Normal
-	}
+	readonly property bool textTransforming: Math.abs(pill.scale - 1) > 0.001 || bar.contentBlur > 0.004
 
 	readonly property var player: bar.pickPlayer()
 	readonly property bool hasPlayer: bar.player !== null
@@ -168,26 +152,6 @@ PanelWindow {
 			mass: 0.7
 			epsilon: 0.4
 		}
-	}
-
-	FontLoader {
-		id: momo
-		source: "../fonts/momotrust.ttf"
-	}
-
-	FontLoader {
-		id: ruFont
-		source: "../fonts/NotoSans-ExtraBold-RU.ttf"
-	}
-
-	FontLoader {
-		id: jpFont
-		source: "../fonts/NotoSansJP-ExtraBold.ttf"
-	}
-
-	FontLoader {
-		id: krFont
-		source: "../fonts/NotoSansKR-ExtraBold.ttf"
 	}
 
 	PwObjectTracker {
@@ -513,6 +477,8 @@ PanelWindow {
 				font.family: bar.fontFamily
 				font.contextFontMerging: true
 				renderTypeQuality: Text.HighRenderTypeQuality
+				renderType: bar.textTransforming ? Text.QtRendering : Text.NativeRendering
+				font.hintingPreference: Font.PreferVerticalHinting
 				font.pixelSize: 14
 				font.weight: Font.Medium
 				text: Qt.formatDateTime(clock.date, Preferences.value("bar.clockFormat", "24-hour") === "12-hour" ? "h:mm AP" : "HH:mm")
@@ -719,12 +685,15 @@ PanelWindow {
 								Layout.preferredWidth: Math.min(implicitWidth, bar.titleWidth)
 								color: bar.foreground
 								elide: Text.ElideRight
-								font.family: bar.songFont(label.title)
+								font.family: bar.fontFamily
 								font.contextFontMerging: true
 								renderTypeQuality: Text.HighRenderTypeQuality
+								renderType: bar.textTransforming || label.moving || Math.abs(bar.songSwipe) > 0.5 ? Text.QtRendering : Text.NativeRendering
+								font.hintingPreference: Font.PreferVerticalHinting
 								font.pixelSize: 13
-								font.weight: bar.songWeight(label.title)
-								text: label.title
+								font.weight: Font.Normal
+								text: Fonts.styled(label.title)
+								textFormat: Text.StyledText
 								wrapMode: Text.NoWrap
 							}
 
@@ -734,12 +703,15 @@ PanelWindow {
 								visible: label.artist.length > 0
 								elide: Text.ElideRight
 								color: bar.muted
-								font.family: bar.songFont(label.artist)
+								font.family: bar.fontFamily
 								font.contextFontMerging: true
 								renderTypeQuality: Text.HighRenderTypeQuality
+								renderType: bar.textTransforming || label.moving || Math.abs(bar.songSwipe) > 0.5 ? Text.QtRendering : Text.NativeRendering
+								font.hintingPreference: Font.PreferVerticalHinting
 								font.pixelSize: 13
-								font.weight: bar.songWeight(label.artist)
-								text: label.artist
+								font.weight: Font.Normal
+								text: Fonts.styled(label.artist)
+								textFormat: Text.StyledText
 								wrapMode: Text.NoWrap
 							}
 						}
@@ -821,6 +793,8 @@ PanelWindow {
 						font.family: bar.fontFamily
 						font.contextFontMerging: true
 						renderTypeQuality: Text.HighRenderTypeQuality
+						renderType: bar.textTransforming ? Text.QtRendering : Text.NativeRendering
+						font.hintingPreference: Font.PreferVerticalHinting
 						font.pixelSize: 13
 						text: bar.sinkMuted ? "muted" : Math.round(bar.sinkVolume * 100) + "%"
 					}
@@ -843,6 +817,8 @@ PanelWindow {
 					font.family: bar.fontFamily
 					font.contextFontMerging: true
 					renderTypeQuality: Text.HighRenderTypeQuality
+					renderType: bar.textTransforming ? Text.QtRendering : Text.NativeRendering
+					font.hintingPreference: Font.PreferVerticalHinting
 					font.pixelSize: 13
 					text: Qt.formatDateTime(clock.date, "ddd d MMM")
 				}

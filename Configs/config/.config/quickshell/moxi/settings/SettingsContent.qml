@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import Quickshell.Io
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Controls
 import QtQuick.Window
 import QtQuick.Layouts
@@ -222,6 +223,7 @@ Item {
 				color: Qt.rgba(SettingsStyle.theme.foreground.r, SettingsStyle.theme.foreground.g, SettingsStyle.theme.foreground.b, 0.12)
 			}
 			ColumnLayout {
+				id: settingsColumn
 				Layout.fillWidth: true
 				Layout.fillHeight: true
 				spacing: 12
@@ -235,14 +237,62 @@ Item {
 						color: SettingsStyle.theme.foreground
 					}
 				}
-				Text {
+				Item {
+					id: statusMessage
 					Layout.fillWidth: true
-					visible: text.length > 0
-					text: Preferences.saveError || Preferences.applyError || Preferences.error || window.actionError || Preferences.message
-					color: Preferences.saveError || Preferences.applyError || Preferences.error || window.actionError ? SettingsStyle.theme.danger : SettingsStyle.theme.accent
-					font.family: SettingsStyle.fontFamily
-					font.pixelSize: 11
-					wrapMode: Text.WordWrap
+					Layout.topMargin: -settingsColumn.spacing * (1 - space)
+					Layout.minimumHeight: 0
+					Layout.preferredHeight: implicitHeight
+					Layout.maximumHeight: implicitHeight
+					readonly property string failure: Preferences.saveError || Preferences.applyError || Preferences.error || window.actionError
+					readonly property string currentText: failure || Preferences.message
+					property string shownText: ""
+					property bool shownError: false
+					property real reveal: currentText ? 1 : 0
+					property real space: currentText || reveal > 0 ? 1 : 0
+					implicitHeight: statusLabel.implicitHeight * space
+					visible: space > 0 || reveal > 0
+					function updateMessage(): void {
+						if (currentText) {
+							shownText = currentText
+							shownError = failure.length > 0
+						}
+					}
+					onCurrentTextChanged: updateMessage()
+					Component.onCompleted: updateMessage()
+					onSpaceChanged: if (space === 0 && !currentText && reveal === 0) shownText = ""
+					Behavior on reveal {
+						NumberAnimation {
+							duration: Preferences.motion(300)
+							easing.type: Easing.OutCubic
+						}
+					}
+					Behavior on space {
+						NumberAnimation {
+							duration: Preferences.motion(180)
+							easing.type: Easing.OutCubic
+						}
+					}
+					Text {
+						id: statusLabel
+						width: parent.width
+						text: statusMessage.shownText
+						color: statusMessage.shownError ? SettingsStyle.theme.danger : SettingsStyle.theme.accent
+						font.family: SettingsStyle.fontFamily
+						font.pixelSize: 11
+						wrapMode: Text.WordWrap
+						opacity: statusMessage.reveal
+						scale: 0.98 + 0.02 * statusMessage.reveal
+						transformOrigin: Item.Left
+						transform: Translate { y: -10 * (1 - statusMessage.reveal) }
+						layer.enabled: statusMessage.reveal > 0 && statusMessage.reveal < 1
+						layer.effect: MultiEffect {
+							blurEnabled: true
+							blurMax: 12
+							blur: 0.65 * (1 - statusMessage.reveal)
+							autoPaddingEnabled: true
+						}
+					}
 				}
 				Text {
 					Layout.fillWidth: true

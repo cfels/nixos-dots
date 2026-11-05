@@ -66,7 +66,7 @@ ShellRoot {
 					scenario.capture("artwork")
 				} else if (scenario.step === 4) {
 					lyrics.lyricsFetchKey = lyrics.lyricsKey
-					lyrics.applyLyrics(JSON.stringify({duration: 180, syncedLyrics: "[00:01]first line\n[00:02]second line\n[00:03]third line", plainLyrics: ""}))
+					lyrics.applyLyrics(JSON.stringify({duration: 180, syncedLyrics: "[00:01]私が私の事を愛して\n[00:02]可愛くてごめん\n[00:03]ангелочек & music", plainLyrics: ""}))
 					media.positionTrusted = true
 					media.trackPosition = 2.2
 					fakePlayer.position = 2.2
@@ -74,7 +74,7 @@ ShellRoot {
 				} else if (scenario.step === 5) {
 					scenario.capture("synced")
 				} else if (scenario.step === 6) {
-					lyrics.applyLyrics(JSON.stringify({duration: 180, syncedLyrics: "", plainLyrics: "plain first\nplain second"}))
+					lyrics.applyLyrics(JSON.stringify({duration: 180, syncedLyrics: "", plainLyrics: "可愛くてごめん <3\nангелочек & music"}))
 					scenario.step += 1
 				} else if (scenario.step === 7) {
 					scenario.capture("plain")

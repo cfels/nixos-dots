@@ -235,14 +235,10 @@ Item {
 			Component.onCompleted: if (current)
 				letterReveal.restart()
 
-			function escaped(text): string {
-				return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-			}
-
 			function coloredText(): string {
 				if (emphasis < 0.001 || lineMouse.containsMouse)
-					return escaped(modelData.text)
-				var result = ""
+					return Fonts.styled(modelData.text)
+				var colors = []
 				for (var i = 0; i < letters.length; ++i) {
 					// A soft front crosses the letters; line timing remains unchanged.
 					var amount = emphasis * Math.max(0, Math.min(1, (letterSweep * (letters.length + 4) - i) / 4))
@@ -250,9 +246,9 @@ Item {
 					var g = Math.round(255 * (lyricsDisplay.theme.muted.g + (lyricsDisplay.theme.accent.g - lyricsDisplay.theme.muted.g) * amount))
 					var b = Math.round(255 * (lyricsDisplay.theme.muted.b + (lyricsDisplay.theme.accent.b - lyricsDisplay.theme.muted.b) * amount))
 					var hex = "#" + (0x1000000 + r * 65536 + g * 256 + b).toString(16).slice(1)
-					result += '<font color="' + hex + '">' + escaped(letters[i]) + '</font>'
+					colors.push(hex)
 				}
-				return result
+				return Fonts.styled(modelData.text, colors)
 			}
 
 			SequentialAnimation {
@@ -294,11 +290,11 @@ Item {
 			text: coloredText()
 			textFormat: Text.StyledText
 			color: lineMouse.containsMouse ? lyricsDisplay.theme.foreground : lyricsDisplay.theme.muted
-			font.family: lyricsDisplay.fonts.lyricFont(modelData.text)
+			font.family: lyricsDisplay.fonts.fontFamily
 			font.contextFontMerging: true
 			renderTypeQuality: Text.HighRenderTypeQuality
 			font.pixelSize: 12
-			font.weight: lyricsDisplay.fonts.lyricWeight(modelData.text, false)
+			font.weight: Font.Normal
 			horizontalAlignment: Text.AlignHCenter
 			wrapMode: Text.WordWrap
 			transformOrigin: Item.Center

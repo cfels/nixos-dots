@@ -7,9 +7,59 @@ import unittest
 from pathlib import Path
 
 from support import REPO, IsolatedDesktop, install_preferences
+from test_lyrics_panel import block_after
 
 
 class QmlPanelTests(unittest.TestCase):
+    @unittest.skipUnless(
+        shutil.which("Xvfb") and shutil.which("fc-match"),
+        "Xvfb and Fontconfig are required for text rendering",
+    )
+    def test_bar_text_merges_scripts_and_uses_native_hinting_at_rest(self):
+        images = self.run_scenario(
+            REPO / "tests/qml/BarTextScenario.qml", renderer="opengl", with_fonts=True
+        )
+        self.assertIn("panel-bar-text.png", images)
+        capture = os.environ.get("DOTS_PANEL_CAPTURE")
+        if capture:
+            directory = Path(capture)
+            directory.mkdir(parents=True, exist_ok=True)
+            (directory / "bar-text.png").write_bytes(images["panel-bar-text.png"])
+
+    def test_settings_success_messages_expire_but_errors_remain(self):
+        self.run_scenario(REPO / "tests/qml/SettingsMessagesScenario.qml")
+
+    def test_settings_messages_fade_collapse_and_preserve_errors(self):
+        self.run_scenario(REPO / "tests/qml/SettingsMessageAnimationScenario.qml")
+
+    @unittest.skipUnless(shutil.which("Xvfb"), "Xvfb is required for exit rendering")
+    def test_settings_exit_freezes_layout_and_releases_its_gpu_source(self):
+        images = self.run_scenario(
+            REPO / "tests/qml/PanelExitScenario.qml", renderer="opengl"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            image = Path(directory) / "exit.png"
+            image.write_bytes(images["panel-settings-exit.png"])
+            pixels = subprocess.check_output(
+                [
+                    "ffmpeg",
+                    "-v",
+                    "error",
+                    "-i",
+                    str(image),
+                    "-f",
+                    "rawvideo",
+                    "-pix_fmt",
+                    "rgb24",
+                    "-",
+                ]
+            )
+        # The live page turned green after capture; its frozen blue frame must remain.
+        offset = (100 * 380 + 300) * 3
+        red, green, blue = pixels[offset : offset + 3]
+        self.assertGreater(blue, 30, (red, green, blue))
+        self.assertLess(green, 5, (red, green, blue))
+
     @unittest.skipUnless(
         shutil.which("Xvfb"), "Xvfb is required for fade and corner rendering"
     )
@@ -180,12 +230,14 @@ class QmlPanelTests(unittest.TestCase):
         self.assertEqual(len(images), 6)
         self.assertEqual(len(set(images.values())), 6)
 
-    def run_scenario(self, scenario, source=None, renderer="software", initial_player=False, installed_layout=False, real_artwork=False, real_wallpapers=False, progressive_wallpapers=False, with_island=False):
+    def run_scenario(self, scenario, source=None, renderer="software", initial_player=False, installed_layout=False, real_artwork=False, real_wallpapers=False, progressive_wallpapers=False, with_island=False, with_fonts=False):
         desktop = IsolatedDesktop()
         self.addCleanup(desktop.close)
         source = source or REPO / "Configs/config/.config/quickshell/moxi"
         target = desktop.work / "moxi"
         shutil.copytree(source, target)
+        pager = target / "panel/PanelPager.qml"
+        pager.write_text(pager.read_text().replace("id: pager\n", "id: pager\n\tproperty alias testSettings: settings\n\tproperty alias testExit: outgoingSettings\n", 1))
         if with_island:
             island = target / "components/IslandWindow.qml"
             text = island.read_text().replace("PanelWindow {", "Item {", 1)
@@ -227,7 +279,7 @@ class QmlPanelTests(unittest.TestCase):
         panel.write_text(text)
         settings_content = target / "settings/SettingsContent.qml"
         settings_content.write_text(settings_content.read_text().replace(
-            "id: window\n", "id: window\n\tproperty alias testCrossover: pageCrossover\n", 1
+            "id: window\n", "id: window\n\tproperty alias testCrossover: pageCrossover\n\tproperty alias testStatus: statusMessage\n", 1
         ))
         wallpaper_controller = target / "panel/WallpaperController.qml"
         wallpaper_controller.write_text(wallpaper_controller.read_text().replace(
@@ -350,6 +402,25 @@ printf '%s\\n' "$listing"
             "QML_IMPORT_PATH": "/run/current-system/sw/lib/qt-6/qml",
             "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/no-bus", "XDG_RUNTIME_DIR": "/tmp/runtime", "LANG": "C.UTF-8",
         }
+        if with_fonts:
+            (desktop.work / "fonts.conf").write_text(
+                '<fontconfig><dir>/work/moxi/fonts</dir>'
+                '<match target="font">'
+                '<edit name="antialias" mode="assign"><bool>true</bool></edit>'
+                '<edit name="hintstyle" mode="assign"><const>hintslight</const></edit>'
+                '</match></fontconfig>'
+            )
+            environment["FONTCONFIG_FILE"] = "/work/fonts.conf"
+            shell = desktop.work / "shell.qml"
+            label = block_after(
+                (source / "bar/Bar.qml").read_text(), "component SongLabel: RowLayout {"
+            )
+            shell.write_text(
+                shell.read_text().replace(
+                    "// SONG_LABEL_COMPONENT",
+                    "component SongLabel: RowLayout {" + label + "}",
+                )
+            )
         command = "exec quickshell -p /work/shell.qml --no-color\n"
         if renderer == "opengl":
             environment.update({

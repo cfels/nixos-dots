@@ -37,7 +37,7 @@ PanelWindow {
 	readonly property color accent: theme.accent
 	readonly property color foreground: theme.foreground
 	readonly property color muted: theme.muted
-	readonly property string fontFamily: momo.status === FontLoader.Ready ? momo.name : ""
+	readonly property string fontFamily: Fonts.family
 	readonly property real cornerRadius: emoji.open ? 30 : emoji.anchorHeight / 2
 
 	property var catalog: []
@@ -66,12 +66,6 @@ PanelWindow {
 	Component.onCompleted: {
 		emoji.loadCatalog()
 		emoji.refresh()
-	}
-
-	FontLoader {
-		id: momo
-		source: "../fonts/momotrust.ttf"
-
 	}
 
 	anchors {

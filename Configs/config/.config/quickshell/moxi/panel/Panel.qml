@@ -222,7 +222,7 @@ PanelWindow {
 				opacity: panel.contentVisible ? 1 : 0
 				settingsComponent: SettingsContent {
 					wallpaperLibrary: wallpaperController
-					active: panel.expanded && pager.settingsOpen
+					active: panel.expanded && (pager.settingsOpen || pager.transitioning)
 					embedded: true
 					onCloseRequested: pager.navigate()
 				}

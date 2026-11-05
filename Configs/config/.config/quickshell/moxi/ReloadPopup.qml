@@ -13,13 +13,8 @@ Scope {
 	property string errorString: ""
 	readonly property real push: popupLoader.item ? popupLoader.item.push : 0
 
-	readonly property string uiFont: momo.status === FontLoader.Ready ? momo.name : ""
+	readonly property string uiFont: Fonts.family
 	readonly property string glyphFont: Qt.fontFamilies().indexOf("Symbols Nerd Font") !== -1 ? "Symbols Nerd Font" : ""
-
-	FontLoader {
-		id: momo
-		source: "fonts/momotrust.ttf"
-	}
 
 	function announce(failed: bool, error: string): void {
 		Quickshell.inhibitReloadPopup()

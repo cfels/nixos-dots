@@ -23,13 +23,7 @@ PanelWindow {
 	readonly property color danger: theme.danger
 	readonly property string glyphFont: Qt.fontFamilies().indexOf("Symbols Nerd Font") !== -1 ? "Symbols Nerd Font" : ""
 	readonly property string focusScript: Quickshell.env("HOME") + "/.config/hypr/scripts/focus-app.sh"
-	readonly property string fontFamily: momo.status === FontLoader.Ready ? momo.name : ""
-
-	FontLoader {
-		id: momo
-
-		source: "../fonts/momotrust.ttf"
-	}
+	readonly property string fontFamily: Fonts.family
 
 	anchors {
 		top: true

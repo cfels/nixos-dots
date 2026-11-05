@@ -8,6 +8,16 @@ python3 -B -m unittest discover -s tests -v
 
 The tests require Python, Bash, Bubblewrap, GNU Stow, and the existing GNU command-line tools. Atomic directory replacement requires GNU `mv` with `--exchange` and `--no-copy`. Node.js checks the extracted panel JavaScript; Neovim/LuaJIT checks Lua module loading. Those two checks explicitly skip if their runtimes are unavailable. The suite does not install tools.
 
+The optional font tests require fontTools, Brotli and HarfBuzz. Run them with
+`nix-shell scripts/fonts/shell.nix --run 'PYTHONPATH=tests python3 -B -m unittest test_fonts -v'`.
+They check the merged font's coverage, original Momotrust outlines and hinting,
+multilingual shaping, language variants, licenses and compressed output. The
+original comparison fonts are recovered temporarily from pinned Git history;
+that revision must be available locally. They are not installed runtime assets.
+The isolated bar scenario also renders English, Russian, Japanese and Korean with
+the bundled family. See the [font notes](../Configs/config/.config/quickshell/moxi/fonts/README.md)
+for the build process and its limitations.
+
 ## Isolation
 
 The optional Helium integration test requires a running systemd user session and
