@@ -12,6 +12,7 @@ local screenlock = "$HOME/.config/hypr/scripts/lock-screen.sh"
 
 -- your "windows" key
 local SUPER = "SUPER"
+local ALT = "ALT"
 
 -----------------------
 --- SCREENSHOTING ---
@@ -81,7 +82,7 @@ end
 
 -- close program
 local closeWindowBind = hl.bind(SUPER .. " + Q", hl.dsp.window.close())
-local closeWindowAltBind = hl.bind("ALT + F4", hl.dsp.window.close())
+local closeWindowAltBind = hl.bind(ALT .. " + F4", hl.dsp.window.close())
 
 -- window stuff
 hl.bind(SUPER .. " + SHIFT + T", hl.dsp.window.float({ action = "toggle" }))
