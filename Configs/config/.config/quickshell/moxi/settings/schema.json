@@ -24,7 +24,7 @@
     {
       "key": "appearance.screenCorners",
       "label": "Rounded screen corners",
-      "default": false,
+      "default": true,
       "kind": "toggle",
       "description": "Add rounded corners at the edges of each screen.",
       "category": "appearance"

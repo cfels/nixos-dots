@@ -66,18 +66,18 @@ class SettingsTests(unittest.TestCase):
         )
 
     def test_screen_corners_persist_validate_and_reset_without_hyprland_changes(self):
-        self.assertFalse(settings.get("appearance.screenCorners"))
-        self.assertEqual(settings.get("appearance.screenCornerRadius"), 24)
-        self.change("appearance.screenCorners", True)
-        self.change("appearance.screenCornerRadius", 36)
         self.assertTrue(settings.get("appearance.screenCorners"))
+        self.assertEqual(settings.get("appearance.screenCornerRadius"), 24)
+        self.change("appearance.screenCorners", False)
+        self.change("appearance.screenCornerRadius", 36)
+        self.assertFalse(settings.get("appearance.screenCorners"))
         self.assertEqual(settings.get("appearance.screenCornerRadius"), 36)
         for invalid in (0, 65, 12.5, True, "24"):
             with self.subTest(invalid=invalid), self.assertRaises(ValueError):
                 self.change("appearance.screenCornerRadius", invalid)
         self.assertNotIn("screenCorner", settings.generate_hyprland().read_text())
         self.restore("appearance")
-        self.assertFalse(settings.get("appearance.screenCorners"))
+        self.assertTrue(settings.get("appearance.screenCorners"))
         self.assertEqual(settings.get("appearance.screenCornerRadius"), 24)
 
     def test_restore_all_is_persistent_and_preserves_personal_files(self):

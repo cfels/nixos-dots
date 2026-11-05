@@ -6,7 +6,7 @@ import QtQuick
 
 Scope {
 	Variants {
-		model: Preferences.value("appearance.screenCorners", false) ? Quickshell.screens : []
+		model: Preferences.value("appearance.screenCorners", true) ? Quickshell.screens : []
 		Scope {
 			id: monitor
 			required property var modelData
