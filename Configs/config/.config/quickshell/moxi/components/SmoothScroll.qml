@@ -6,8 +6,13 @@ Item {
 	id: scroll
 	required property Flickable view
 	property real step: 100
+	property int duration: 120
 	signal scrolled
 	anchors.fill: parent
+
+	function stop(): void {
+		motion.stop()
+	}
 
 	function bounded(value): real {
 		const minimum = view.originY - view.topMargin
@@ -23,7 +28,9 @@ Item {
 				return
 			}
 			scroll.scrolled()
-			const base = motion.running ? motion.to : scroll.view.contentY
+			const delta = -event.angleDelta.y / 120 * scroll.step
+			const continuing = motion.running && (motion.to - scroll.view.contentY) * delta > 0
+			const base = continuing ? motion.to : scroll.view.contentY
 			motion.stop()
 			scroll.view.cancelFlick()
 			if (event.pixelDelta.y) {
@@ -31,7 +38,7 @@ Item {
 				scroll.view.contentY = scroll.bounded(scroll.view.contentY - event.pixelDelta.y)
 			} else {
 				motion.from = scroll.view.contentY
-				motion.to = scroll.bounded(base - event.angleDelta.y / 120 * scroll.step)
+				motion.to = scroll.bounded(base + delta)
 				motion.start()
 			}
 			event.accepted = true
@@ -42,7 +49,7 @@ Item {
 		id: motion
 		target: scroll.view
 		property: "contentY"
-		duration: Preferences.motion(120)
+		duration: Preferences.motion(scroll.duration)
 		easing.type: Easing.OutCubic
 	}
 	Connections {

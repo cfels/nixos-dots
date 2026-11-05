@@ -78,6 +78,8 @@ class PanelSettingsInputTests(unittest.TestCase):
             content = desktop.work / "moxi/settings/SettingsContent.qml"
             content.write_text(
                 content.read_text().replace(
+                    "id: window\n", "id: window\n\tproperty alias testScroll: content\n", 1
+                ).replace(
                     "iconName: modelData.icon",
                     'objectName: "category:" + modelData.key\n\t\t\t\t\t\ticonName: modelData.icon',
                 )

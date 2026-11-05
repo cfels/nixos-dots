@@ -67,27 +67,27 @@ def main():
         )
         try:
             wait_for(log, "INPUT_READY")
+
+            def inspect(action, *args):
+                return subprocess.check_output(
+                    [
+                        "qs",
+                        "-p",
+                        "/work/shell.qml",
+                        "ipc",
+                        "call",
+                        "--",
+                        "inspect",
+                        action,
+                        *args,
+                    ],
+                    text=True,
+                )
+
+            def state():
+                return json.loads(inspect("state"))
+
             if os.environ.get("PANEL_PICKER_CONTROLS") == "1":
-
-                def inspect(action, *args):
-                    return subprocess.check_output(
-                        [
-                            "qs",
-                            "-p",
-                            "/work/shell.qml",
-                            "ipc",
-                            "call",
-                            "--",
-                            "inspect",
-                            action,
-                            *args,
-                        ],
-                        text=True,
-                    )
-
-                def state():
-                    return json.loads(inspect("state"))
-
                 time.sleep(0.15)
                 move(450, 250)
                 before = state()["y"]
@@ -95,13 +95,13 @@ def main():
                 button(5, False)
                 time.sleep(0.18)
                 after = state()["y"]
-                assert 90 <= after - before <= 110, (before, after, log.read_text())
+                assert 145 <= after - before <= 155, (before, after, log.read_text())
                 for _ in range(5):
                     button(5, True)
                     button(5, False)
                     time.sleep(0.015)
                 time.sleep(0.18)
-                assert abs(state()["y"] - before - 600) <= 4, state()
+                assert abs(state()["y"] - before - 900) <= 4, state()
                 inspect("page", "emojis")
                 move(220, 150)
                 move(420, 210)
@@ -125,6 +125,27 @@ def main():
                 print("PANEL_SETTINGS_INPUT_OK")
                 return
             if os.environ.get("PANEL_REAL_CONTROLS") == "1":
+                move(380, 350)
+                before = state()["y"]
+                button(5, True)
+                button(5, False)
+                time.sleep(0.13)
+                after = state()["y"]
+                assert 145 <= after - before <= 155, (before, after, log.read_text())
+                for _ in range(15):
+                    button(5, True)
+                    button(5, False)
+                    time.sleep(0.005)
+                time.sleep(0.13)
+                position = state()
+                assert abs(position["y"] - position["maximumY"]) <= 1, position
+                button(4, True)
+                button(4, False)
+                inspect("page", "bar")
+                time.sleep(0.7)
+                assert state()["y"] == 0, state()
+                inspect("page", "appearance")
+                time.sleep(0.7)
 
                 def click(name):
                     point = json.loads(

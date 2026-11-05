@@ -79,6 +79,7 @@ Item {
 		const previous = categories.findIndex(item => item.key === category)
 		if (previous === next && !query)
 			return
+		pageScroll.stop()
 		pageCrossover.change(function () {
 			window.category = page
 			search.clear()
@@ -155,6 +156,7 @@ Item {
 					placeholderText: "Search settings"
 					Accessible.name: "Search settings"
 					onTextChanged: {
+						pageScroll.stop()
 						window.query = text
 						content.contentY = 0
 					}
@@ -277,6 +279,12 @@ Item {
 						contentHeight: pageContent.implicitHeight
 						boundsBehavior: Flickable.StopAtBounds
 						ScrollBar.vertical: ScrollBar {}
+						SmoothScroll {
+							id: pageScroll
+							view: content
+							step: 150
+							duration: 90
+						}
 						ColumnLayout {
 							id: pageContent
 							width: content.width - 12

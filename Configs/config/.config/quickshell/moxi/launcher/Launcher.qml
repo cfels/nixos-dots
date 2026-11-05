@@ -415,7 +415,8 @@ PanelWindow {
 
 					SmoothScroll {
 						view: list
-						step: 100
+						step: 150
+						duration: 90
 						onScrolled: list.followSelection = false
 					}
 

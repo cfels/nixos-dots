@@ -32,8 +32,13 @@ ShellRoot {
 	}
 	IpcHandler {
 		target: "inspect"
+		function page(name: string): void {
+			settings.selectCategory(name)
+		}
 		function state(): string {
 			return JSON.stringify({
+				y: settings.testScroll.contentY,
+				maximumY: Math.max(0, settings.testScroll.contentHeight - settings.testScroll.height),
 				values: Preferences.values,
 				saving: Preferences.saving,
 				applying: Preferences.applying,
