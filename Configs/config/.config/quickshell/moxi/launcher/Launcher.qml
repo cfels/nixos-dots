@@ -336,6 +336,8 @@ PanelWindow {
 						anchors.verticalCenter: parent.verticalCenter
 						color: launcher.muted
 						font.family: launcher.fontFamily
+						font.contextFontMerging: true
+						renderTypeQuality: Text.HighRenderTypeQuality
 						font.pixelSize: 15
 						text: "Search"
 						visible: input.text.length === 0
@@ -350,6 +352,7 @@ PanelWindow {
 						verticalAlignment: TextInput.AlignVCenter
 						color: launcher.foreground
 						font.family: launcher.fontFamily
+						font.contextFontMerging: true
 						font.pixelSize: 15
 						selectionColor: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.4)
 						selectedTextColor: launcher.foreground
@@ -399,9 +402,9 @@ PanelWindow {
 					model: launcher.results
 					currentIndex: launcher.selected
 					highlightFollowsCurrentItem: true
-					highlightMoveDuration: 180
+					highlightMoveDuration: Preferences.motion(followSelection ? 120 : 65)
 					highlightMoveVelocity: -1
-					highlightResizeDuration: 180
+					highlightResizeDuration: Preferences.motion(90)
 					highlightResizeVelocity: -1
 					highlightRangeMode: followSelection ? ListView.ApplyRange : ListView.NoHighlightRange
 					preferredHighlightBegin: Math.max(0, (height - 46) / 2)
@@ -410,13 +413,10 @@ PanelWindow {
 
 					onCountChanged: positionViewAtBeginning()
 
-					WheelHandler {
-						target: null
-						blocking: false
-						onWheel: (event) => {
-							list.followSelection = false
-							event.accepted = false
-						}
+					SmoothScroll {
+						view: list
+						step: 100
+						onScrolled: list.followSelection = false
 					}
 
 					highlight: Rectangle {
@@ -467,6 +467,8 @@ PanelWindow {
 							color: launcher.foreground
 							elide: Text.ElideRight
 							font.family: launcher.fontFamily
+							font.contextFontMerging: true
+							renderTypeQuality: Text.HighRenderTypeQuality
 							font.pixelSize: 14
 							text: row.modelData.name
 							wrapMode: Text.NoWrap
@@ -500,6 +502,8 @@ PanelWindow {
 					transform: Translate { y: 6 * (1 - emptyResults.opacity) }
 					color: launcher.muted
 					font.family: launcher.fontFamily
+					font.contextFontMerging: true
+					renderTypeQuality: Text.HighRenderTypeQuality
 					font.pixelSize: 13
 					text: "no apps found"
 					Behavior on opacity {

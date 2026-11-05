@@ -66,7 +66,7 @@ Scope {
 			ready = true
 			error = ""
 		} catch (problem) {
-			error = "Invalid audio response: " + problem
+			error = "Couldn't read audio information: " + problem
 		}
 	}
 	function change(action, kind, node, value) {
@@ -110,7 +110,7 @@ Scope {
 		}
 		onExited: (code, status) => {
 			if (audio.active && code !== 0 && !audio.error)
-				audio.error = subscriptionError.text.trim() || "Audio service disconnected. Reconnect to retry."
+				audio.error = subscriptionError.text.trim() || "Audio disconnected. Reconnect to try again."
 		}
 	}
 	Process {

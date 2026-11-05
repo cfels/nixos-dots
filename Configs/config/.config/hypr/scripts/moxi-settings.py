@@ -134,9 +134,9 @@ def main():
             if errors and errors != "ok":
                 raise RuntimeError(errors)
         print(
-            "setting applied!"
+            "Changes applied."
             if args.command == "apply"
-            else "setting maked!"
+            else "Configuration saved."
         )
     elif args.command == "launch":
         if args.argument not in (
@@ -163,5 +163,5 @@ if __name__ == "__main__":
         RuntimeError,
         subprocess.SubprocessError,
     ) as error:
-        print(f"Moxi Settings: {error}", file=sys.stderr)
+        print(f"Settings: {error}", file=sys.stderr)
         sys.exit(1)

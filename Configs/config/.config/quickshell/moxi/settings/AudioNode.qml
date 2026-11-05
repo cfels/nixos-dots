@@ -58,7 +58,7 @@ Item {
 			}
 			SettingsButton {
 				visible: !card.stream
-				text: card.nodeData.default ? "Default" : "Use default"
+				text: card.nodeData.default ? "Default" : "Set as default"
 				emphasized: card.nodeData.default === true
 				enabled: !card.nodeData.default && card.nodeData.availability !== "not available"
 				onClicked: card.backend.change("default", card.kind, card.nodeData, null)

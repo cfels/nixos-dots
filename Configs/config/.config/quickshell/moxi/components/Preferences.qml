@@ -58,7 +58,7 @@ Scope {
 			watched.path = preferences.path
 			refreshed()
 		} catch (problem) {
-			error = "Could not read preferences: " + problem
+			error = "Couldn't read settings: " + problem
 		}
 	}
 	function refresh() {
@@ -155,7 +155,7 @@ Scope {
 				initial[item.key] = item.default
 			values = initial
 		} catch (problem) {
-			error = "Preferences schema is unavailable: " + problem
+			error = "Settings definitions are unavailable: " + problem
 		}
 		refresh()
 	}
@@ -229,7 +229,7 @@ Scope {
 		onExited: (code, status) => {
 			if (code === 0) {
 				preferences.accept(restoreOutput.text)
-				preferences.message = "defaults restored!"
+				preferences.message = "Defaults restored."
 				if (JSON.parse(restoreOutput.text).applyHyprland)
 					applyDelay.restart()
 			} else {

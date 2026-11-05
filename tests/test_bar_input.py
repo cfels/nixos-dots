@@ -77,6 +77,29 @@ assert.equal(bar.openings, 0); assert.equal(bar.player.toggles, 0);""")
         self.run_gesture("""press(left); move({...left, x: -40}); now += 700; release(left);
 assert.equal(bar.openings, 0); assert.equal(bar.player.toggles, 0); assert.equal(bar.player.skips, 1);""")
 
+    def test_panel_open_blocks_song_swipes_in_both_directions(self):
+        self.run_gesture("""bar.panelOpen = true;
+for (const x of [-40, 80]) {
+  press(left); move({...left, x}); release(left);
+  assert.equal(swiping, false); assert.equal(bar.songSwipe, 0);
+}
+assert.equal(bar.player.skips, 0); assert.equal(bar.player.toggles, 0);""")
+
+    def test_panel_opened_during_swipe_cancels_track_change(self):
+        self.run_gesture("""press(left); move({...left, x: -40});
+bar.panelOpen = true; release(left);
+assert.equal(bar.player.skips, 0); assert.equal(bar.songSwipe, 0); assert.equal(swiping, false);""")
+
+    def test_hold_then_swipe_does_not_skip_a_song(self):
+        self.run_gesture("""press(left); now += 420; bar.openPanelFromHold();
+move({...left, x: 80}); release(left);
+assert.equal(bar.openings, 1); assert.equal(bar.player.skips, 0); assert.equal(bar.player.toggles, 0);""")
+
+    def test_overlay_closed_during_swipe_still_blocks_track_change(self):
+        self.run_gesture("""bar.panelOpen = true; press(left); bar.panelOpen = false;
+move({...left, x: -40}); release(left);
+assert.equal(bar.player.skips, 0); assert.equal(bar.player.toggles, 0);""")
+
 
 class BarVisualizerTests(unittest.TestCase):
     def test_toggle_hides_dots_reclaims_space_and_stops_cava(self):

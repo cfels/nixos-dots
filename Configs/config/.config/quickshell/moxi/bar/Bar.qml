@@ -366,6 +366,7 @@ PanelWindow {
 
 			onPositionChanged: (mouse) => {
 				if (!pressed || !(mouse.buttons & Qt.LeftButton)) return
+				if (bar.panelOpen || pressHadOverlay || bar.holdHandled) return
 
 				var dx = mouse.x - pressX
 				var dy = mouse.y - pressY
@@ -389,6 +390,13 @@ PanelWindow {
 				}
 
 				holdTimer.stop()
+
+				if (bar.panelOpen || pressHadOverlay || bar.holdHandled) {
+					swiping = false
+					bar.songSwipe = 0
+					bar.held = false
+					return
+				}
 
 				if (swiping) {
 					if (bar.songSwipe <= -40 && bar.hasPlayer && bar.player.canGoNext) bar.player.next()
@@ -503,6 +511,8 @@ PanelWindow {
 				Layout.alignment: Qt.AlignVCenter
 				color: bar.foreground
 				font.family: bar.fontFamily
+				font.contextFontMerging: true
+				renderTypeQuality: Text.HighRenderTypeQuality
 				font.pixelSize: 14
 				font.weight: Font.Medium
 				text: Qt.formatDateTime(clock.date, Preferences.value("bar.clockFormat", "24-hour") === "12-hour" ? "h:mm AP" : "HH:mm")
@@ -710,6 +720,8 @@ PanelWindow {
 								color: bar.foreground
 								elide: Text.ElideRight
 								font.family: bar.songFont(label.title)
+								font.contextFontMerging: true
+								renderTypeQuality: Text.HighRenderTypeQuality
 								font.pixelSize: 13
 								font.weight: bar.songWeight(label.title)
 								text: label.title
@@ -723,6 +735,8 @@ PanelWindow {
 								elide: Text.ElideRight
 								color: bar.muted
 								font.family: bar.songFont(label.artist)
+								font.contextFontMerging: true
+								renderTypeQuality: Text.HighRenderTypeQuality
 								font.pixelSize: 13
 								font.weight: bar.songWeight(label.artist)
 								text: label.artist
@@ -805,6 +819,8 @@ PanelWindow {
 						Layout.alignment: Qt.AlignVCenter
 						color: bar.foreground
 						font.family: bar.fontFamily
+						font.contextFontMerging: true
+						renderTypeQuality: Text.HighRenderTypeQuality
 						font.pixelSize: 13
 						text: bar.sinkMuted ? "muted" : Math.round(bar.sinkVolume * 100) + "%"
 					}
@@ -825,6 +841,8 @@ PanelWindow {
 					anchors.verticalCenter: parent.verticalCenter
 					color: bar.muted
 					font.family: bar.fontFamily
+					font.contextFontMerging: true
+					renderTypeQuality: Text.HighRenderTypeQuality
 					font.pixelSize: 13
 					text: Qt.formatDateTime(clock.date, "ddd d MMM")
 				}

@@ -130,7 +130,7 @@ ShellRoot {
 					scenario.move(pos.x, pos.y)
 					scenario.step = 9
 				} else if (scenario.step === 9) {
-					if (!scenario.expected("Velina.premiumwall.json") || !view.testPreview.ready)
+					if (!scenario.expected("Velina.premiumwall.json") || !view.testPreview.ready || view.testPreview.source !== "file://" + subject.wallpaperSource(subject.previewWallpaper))
 						return
 					scenario.check(subject.wallpaperSourceAnimated(subject.previewWallpaper) && view.testPreview.animated, "premium preview must animate")
 					scenario.check(view.testPreview.testAnimation.frameCount > 1, "premium GIF must contain multiple frames")

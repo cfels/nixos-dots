@@ -191,12 +191,12 @@ Item {
 			readonly property var players: Mpris.players
 			readonly property var entries: [
 				{
-					label: "Auto",
+					label: "Automatic",
 					id: ""
 				}
 			].concat(row.current && !players.values.some(node => node.dbusName === row.current) ? [
 				{
-					label: row.current + " (not running)",
+					label: row.current + " (not available)",
 					id: row.current
 				}
 			] : []).concat(players.values.map(node => ({

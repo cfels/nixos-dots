@@ -16,6 +16,7 @@ ShellRoot {
 	id: root
 
 	ReloadPopup { id: reloadPopup; barWindow: pill }
+	ScreenCorners {}
 	BarModule.TrayPopup { id: trayPopup; barWindow: pill }
 
 	property bool shotFlash: false
@@ -43,6 +44,7 @@ ShellRoot {
 		launcherHeight: launcher.preferredHeight
 		emojiHeight: emojiPicker.preferredHeight
 		panelHeight: panel.preferredHeight
+		panelWidth: panel.preferredWidth
 		panelSettings: panel.settingsVisible
 	}
 

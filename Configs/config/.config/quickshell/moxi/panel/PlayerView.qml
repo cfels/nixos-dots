@@ -56,6 +56,8 @@ Item {
 			opacity: playerView.lyricsController.showLyrics && playerView.lyricsController.lyrics.length === 0 ? playerView.lyricsController.lyricsFade : 0
 			color: playerView.theme.muted
 			font.family: playerView.fonts.fontFamily
+			font.contextFontMerging: true
+			renderTypeQuality: Text.HighRenderTypeQuality
 			font.pixelSize: 12
 			text: playerView.media.trackTitle.length > 0 ? "no lyrics found" : playerView.media.emptyPhrase
 		}
@@ -67,6 +69,8 @@ Item {
 			width: parent.width - 16
 			color: playerView.theme.muted
 			font.family: playerView.fonts.fontFamily
+			font.contextFontMerging: true
+			renderTypeQuality: Text.HighRenderTypeQuality
 			font.pixelSize: 12
 			horizontalAlignment: Text.AlignHCenter
 			wrapMode: Text.WordWrap
@@ -84,6 +88,8 @@ Item {
 		color: playerView.theme.foreground
 		elide: Text.ElideRight
 		font.family: playerView.fonts.lyricFont(title.text)
+		font.contextFontMerging: true
+		renderTypeQuality: Text.HighRenderTypeQuality
 		font.pixelSize: 15
 		font.weight: playerView.fonts.lyricWeight(title.text, true)
 		horizontalAlignment: Text.AlignHCenter
@@ -101,6 +107,8 @@ Item {
 		color: playerView.media.trackArtist.length > 0 ? playerView.theme.accent : playerView.theme.muted
 		elide: Text.ElideRight
 		font.family: playerView.fonts.lyricFont(artist.text)
+		font.contextFontMerging: true
+		renderTypeQuality: Text.HighRenderTypeQuality
 		font.pixelSize: 13
 		font.weight: playerView.fonts.lyricWeight(artist.text, false)
 		horizontalAlignment: Text.AlignHCenter
@@ -293,6 +301,8 @@ Item {
 		anchors.left: parent.left
 		color: progressTrack.dragging ? playerView.theme.accent : playerView.theme.muted
 		font.family: playerView.fonts.fontFamily
+		font.contextFontMerging: true
+		renderTypeQuality: Text.HighRenderTypeQuality
 		font.pixelSize: 11
 		text: {
 			if (!playerView.media.hasPlayer)
@@ -310,6 +320,8 @@ Item {
 		anchors.right: parent.right
 		color: playerView.theme.muted
 		font.family: playerView.fonts.fontFamily
+		font.contextFontMerging: true
+		renderTypeQuality: Text.HighRenderTypeQuality
 		font.pixelSize: 11
 		text: {
 			if (playerView.media.trackDuration > 0)

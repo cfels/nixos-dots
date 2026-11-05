@@ -67,6 +67,63 @@ def main():
         )
         try:
             wait_for(log, "INPUT_READY")
+            if os.environ.get("PANEL_PICKER_CONTROLS") == "1":
+
+                def inspect(action, *args):
+                    return subprocess.check_output(
+                        [
+                            "qs",
+                            "-p",
+                            "/work/shell.qml",
+                            "ipc",
+                            "call",
+                            "--",
+                            "inspect",
+                            action,
+                            *args,
+                        ],
+                        text=True,
+                    )
+
+                def state():
+                    return json.loads(inspect("state"))
+
+                time.sleep(0.15)
+                move(450, 250)
+                before = state()["y"]
+                button(5, True)
+                button(5, False)
+                time.sleep(0.18)
+                after = state()["y"]
+                assert 90 <= after - before <= 110, (before, after, log.read_text())
+                for _ in range(5):
+                    button(5, True)
+                    button(5, False)
+                    time.sleep(0.015)
+                time.sleep(0.18)
+                assert abs(state()["y"] - before - 600) <= 4, state()
+                inspect("page", "emojis")
+                move(220, 150)
+                move(420, 210)
+                time.sleep(0.12)
+                emoji = state()
+                assert emoji["selected"] > 0, emoji
+                assert abs(emoji["highlightX"] - emoji["itemX"]) < 1, emoji
+                assert abs(emoji["highlightY"] - emoji["itemY"]) < 1, emoji
+                button(5, True)
+                button(5, False)
+                time.sleep(0.18)
+                assert state()["y"] >= 100, state()
+                for error in (
+                    "TypeError",
+                    "ReferenceError",
+                    "Binding loop",
+                    "Cannot assign",
+                    "Unable to assign",
+                ):
+                    assert error not in log.read_text(), log.read_text()
+                print("PANEL_SETTINGS_INPUT_OK")
+                return
             if os.environ.get("PANEL_REAL_CONTROLS") == "1":
 
                 def click(name):

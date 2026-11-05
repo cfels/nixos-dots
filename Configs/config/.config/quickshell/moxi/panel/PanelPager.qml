@@ -67,8 +67,9 @@ Item {
 		id: panelSpring
 		target: pager
 		property: "reveal"
-		spring: 4
-		damping: 0.38
+		// Scale stiffness and damping together to keep the original motion.
+		spring: 4.39
+		damping: 0.3981
 		mass: 0.6
 		epsilon: 0.004
 	}
@@ -81,7 +82,7 @@ Item {
 		}
 	}
 	Timer {
-		interval: 600
+		interval: 567
 		running: panelSpring.running
 		onTriggered: pager.settle()
 	}

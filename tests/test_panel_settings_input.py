@@ -1,3 +1,4 @@
+import re
 import shutil
 import unittest
 from pathlib import Path
@@ -13,14 +14,45 @@ class PanelSettingsInputTests(unittest.TestCase):
     def test_real_toggles_and_stock_restore(self):
         self.run_input(controls=True)
 
-    def run_input(self, controls=False):
+    def test_emoji_hover_and_launcher_wheel_scrolling(self):
+        self.run_input(pickers=True)
+
+    def run_input(self, controls=False, pickers=False):
         desktop = IsolatedDesktop()
         self.addCleanup(desktop.close)
         shutil.copytree(
             REPO / "Configs/config/.config/quickshell/moxi", desktop.work / "moxi"
         )
         install_preferences(desktop.home / ".config/hypr/scripts")
-        (desktop.home / ".config/hypr/scripts/wallpaper-list.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
+        (desktop.home / ".config/hypr/scripts/wallpaper-list.sh").write_text(
+            "#!/usr/bin/env bash\nexit 0\n"
+        )
+        if pickers:
+            for folder, name, view in (
+                ("launcher", "Launcher", "list"),
+                ("emoji", "Emoji", "grid"),
+            ):
+                path = desktop.work / f"moxi/{folder}/{name}.qml"
+                text = path.read_text().replace("PanelWindow {", "Item {", 1)
+                text = re.sub(
+                    r"^\tanchors \{\n(?:\t\t.*\n)+\t}\n",
+                    "",
+                    text,
+                    count=1,
+                    flags=re.MULTILINE,
+                )
+                text = re.sub(
+                    r"^\t(?:margins\.top|exclusionMode|WlrLayershell\.\w+|focusable|color|mask):.*\n",
+                    "",
+                    text,
+                    flags=re.MULTILINE,
+                )
+                text = text.replace(
+                    f"id: {folder}\n",
+                    f"id: {folder}\n\tproperty alias testView: {view}\n",
+                    1,
+                )
+                path.write_text(text)
         if controls:
             hyprctl = desktop.work / "bin/hyprctl"
             hyprctl.write_text(
@@ -53,7 +85,9 @@ class PanelSettingsInputTests(unittest.TestCase):
         shutil.copy2(
             REPO
             / (
-                "tests/qml/SettingsControlsInputScenario.qml"
+                "tests/qml/PickerInputScenario.qml"
+                if pickers
+                else "tests/qml/SettingsControlsInputScenario.qml"
                 if controls
                 else "tests/qml/PanelSettingsInputScenario.qml"
             ),
@@ -98,6 +132,7 @@ python3 /work/check-input.py
             DBUS_SESSION_BUS_ADDRESS="unix:path=/tmp/no-bus",
             LANG="C.UTF-8",
             PANEL_REAL_CONTROLS="1" if controls else "0",
+            PANEL_PICKER_CONTROLS="1" if pickers else "0",
             **libraries,
         )
         output = result.stdout + result.stderr

@@ -1,5 +1,4 @@
 pragma ComponentBehavior: Bound
-import Quickshell
 import Quickshell.Io
 import QtQuick
 import QtQuick.Controls
@@ -20,8 +19,9 @@ Item {
 	property bool confirmClear: false
 	property string actionError: ""
 	property var project: ({})
-	property string selectedWallpaper: ""
-	property var selectedManifest: ({})
+	property string selectedWallpaper: wallpaperLibrary.currentWallpaper
+	property var selectedManifest: wallpaperLibrary.currentManifest
+	property bool wallpaperVisited: false
 	readonly property var categories: [
 		{
 			key: "appearance",
@@ -35,7 +35,7 @@ Item {
 		},
 		{
 			key: "bar",
-			label: "Bar & Panel",
+			label: "Bar & panel",
 			icon: "bar_panels"
 		},
 		{
@@ -45,25 +45,30 @@ Item {
 		},
 		{
 			key: "desktop",
-			label: "Desktop & Input",
+			label: "Desktop & input",
 			icon: "monitor-cog"
 		},
 		{
 			key: "audio",
-			label: "Audio & Media",
+			label: "Audio & media",
 			icon: "volume-2"
 		},
 		{
 			key: "advanced",
-			label: "Advanced",
-			icon: "settings"
+			label: "About",
+			icon: "info"
 		}
 	]
 	readonly property var rows: Preferences.definitions.filter(item => (query.trim().length ? (!item.key.startsWith("premium.") || selectedManifest.manifestPath) && (item.label + " " + item.description + " " + item.key).toLowerCase().includes(query.toLowerCase().trim()) : !item.key.startsWith("premium.") && item.category === category))
 	implicitWidth: 1040
 	implicitHeight: 740
-	onCategoryChanged: if (category === "advanced" && active)
-		projectInfo.running = true
+	onCategoryChanged: {
+		if (category === "wallpaper")
+			wallpaperVisited = true
+		if (category === "advanced" && active)
+			projectInfo.running = true
+	}
+	Component.onCompleted: wallpaperVisited = category === "wallpaper"
 	function show(page) {
 		selectCategory(page || "appearance")
 	}
@@ -99,41 +104,6 @@ Item {
 			actionError = ""
 			actionProcess.command = command
 			actionProcess.running = true
-		}
-	}
-	FileView {
-		path: window.active ? Quickshell.env("HOME") + "/.cache/current-wallpaper" : ""
-		watchChanges: true
-		printErrors: false
-		onFileChanged: reload()
-		onLoaded: {
-			window.selectedWallpaper = text().trim()
-			if (/\.premiumwall\.json$/i.test(window.selectedWallpaper))
-				manifestRead.running = true
-			else
-				window.selectedManifest = ({})
-		}
-	}
-	Process {
-		id: manifestRead
-		command: ["python3", Quickshell.env("HOME") + "/.config/hypr/scripts/premium-wallpaper.py", "describe", window.selectedWallpaper]
-		stdout: StdioCollector {
-			id: manifestOutput
-		}
-		stderr: StdioCollector {
-			id: manifestError
-		}
-		onExited: (code, status) => {
-			if (code !== 0) {
-				window.actionError = manifestError.text.trim()
-				window.selectedManifest = ({})
-				return
-			}
-			try {
-				window.selectedManifest = JSON.parse(manifestOutput.text)
-			} catch (problem) {
-				window.actionError = String(problem)
-			}
 		}
 	}
 
@@ -190,12 +160,30 @@ Item {
 					}
 				}
 				ListView {
+					id: categoriesList
 					Layout.fillWidth: true
 					Layout.fillHeight: true
 					clip: true
 					spacing: 4
 					boundsBehavior: Flickable.StopAtBounds
 					model: window.categories
+					currentIndex: window.categories.findIndex(item => item.key === window.category)
+					highlightFollowsCurrentItem: false
+					highlight: Rectangle {
+						width: categoriesList.width
+						height: categoriesList.currentItem ? categoriesList.currentItem.height : 36
+						y: categoriesList.currentItem ? categoriesList.currentItem.y : 0
+						radius: 8
+						color: Qt.rgba(SettingsStyle.theme.accent.r, SettingsStyle.theme.accent.g, SettingsStyle.theme.accent.b, 0.16)
+						visible: !window.query
+						Behavior on y {
+							SmoothedAnimation {
+								duration: Preferences.motion(230)
+								velocity: -1
+								maximumEasingTime: 110
+							}
+						}
+					}
 					delegate: SettingsCategoryButton {
 						required property var modelData
 						width: ListView.view.width
@@ -257,7 +245,7 @@ Item {
 				Text {
 					Layout.fillWidth: true
 					visible: !window.query && (window.category === "appearance" || window.category === "desktop")
-					text: window.category === "appearance" ? "Window changes apply automatically with a brief compositor reload." : "Keyboard layout and sensitivity apply with a brief compositor reload."
+					text: window.category === "appearance" ? "Window changes apply automatically. Hyprland reloads briefly." : "Keyboard and pointer changes apply after a brief Hyprland reload."
 					color: SettingsStyle.theme.muted
 					font.family: SettingsStyle.fontFamily
 					font.pixelSize: 10
@@ -265,13 +253,13 @@ Item {
 				}
 				Text {
 					visible: !Preferences.ready
-					text: "Loading preferences…"
+					text: "Loading settings…"
 					color: SettingsStyle.theme.muted
 					font.family: SettingsStyle.fontFamily
 				}
 				SettingsButton {
 					visible: Preferences.applyError.length > 0
-					text: "Retry applying compositor preferences"
+					text: "Try applying changes again"
 					enabled: !Preferences.saving && !Preferences.applying
 					onClicked: Preferences.applyHyprland()
 				}
@@ -296,8 +284,8 @@ Item {
 							Loader {
 								id: wallpaperPage
 								Layout.fillWidth: true
-								active: window.active && !window.query && window.category === "wallpaper"
-								visible: active
+								active: window.active && window.wallpaperVisited
+								visible: active && !window.query && window.category === "wallpaper"
 								sourceComponent: WallpapersPage {
 									controller: window.wallpaperLibrary
 								}
@@ -328,20 +316,26 @@ Item {
 
 							SettingsButton {
 								visible: !window.query && window.category === "notifications"
+								Layout.topMargin: 12
+								Layout.bottomMargin: 12
 								text: "Send test notification"
-								onClicked: window.action(["notify-send", "-a", "Settings", "Your desktop, your way", "Notification settings are active. DND suppresses this preview too."])
+								onClicked: window.action(["notify-send", "-a", "Settings", "Test notification", "This is a test notification. Do not disturb hides it too."])
 							}
 							SettingsButton {
 								visible: !window.query && window.category === "desktop" && !window.confirmClear
+								Layout.topMargin: 12
+								Layout.bottomMargin: 12
 								text: "Clear clipboard history…"
 								danger: true
 								onClicked: window.confirmClear = true
 							}
 							RowLayout {
 								visible: !window.query && window.category === "desktop" && window.confirmClear
+								Layout.topMargin: 12
+								Layout.bottomMargin: 12
 								Text {
 									Layout.fillWidth: true
-									text: "Delete all Cliphist entries and clear the clipboard?"
+									text: "Clear all saved clipboard entries and the current clipboard?"
 									color: SettingsStyle.theme.danger
 									wrapMode: Text.WordWrap
 									font.family: SettingsStyle.fontFamily
@@ -365,14 +359,14 @@ Item {
 								visible: !window.query && window.category === "advanced"
 								spacing: 8
 								Text {
-									text: "Rice Version"
+									text: "Rice version"
 									color: SettingsStyle.theme.foreground
 									font.family: SettingsStyle.fontFamily
 									font.pixelSize: 13
 								}
 								Text {
 									Layout.fillWidth: true
-									text: window.project.commit || "Git information unavailable"
+									text: window.project.commit || "Version information unavailable"
 									color: SettingsStyle.theme.muted
 									font.family: SettingsStyle.fontFamily
 									font.pixelSize: 12
@@ -404,7 +398,7 @@ Item {
 			spacing: 16
 			Text {
 				Layout.fillWidth: true
-				text: "Restore all stock settings?"
+				text: "Restore all defaults?"
 				color: SettingsStyle.theme.foreground
 				font.family: SettingsStyle.fontFamily
 				font.pixelSize: 16
@@ -412,7 +406,7 @@ Item {
 			}
 			Text {
 				Layout.fillWidth: true
-				text: "Restore appearance, panel, notifications, input, media and all PremiumWalls options to the shipped defaults. Wallpapers, personal files, clipboard history, device volumes and hardware DPI are kept. Compositor preferences apply automatically."
+				text: "Reset appearance, panel, notification, input, media and PremiumWalls settings to their original defaults. Your wallpapers, files, clipboard history, device volumes and mouse DPI are kept. Hyprland changes apply automatically."
 				color: SettingsStyle.theme.muted
 				font.family: SettingsStyle.fontFamily
 				font.pixelSize: 12
@@ -445,7 +439,7 @@ Item {
 		}
 		onExited: (code, status) => {
 			if (code !== 0)
-				window.actionError = actionStderr.text.trim() || "The action failed"
+				window.actionError = actionStderr.text.trim() || "Couldn't complete this action"
 		}
 	}
 	Process {

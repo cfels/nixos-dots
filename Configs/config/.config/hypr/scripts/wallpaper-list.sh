@@ -20,16 +20,18 @@ key_for() {
 
 # FFmpeg must leave the surrounding filename-reading loop's stdin untouched.
 thumb_for() {
-	local file="$1" key thumb temporary
+	local file="$1" video="${2:-1}" key thumb temporary
+	local -a seek=()
+	[ "$video" -eq 0 ] || seek=(-ss 1)
 
 	key="$(key_for "$file")"
 	thumb="${cache}/${key}.jpg"
 
 	if [ "$cached_only" -eq 0 ] && { [ ! -s "$thumb" ] || [ "$file" -nt "$thumb" ]; }; then
 		temporary="$(mktemp "${cache}/.${key}.XXXXXX.jpg")"
-		if ffmpeg -nostdin -y -loglevel error -ss 1 -i "$file" -frames:v 1 \
+		if nice -n 10 ffmpeg -nostdin -y -loglevel error "${seek[@]}" -i "$file" -frames:v 1 \
 			-vf "scale=640:-2" -q:v 3 "$temporary" >/dev/null 2>&1 ||
-			ffmpeg -nostdin -y -loglevel error -i "$file" -frames:v 1 \
+			nice -n 10 ffmpeg -nostdin -y -loglevel error -i "$file" -frames:v 1 \
 				-vf "scale=640:-2" -q:v 3 "$temporary" >/dev/null 2>&1; then
 			mv -f -- "$temporary" "$thumb"
 		else
@@ -48,7 +50,7 @@ preview_for() {
 
 	if [ "$cached_only" -eq 0 ] && { [ ! -s "$preview" ] || [ "$file" -nt "$preview" ]; }; then
 		temporary="$(mktemp "${cache}/.${key}.XXXXXX.gif")"
-		if ffmpeg -nostdin -y -loglevel error -ss "$start" -t "$length" -i "$file" \
+		if nice -n 10 ffmpeg -nostdin -y -loglevel error -ss "$start" -t "$length" -i "$file" \
 			-vf "fps=10,scale=560:-2:flags=lanczos,split[a][b];[a]palettegen=max_colors=256:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=3" \
 			-an -loop 0 "$temporary" >/dev/null 2>&1; then
 			mv -f -- "$temporary" "$preview"
@@ -75,11 +77,11 @@ while IFS= read -r file; do
 		metadata="$(python3 "$(dirname -- "${BASH_SOURCE[0]}")/premium-wallpaper.py" describe "$file")" || continue
 		poster="$(jq -r .posterPath <<<"$metadata")"
 		showcase="$(jq -r .showcasePath <<<"$metadata")"
-		printf '%s\t%s\t%s\n' "$file" "$poster" "$(preview_for "$showcase" 0 6)"
+		printf '%s\t%s\t%s\t%s\n' "$file" "$poster" "$(preview_for "$showcase" 0 6)" "$metadata"
 		;;
 	*.mp4 | *.m4v | *.webm | *.mkv | *.mov | *.avi)
 		printf '%s\t%s\t%s\n' "$file" "$(thumb_for "$file")" "$(preview_for "$file")"
 		;;
-	*) printf '%s\t\t\n' "$file" ;;
+	*) printf '%s\t%s\t\n' "$file" "$(thumb_for "$file" 0)" ;;
 	esac
 done <<<"$list"

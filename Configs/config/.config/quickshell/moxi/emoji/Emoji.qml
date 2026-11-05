@@ -297,6 +297,8 @@ PanelWindow {
 						anchors.verticalCenter: parent.verticalCenter
 						color: emoji.muted
 						font.family: emoji.fontFamily
+						font.contextFontMerging: true
+						renderTypeQuality: Text.HighRenderTypeQuality
 						font.pixelSize: 14
 						text: "Search emoji"
 						visible: input.text.length === 0
@@ -311,6 +313,7 @@ PanelWindow {
 						verticalAlignment: TextInput.AlignVCenter
 						color: emoji.foreground
 						font.family: emoji.fontFamily
+						font.contextFontMerging: true
 						font.pixelSize: 14
 						selectionColor: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.4)
 						selectedTextColor: emoji.foreground
@@ -362,7 +365,7 @@ PanelWindow {
 					model: emoji.results
 					currentIndex: emoji.selected
 					highlightFollowsCurrentItem: true
-					highlightMoveDuration: 180
+					highlightMoveDuration: Preferences.motion(followSelection ? 120 : 65)
 					highlightRangeMode: followSelection ? GridView.ApplyRange : GridView.NoHighlightRange
 					preferredHighlightBegin: Math.max(0, (height - cellHeight) / 2)
 					preferredHighlightEnd: preferredHighlightBegin + cellHeight
@@ -385,13 +388,10 @@ PanelWindow {
 						}
 					}
 
-					WheelHandler {
-						target: null
-						blocking: false
-						onWheel: (event) => {
-							grid.followSelection = false
-							event.accepted = false
-						}
+					SmoothScroll {
+						view: grid
+						step: grid.cellHeight * 2
+						onScrolled: grid.followSelection = false
 					}
 
 					highlight: Rectangle {
@@ -413,7 +413,7 @@ PanelWindow {
 						scale: index === emoji.selected ? 1.08 : 1
 
 						Behavior on scale {
-							NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+							NumberAnimation { duration: Preferences.motion(90); easing.type: Easing.OutCubic }
 						}
 
 						Text {
@@ -440,6 +440,8 @@ PanelWindow {
 					transform: Translate { y: 6 * (1 - emptyResults.opacity) }
 					color: emoji.muted
 					font.family: emoji.fontFamily
+					font.contextFontMerging: true
+					renderTypeQuality: Text.HighRenderTypeQuality
 					font.pixelSize: 13
 					text: "no emoji found"
 					Behavior on opacity {

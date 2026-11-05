@@ -80,14 +80,15 @@ Item {
 		property: "progress"
 		from: 0
 		to: 1
-		spring: 4
-		damping: 0.38
+		// Match the panel's slightly faster original spring.
+		spring: 4.39
+		damping: 0.3981
 		mass: 0.6
 		epsilon: 0.004
 		onFinished: crossover.finish()
 	}
 	Timer {
-		interval: 600
+		interval: 567
 		running: spring.running
 		onTriggered: crossover.finish()
 	}

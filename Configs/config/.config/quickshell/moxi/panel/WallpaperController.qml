@@ -31,12 +31,53 @@ Scope {
 	property var wallThumbs: ({})
 	property var wallPreviews: ({})
 	property bool wallpaperTool: false
+	property string currentWallpaper: ""
 	property string previewWallpaper: ""
 	property string hoveredWallpaper: ""
+	property var manifests: ({})
+	property string metadataError: ""
+	readonly property var currentManifest: manifests[currentWallpaper] || ({})
+	readonly property bool currentPremium: /\.premiumwall\.json$/i.test(currentWallpaper)
+
+	onCurrentWallpaperChanged: {
+		metadataError = ""
+		if (currentWallpaper && !hoveredWallpaper)
+			previewWallpaper = currentWallpaper
+		loadManifest(false)
+	}
 
 	onExpandedChanged: {
-		if (wallpapers.expanded && initialized)
-			refreshDebounce.restart()
+		if (expanded && currentWallpaper)
+			previewWallpaper = currentWallpaper
+	}
+
+	function rememberManifest(path, data): void {
+		if (path === currentWallpaper)
+			metadataError = ""
+		if (JSON.stringify(manifests[path]) === JSON.stringify(data))
+			return
+		const updated = Object.assign({}, manifests)
+		updated[path] = data
+		manifests = updated
+	}
+
+	function loadManifest(refresh): void {
+		if (!/\.premiumwall\.json$/i.test(currentWallpaper))
+			return
+		if (refresh) {
+			const updated = Object.assign({}, manifests)
+			delete updated[currentWallpaper]
+			manifests = updated
+		}
+		if (manifests[currentWallpaper])
+			return
+		if (metadata.running) {
+			metadata.pending = true
+			metadata.refreshPending = metadata.refreshPending || refresh
+			return
+		}
+		metadata.target = currentWallpaper
+		metadata.running = true
 	}
 
 	function wallpaperIsVideo(path): bool {
@@ -49,7 +90,7 @@ Scope {
 
 	function wallpaperThumb(path): string {
 		var thumb = wallpapers.wallThumbs["" + path]
-		return thumb === undefined ? "" : thumb
+		return thumb || (manifests[path] || {}).posterPath || ""
 	}
 
 	function wallpaperPreview(path): string {
@@ -66,7 +107,7 @@ Scope {
 			return preview.length > 0 ? preview : wallpapers.wallpaperThumb(path)
 		}
 
-		return "" + path
+		return wallpapers.wallpaperIsAnimated(path) ? "" + path : wallpapers.wallpaperThumb(path) || "" + path
 	}
 
 	function wallpaperSourceAnimated(path): bool {
@@ -120,6 +161,13 @@ Scope {
 					scan.thumbs[path] = fields[1]
 				if (fields[2] && fields[2].length > 0)
 					scan.previews[path] = fields[2]
+				if (fields[3]) {
+					try {
+						wallpapers.rememberManifest(path, JSON.parse(fields[3]))
+					} catch (problem) {
+						wallpapers.metadataError = "Couldn't read wallpaper details: " + problem
+					}
+				}
 				if (!scan.cachedOnly && scan.directory === wallpapers.libraryDirectory) {
 					if (fields[1] && wallpapers.wallThumbs[path] !== fields[1]) {
 						const thumbs = Object.assign({}, wallpapers.wallThumbs)
@@ -150,7 +198,7 @@ Scope {
 			scan.thumbs = ({})
 			scan.previews = ({})
 
-			if (wallpapers.wallpapers.indexOf(wallpapers.previewWallpaper) === -1)
+			if (!wallpapers.previewWallpaper || (wallpapers.previewWallpaper !== wallpapers.currentWallpaper && wallpapers.wallpapers.indexOf(wallpapers.previewWallpaper) === -1))
 				wallpapers.previewWallpaper = wallpapers.wallpapers.length > 0 ? wallpapers.wallpapers[0] : ""
 			if (wallpapers.wallpapers.indexOf(wallpapers.hoveredWallpaper) === -1)
 				wallpapers.hoveredWallpaper = ""
@@ -164,16 +212,53 @@ Scope {
 		}
 	}
 
+	FileView {
+		path: Quickshell.env("HOME") + "/.cache/current-wallpaper"
+		watchChanges: true
+		printErrors: false
+		onFileChanged: reload()
+		onLoaded: wallpapers.currentWallpaper = text().trim()
+	}
+
+	FileView {
+		path: wallpapers.currentPremium ? wallpapers.currentWallpaper : ""
+		watchChanges: true
+		printErrors: false
+		onFileChanged: {
+			reload()
+			wallpapers.loadManifest(true)
+		}
+	}
+
 	Process {
-		id: currentWallpaper
-
-		command: ["bash", "-c", "cat \"$HOME/.cache/current-wallpaper\" 2>/dev/null || true"]
-		running: true
-
-		stdout: SplitParser {
-			onRead: line => {
-				if (line.length > 0)
-					wallpapers.previewWallpaper = line
+		id: metadata
+		property string target: ""
+		property bool pending: false
+		property bool refreshPending: false
+		command: ["python3", Quickshell.env("HOME") + "/.config/hypr/scripts/premium-wallpaper.py", "describe", target]
+		stdout: StdioCollector {
+			id: manifestOutput
+		}
+		stderr: StdioCollector {
+			id: manifestError
+		}
+		onExited: (code, status) => {
+			if (code === 0) {
+				try {
+					wallpapers.rememberManifest(target, JSON.parse(manifestOutput.text))
+				} catch (problem) {
+					wallpapers.metadataError = "Couldn't read wallpaper details: " + problem
+				}
+			} else if (target === wallpapers.currentWallpaper) {
+				wallpapers.metadataError = manifestError.text.trim()
+			}
+			if (pending || target !== wallpapers.currentWallpaper) {
+				const refresh = refreshPending
+				pending = false
+				refreshPending = false
+				Qt.callLater(function () {
+					wallpapers.loadManifest(refresh)
+				})
 			}
 		}
 	}

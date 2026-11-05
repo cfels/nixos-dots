@@ -86,6 +86,9 @@ Item {
 		layer.effect: MultiEffect {
 			maskEnabled: true
 			maskSource: lyricsMask
+			// MultiEffect otherwise thresholds the gradient into a hard mask.
+			maskThresholdMin: 0.5
+			maskSpreadAtMin: 1
 			blurEnabled: true
 			blur: lyricsDisplay.controller.lyricsBlur
 			blurMax: 20
@@ -292,6 +295,8 @@ Item {
 			textFormat: Text.StyledText
 			color: lineMouse.containsMouse ? lyricsDisplay.theme.foreground : lyricsDisplay.theme.muted
 			font.family: lyricsDisplay.fonts.lyricFont(modelData.text)
+			font.contextFontMerging: true
+			renderTypeQuality: Text.HighRenderTypeQuality
 			font.pixelSize: 12
 			font.weight: lyricsDisplay.fonts.lyricWeight(modelData.text, false)
 			horizontalAlignment: Text.AlignHCenter

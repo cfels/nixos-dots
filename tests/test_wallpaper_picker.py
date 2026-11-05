@@ -22,7 +22,19 @@ class WallpaperPickerTests(unittest.TestCase):
     def test_animated_preview_survives_zero_sized_layout(self):
         self.run_picker(image_sizing=True)
 
-    def run_picker(self, settings=False, selected_premium=False, image_sizing=False):
+    def test_current_selection_preview_reuse_and_premium_options_transition(self):
+        self.run_picker(settings=True, selected_premium=True, switching=True)
+
+    def test_current_selection_tracks_first_saved_wallpaper(self):
+        self.run_picker(settings=True, switching=True)
+
+    def run_picker(
+        self,
+        settings=False,
+        selected_premium=False,
+        image_sizing=False,
+        switching=False,
+    ):
         desktop = IsolatedDesktop()
         self.addCleanup(desktop.close)
         install_qml_preferences(desktop.work)
@@ -68,13 +80,18 @@ class WallpaperPickerTests(unittest.TestCase):
                 .replace(
                     "\tWallpaperView {", "\tWallpaperView {\n\t\tid: settingsGallery", 1
                 )
+                .replace(
+                    "id: page\n",
+                    "id: page\n\tproperty alias testOptions: premiumOptions\n",
+                    1,
+                )
             )
         view = desktop.work / "panel/WallpaperView.qml"
         view.write_text(
             view.read_text()
             .replace(
                 "id: wallpaperView\n",
-                "id: wallpaperView\n\tproperty alias testGrid: grid\n\tproperty alias testPreview: preview\n",
+                "id: wallpaperView\n\tproperty alias testGrid: grid\n\tproperty alias testPreview: preview\n\tproperty alias testFrame: previewFrame\n",
                 1,
             )
             .replace(
@@ -166,6 +183,8 @@ class WallpaperPickerTests(unittest.TestCase):
             / (
                 "tests/qml/WallpaperImageSizingScenario.qml"
                 if image_sizing
+                else "tests/qml/SettingsWallpaperSwitchScenario.qml"
+                if switching
                 else "tests/qml/SettingsWallpaperLayoutScenario.qml"
                 if settings
                 else "tests/qml/WallpaperPickerScenario.qml"
@@ -269,5 +288,6 @@ qs -p /work/shell.qml --no-color
         if settings and capture:
             target = Path(capture)
             target.mkdir(parents=True, exist_ok=True)
+            (target / "picker.log").write_text(output)
             for image in desktop.work.glob("settings-gallery-*.png"):
                 shutil.copy2(image, target / image.name)

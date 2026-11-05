@@ -411,6 +411,8 @@ PanelWindow {
 					anchors.verticalCenter: headerRow.verticalCenter
 					color: clipboard.foreground
 					font.family: clipboard.fontFamily
+					font.contextFontMerging: true
+					renderTypeQuality: Text.HighRenderTypeQuality
 					font.pixelSize: 16
 					font.weight: Font.DemiBold
 					text: "Clipboard"
@@ -447,6 +449,8 @@ PanelWindow {
 						anchors.centerIn: parent
 						color: theme.danger
 						font.family: clipboard.fontFamily
+						font.contextFontMerging: true
+						renderTypeQuality: Text.HighRenderTypeQuality
 						font.pixelSize: 12
 						text: "Clear all"
 					}
@@ -517,6 +521,8 @@ PanelWindow {
 							color: clipboard.foreground
 							elide: Text.ElideRight
 							font.family: row.emojiOnly ? "Noto Color Emoji" : clipboard.fontFamily
+							font.contextFontMerging: true
+							renderTypeQuality: Text.HighRenderTypeQuality
 							font.pixelSize: row.emojiOnly ? 26 : 15
 							text: row.concealed ? "••••••••••••" : row.modelData.binary && thumb.ready
 								? (clipboard.screenshotIds.indexOf(row.modelData.id) !== -1 ? "Screenshot" : "Image") : row.modelData.preview
@@ -570,6 +576,8 @@ PanelWindow {
 								text: row.concealed ? "Show" : "Hide"
 								color: clipboard.foreground
 								font.family: clipboard.fontFamily
+								font.contextFontMerging: true
+								renderTypeQuality: Text.HighRenderTypeQuality
 								font.pixelSize: 11
 							}
 
@@ -623,6 +631,8 @@ PanelWindow {
 					visible: clipboard.entries.length === 0
 					color: clipboard.muted
 					font.family: clipboard.fontFamily
+					font.contextFontMerging: true
+					renderTypeQuality: Text.HighRenderTypeQuality
 					font.pixelSize: 13
 					text: "Clipboard history is empty"
 				}

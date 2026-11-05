@@ -131,9 +131,9 @@ done
         self.assertTrue(video[1].endswith(".jpg"), video)
         self.assertTrue(video[2].endswith(".gif"), video)
         commands = self.commands()
-        self.assertEqual(len(commands), 2)
+        self.assertEqual(len(commands), 3)
         self.assertTrue(all(command[0] == "ffmpeg" and "/." in command[-1] for command in commands))
-        self.assertEqual(len(list((self.desktop.home / ".cache/moxi-wallpapers").iterdir())), 2)
+        self.assertEqual(len(list((self.desktop.home / ".cache/moxi-wallpapers").iterdir())), 3)
 
         warm = self.desktop.run("/work/list.sh", "--cached")
         self.assertEqual(warm.returncode, 0, warm.stderr)

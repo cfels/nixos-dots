@@ -11,7 +11,7 @@ AbstractButton {
 	Accessible.name: text
 	background: Rectangle {
 		radius: 8
-		color: Qt.rgba(SettingsStyle.theme.accent.r, SettingsStyle.theme.accent.g, SettingsStyle.theme.accent.b, button.selected ? 0.16 : button.hovered ? 0.07 : 0)
+		color: Qt.rgba(SettingsStyle.theme.accent.r, SettingsStyle.theme.accent.g, SettingsStyle.theme.accent.b, button.hovered && !button.selected ? 0.07 : 0)
 		border.width: button.activeFocus ? 1 : 0
 		border.color: SettingsStyle.theme.accent
 		Behavior on color {
@@ -37,6 +37,8 @@ AbstractButton {
 			}
 			text: button.text
 			font.family: SettingsStyle.fontFamily
+			font.contextFontMerging: true
+			renderTypeQuality: Text.HighRenderTypeQuality
 			font.pixelSize: 11
 			color: button.selected ? SettingsStyle.theme.foreground : SettingsStyle.theme.muted
 			elide: Text.ElideRight

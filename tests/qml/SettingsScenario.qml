@@ -13,6 +13,7 @@ ShellRoot {
 	property bool captured: false
 	property bool motionChecked: false
 	property bool revealOpened: false
+	property bool clipboardSpacingChecked: false
 	BarReveal {
 		id: reducedReveal
 	}
@@ -146,6 +147,25 @@ ShellRoot {
 				} else if (scenario.step === 6) {
 					if (settings.category === "audio" && scenario.waits % 5 !== 0)
 						return
+					if (settings.category === "desktop" && !scenario.clipboardSpacingChecked) {
+						const children = settings.testContentColumn.children
+						const rows = children.filter(item => item.definition !== undefined)
+						const last = rows[rows.length - 1]
+						const action = children.find(item => item.visible && (item.text === "Clear clipboard history…" || (item.children && item.children.some(child => child.text === "Clear history"))))
+						if (!last || !action || action.y - (last.y + last.height) < 12)
+							throw new Error("Clipboard action overlaps the last settings separator")
+						if (settings.testScroll.contentHeight < action.y + action.height + 12)
+							throw new Error("Clipboard action is clipped at the bottom of the page")
+						if (!settings.confirmClear) {
+							settings.confirmClear = true
+							return
+						}
+						settings.confirmClear = false
+						scenario.clipboardSpacingChecked = true
+						return
+					}
+					if (settings.category === "desktop")
+						settings.testScroll.contentY = Math.max(0, settings.testScroll.contentHeight - settings.testScroll.height)
 					if (!scenario.captured) {
 						scenario.captured = true
 						settings.grabToImage(result => {

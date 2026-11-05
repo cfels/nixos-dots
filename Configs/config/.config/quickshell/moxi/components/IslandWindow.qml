@@ -11,7 +11,8 @@ PanelWindow {
 	required property var barWindow
 	property string mode: ""
 	readonly property bool expanded: mode !== ""
-	readonly property int collapseDuration: 420
+	readonly property int collapseDuration: 210
+	readonly property var closingCurve: [0.4, 0, 0.2, 1, 1, 1]
 	property real expansion: expanded ? 1 : 0
 	readonly property real progress: Math.max(0, Math.min(1, expansion))
 	property alias launcherHost: launcherPane
@@ -22,6 +23,7 @@ PanelWindow {
 	property real launcherHeight: 460
 	property real emojiHeight: 440
 	property real panelHeight: 420
+	property real panelWidth: 920
 	property bool panelSettings: false
 
 	property bool armed: false
@@ -33,7 +35,11 @@ PanelWindow {
 	property real originTop: 4
 	property color originColor: "transparent"
 	property color originBorder: "transparent"
-	readonly property real targetWidth: mode === "panel" ? 920 : mode === "power" ? 360 : mode === "emoji" ? 560 : mode === "clipboard" ? 680 : 660
+	property real closingWidth: 210
+	property real closingHeight: 38
+	property real closingTop: 4
+	property real closingRadius: 19
+	readonly property real targetWidth: mode === "panel" ? panelWidth : mode === "power" ? 360 : mode === "emoji" ? 560 : mode === "clipboard" ? 680 : 660
 	readonly property real targetHeight: mode === "panel" ? panelHeight : mode === "power" ? 150 : mode === "emoji" ? emojiHeight : mode === "launcher" ? launcherHeight : 460
 
 	function captureBar(): void {
@@ -49,6 +55,10 @@ PanelWindow {
 
 	onModeChanged: {
 		if (mode === "") {
+			closingWidth = surface.width
+			closingHeight = surface.height
+			closingTop = surface.y
+			closingRadius = surface.radius
 			wasExpanded = false
 			return
 		}
@@ -87,9 +97,9 @@ PanelWindow {
 	Behavior on expansion {
 		id: expansionMotion
 		NumberAnimation {
-			duration: Preferences.motion(expansionMotion.targetValue === 0 ? island.collapseDuration : 560)
+			duration: Preferences.motion(expansionMotion.targetValue === 0 ? island.collapseDuration : 525)
 			easing.type: expansionMotion.targetValue === 0 ? Easing.BezierSpline : Easing.OutCubic
-			easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
+			easing.bezierCurve: expansionMotion.targetValue === 0 ? island.closingCurve : [0.22, 1, 0.36, 1, 1, 1]
 		}
 	}
 
@@ -103,71 +113,72 @@ PanelWindow {
 		clip: true
 		transform: Translate { y: (1 - pane.presence) * 8 }
 		Behavior on presence {
-			NumberAnimation { duration: Preferences.motion(pane.active ? 240 : 180); easing.type: Easing.OutCubic }
+			NumberAnimation { duration: Preferences.motion(pane.active ? 226 : 168); easing.type: Easing.OutCubic }
 		}
 	}
 
 	Rectangle {
 		id: surface
 		anchors.horizontalCenter: parent.horizontalCenter
-		y: island.expanded ? island.originTop : island.barWindow.pillTop
-		width: island.expanded ? (island.armed ? island.targetWidth : island.originWidth) : island.barWindow.pillWidth
-		height: island.expanded ? (island.armed ? island.targetHeight : island.originHeight) : island.barWindow.pillHeight
-		radius: island.expanded && island.armed ? 36 : island.barWindow.pillHeight / 2
+		// One progress value keeps the closing shape and pill handoff in sync.
+		y: island.expanded ? island.originTop : island.barWindow.pillTop + (island.closingTop - island.barWindow.pillTop) * island.progress
+		width: island.expanded ? (island.armed ? island.targetWidth : island.originWidth) : island.barWindow.pillWidth + (island.closingWidth - island.barWindow.pillWidth) * island.progress
+		height: island.expanded ? (island.armed ? island.targetHeight : island.originHeight) : island.barWindow.pillHeight + (island.closingHeight - island.barWindow.pillHeight) * island.progress
+		radius: island.expanded ? (island.armed ? 36 : island.barWindow.pillHeight / 2) : island.barWindow.pillHeight / 2 + (island.closingRadius - island.barWindow.pillHeight / 2) * island.progress
 		color: island.expanded ? (island.armed ? Qt.rgba(theme.background.r, theme.background.g, theme.background.b, Preferences.opacity(0.78)) : island.originColor) : island.barWindow.pillColor
 		border.color: island.expanded ? (island.armed ? Qt.rgba(theme.foreground.r, theme.foreground.g, theme.foreground.b, 0.12) : island.originBorder) : island.barWindow.pillBorderColor
 		border.width: 1
 		clip: true
-		opacity: Math.min(1, island.progress * 3)
+		opacity: Math.min(1, island.progress * 4)
 
 		Behavior on width {
-			enabled: island.geometryEnabled
+			enabled: island.geometryEnabled && island.expanded
 			NumberAnimation {
-				duration: Preferences.motion(island.expanded ? 560 : island.collapseDuration)
-				easing.type: island.expanded ? Easing.OutBack : Easing.BezierSpline
+				duration: Preferences.motion(525)
+				easing.type: Easing.OutBack
 				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
 				easing.overshoot: 0.7
 			}
 		}
 		Behavior on height {
-			enabled: island.geometryEnabled
+			enabled: island.geometryEnabled && island.expanded
 			NumberAnimation {
-				duration: Preferences.motion(island.expanded ? (island.progress >= 0.999 ? 260 : 560) : island.collapseDuration)
-				easing.type: island.expanded && island.progress < 0.999 ? Easing.OutBack : Easing.BezierSpline
+				duration: Preferences.motion(island.progress >= 0.999 ? 247 : 525)
+				easing.type: island.progress < 0.999 ? Easing.OutBack : Easing.BezierSpline
 				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
 				easing.overshoot: 0.7
 			}
 		}
 		Behavior on y {
-			enabled: island.geometryEnabled
+			enabled: island.geometryEnabled && island.expanded
 			NumberAnimation {
-				duration: Preferences.motion(island.expanded ? 460 : island.collapseDuration)
-				easing.type: island.expanded ? Easing.OutCubic : Easing.BezierSpline
+				duration: Preferences.motion(436)
+				easing.type: Easing.OutCubic
 				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
 			}
 		}
 		Behavior on radius {
-			enabled: island.geometryEnabled
+			enabled: island.geometryEnabled && island.expanded
 			NumberAnimation {
-				duration: Preferences.motion(island.expanded ? 480 : island.collapseDuration)
-				easing.type: island.expanded ? Easing.OutCubic : Easing.BezierSpline
+				duration: Preferences.motion(452)
+				easing.type: Easing.OutCubic
 				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
 			}
 		}
 		Behavior on color {
 			enabled: island.geometryEnabled
 			ColorAnimation {
-				duration: Preferences.motion(island.expanded ? 440 : island.collapseDuration)
+				duration: Preferences.motion(island.expanded ? 415 : island.collapseDuration)
 				easing.type: island.expanded ? Easing.Linear : Easing.BezierSpline
-				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
+				easing.bezierCurve: island.expanded ? [0.22, 1, 0.36, 1, 1, 1] : island.closingCurve
 			}
 		}
 		Behavior on border.color {
 			enabled: island.geometryEnabled
 			ColorAnimation {
-				duration: Preferences.motion(island.expanded ? 440 : island.collapseDuration)
+				duration: Preferences.motion(island.expanded ? 415 : island.collapseDuration)
 				easing.type: island.expanded ? Easing.Linear : Easing.BezierSpline
-				easing.bezierCurve: [0.22, 1, 0.36, 1, 1, 1]
+				easing.bezierCurve: island.expanded ? [0.22, 1, 0.36, 1, 1, 1] : island.closingCurve
 			}
 		}
 
@@ -187,7 +198,7 @@ PanelWindow {
 			Pane { id: launcherPane; anchors.horizontalCenter: parent.horizontalCenter; width: 660; height: island.launcherHeight; active: island.mode === "launcher" }
 			Pane { id: emojiPane; anchors.horizontalCenter: parent.horizontalCenter; width: 560; height: island.emojiHeight; active: island.mode === "emoji" }
 			Pane { id: clipboardPane; anchors.horizontalCenter: parent.horizontalCenter; width: 680; height: 460; active: island.mode === "clipboard" }
-			Pane { id: panelPane; anchors.horizontalCenter: parent.horizontalCenter; width: 920; height: island.panelHeight; active: island.mode === "panel" }
+			Pane { id: panelPane; anchors.horizontalCenter: parent.horizontalCenter; width: island.panelWidth; height: island.panelHeight; active: island.mode === "panel" }
 			Pane { id: powerPane; anchors.horizontalCenter: parent.horizontalCenter; width: 360; height: 150; active: island.mode === "power" }
 		}
 	}

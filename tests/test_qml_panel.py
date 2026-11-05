@@ -10,8 +10,62 @@ from support import REPO, IsolatedDesktop, install_preferences
 
 
 class QmlPanelTests(unittest.TestCase):
+    @unittest.skipUnless(
+        shutil.which("Xvfb"), "Xvfb is required for fade and corner rendering"
+    )
+    def test_lyrics_fade_screen_corners_and_interrupted_island_close(self):
+        images = self.run_scenario(
+            REPO / "tests/qml/ShellPolishScenario.qml",
+            renderer="opengl",
+            with_island=True,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            pixels = {}
+            for name, data in images.items():
+                image = Path(directory) / name
+                image.write_bytes(data)
+                pixels[name] = subprocess.check_output(
+                    [
+                        "ffmpeg",
+                        "-v",
+                        "error",
+                        "-i",
+                        str(image),
+                        "-f",
+                        "rawvideo",
+                        "-pix_fmt",
+                        "rgba",
+                        "-",
+                    ]
+                )
+            corners = pixels["panel-screen-corners.png"]
+            for x, y in ((0, 0), (127, 0), (0, 127), (127, 127)):
+                self.assertLess(corners[(y * 128 + x) * 4], 5)
+            self.assertGreater(corners[(64 * 128 + 64) * 4], 250)
+            fade = pixels["panel-lyrics-fade.png"]
+            height = len(fade) // (310 * 4)
+            values = [
+                fade[(y * 310 + 155) * 4 + 3]
+                for y in (7, 16, height // 2, height - 17, height - 8)
+            ]
+            self.assertLess(values[0], values[1])
+            self.assertLess(values[1], values[2] - 20)
+            self.assertGreater(values[2], 245)
+            self.assertLess(values[4], values[3])
+            self.assertLess(values[3], values[2] - 20)
+
     def test_settings_panel_swipes_and_lifecycle(self):
         self.run_scenario(REPO / "tests/qml/PanelSettingsScenario.qml")
+
+    def test_optional_sections_resize_standalone_and_island_panels(self):
+        images = self.run_scenario(REPO / "tests/qml/PanelSectionsScenario.qml", with_island=True)
+        self.assertEqual(len(images), 8)
+        capture = os.environ.get("DOTS_PANEL_CAPTURE")
+        if capture:
+            target = Path(capture)
+            target.mkdir(parents=True, exist_ok=True)
+            for name, data in images.items():
+                (target / name).write_bytes(data)
 
     def test_panel_runtime(self):
         self.run_scenario(REPO / "tests/qml/PanelScenario.qml")
@@ -126,12 +180,19 @@ class QmlPanelTests(unittest.TestCase):
         self.assertEqual(len(images), 6)
         self.assertEqual(len(set(images.values())), 6)
 
-    def run_scenario(self, scenario, source=None, renderer="software", initial_player=False, installed_layout=False, real_artwork=False, real_wallpapers=False, progressive_wallpapers=False):
+    def run_scenario(self, scenario, source=None, renderer="software", initial_player=False, installed_layout=False, real_artwork=False, real_wallpapers=False, progressive_wallpapers=False, with_island=False):
         desktop = IsolatedDesktop()
         self.addCleanup(desktop.close)
         source = source or REPO / "Configs/config/.config/quickshell/moxi"
         target = desktop.work / "moxi"
         shutil.copytree(source, target)
+        if with_island:
+            island = target / "components/IslandWindow.qml"
+            text = island.read_text().replace("PanelWindow {", "Item {", 1)
+            text = re.sub(r'^\tanchors \{[^\n]*\}\n', '', text, count=1, flags=re.MULTILINE)
+            text = re.sub(r'^\t(?:screen|margins\.top|exclusionMode|WlrLayershell\.\w+|focusable|color|mask):.*\n', '', text, flags=re.MULTILINE)
+            text = text.replace("id: island\n", "id: island\n\tproperty alias testSurface: surface\n", 1)
+            island.write_text(text)
         panel = target / "panel/Panel.qml"
         # PanelWindow needs a compositor; only the test copy uses an ordinary Qt window.
         text = panel.read_text().replace("PanelWindow {", "Item {", 1)

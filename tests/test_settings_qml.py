@@ -108,6 +108,14 @@ with log.open("w") as output:
         shutil.copytree(
             REPO / "Configs/config/.config/quickshell/moxi", desktop.work / "moxi"
         )
+        content = desktop.work / "moxi/settings/SettingsContent.qml"
+        content.write_text(
+            content.read_text().replace(
+                "id: window\n",
+                "id: window\n\tproperty alias testContentColumn: pageContent\n\tproperty alias testScroll: content\n",
+                1,
+            )
+        )
         scripts = desktop.home / ".config/hypr/scripts"
         install_preferences(scripts)
         if popup:

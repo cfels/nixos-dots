@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import QtQuick
 import QtQuick.Window
-import QtQuick.Effects
 import QtQuick.Shapes
 import "../components"
 
@@ -14,6 +13,7 @@ Item {
 	property string fontFamily: ""
 	property bool expandedGallery: false
 	property bool active: controller.expanded
+	property bool initialized: false
 	property int columns: 2
 	property real previewHeight: 140
 	readonly property bool hovered: gridHover.hovered
@@ -29,10 +29,36 @@ Item {
 	}
 
 	onPointerScenePositionChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
-	onActiveChanged: Qt.callLater(wallpaperView.updateWallpaperHover)
+	function updateActive(): void {
+		if (!initialized)
+			return
+		if (wallpaperView.active) {
+			if (wallpaperView.expandedGallery && wallpaperView.controller.currentWallpaper)
+				wallpaperView.controller.previewWallpaper = wallpaperView.controller.currentWallpaper
+			previewFrame.showPreview()
+		} else {
+			previewFrame.clearTransition()
+		}
+		wallpaperView.updateWallpaperHover()
+	}
+	onActiveChanged: Qt.callLater(wallpaperView.updateActive)
+	Component.onCompleted: {
+		initialized = true
+		updateActive()
+	}
+	Component.onDestruction: initialized = false
 
 	Connections {
 		target: wallpaperView.controller
+		function onPreviewWallpaperChanged(): void {
+			Qt.callLater(previewFrame.showPreview)
+		}
+		function onWallThumbsChanged(): void {
+			Qt.callLater(previewFrame.showPreview)
+		}
+		function onWallPreviewsChanged(): void {
+			Qt.callLater(previewFrame.showPreview)
+		}
 		function onExpandedChanged(): void {
 			Qt.callLater(wallpaperView.updateWallpaperHover)
 		}
@@ -42,6 +68,8 @@ Item {
 	}
 
 	function updateWallpaperHover(): void {
+		if (!wallpaperView.active)
+			return
 		let path = ""
 		if (wallpaperView.active && gridHover.hovered) {
 			const pos = grid.mapFromItem(null, wallpaperView.pointerScenePosition.x, wallpaperView.pointerScenePosition.y)
@@ -80,104 +108,101 @@ Item {
 		color: "transparent"
 		clip: true
 
-		property string shownSource: ""
-		property bool shownAnimated: false
-		property string previousSource: ""
-		property bool previousAnimated: false
 		property real ghostProgress: 0
 		property bool waitingReady: false
+		property int generation: 0
+		property var snapshot: null
 
-		function cross(): void {
-			const nextSource = preview.source
-			const nextAnimated = preview.animated
-
-			if (nextSource === previewFrame.shownSource && nextAnimated === previewFrame.shownAnimated)
-				return
-			if (previewFrame.shownAnimated) {
-				previewFrame.previousSource = previewFrame.shownSource
-				previewFrame.previousAnimated = true
-			} else {
-				previewFrame.previousAnimated = false
-				previewFrame.previousSource = previewFrame.shownSource
-			}
-
-			previewFrame.shownSource = nextSource
-			previewFrame.shownAnimated = nextAnimated
-
+		function clearTransition(): void {
+			++generation
 			previewCross.stop()
-
-			if (nextSource.length === 0) {
-				previewFrame.waitingReady = false
-				previewFrame.ghostProgress = 0
-				return
+			waitingReady = false
+			ghostProgress = 0
+			preview.scale = 1
+			previewGhost.source = ""
+			snapshot = null
+		}
+		function applyPreview(source, animated, captured): void {
+			previewCross.stop()
+			if (captured) {
+				snapshot = captured
+				previewGhost.source = captured.url
+				ghostProgress = 1
 			}
-
-			previewFrame.ghostProgress = 1
-
-			if (preview.ready) {
-				previewFrame.waitingReady = false
+			waitingReady = ghostProgress > 0
+			// Clear the source before changing decoder type. Otherwise a PNG can
+			// briefly be opened as a movie when switching to an animated preview.
+			preview.source = ""
+			preview.animated = animated
+			preview.source = source
+			if (!source) {
+				clearTransition()
+			} else if (preview.ready && waitingReady) {
+				waitingReady = false
 				previewCross.restart()
-			} else {
-				previewFrame.waitingReady = true
 			}
 		}
+		function showPreview(): void {
+			if (!wallpaperView.active)
+				return
+			const path = wallpaperView.controller.previewWallpaper
+			const file = wallpaperView.controller.wallpaperSource(path)
+			const source = file ? "file://" + file : ""
+			const animated = wallpaperView.controller.wallpaperSourceAnimated(path)
+			if (source === preview.source && animated === preview.animated) {
+				++generation
+				return
+			}
+			const serial = ++generation
+			if (preview.ready && visible && width > 0 && height > 0 && !Preferences.reducedMotion) {
+				// Freeze the decoded outgoing frame; never start a second GIF decoder.
+				if (preview.grabToImage(result => {
+					if (serial === previewFrame.generation)
+						previewFrame.applyPreview(source, animated, result)
+				}))
+					return
+			}
+			applyPreview(source, animated, null)
+		}
+		Component.onCompleted: Qt.callLater(showPreview)
 
 		SquircleImage {
 			id: preview
-
 			anchors.fill: parent
-			source: wallpaperView.controller.wallpaperSource(wallpaperView.controller.previewWallpaper).length > 0 ? "file://" + wallpaperView.controller.wallpaperSource(wallpaperView.controller.previewWallpaper) : ""
-			animated: wallpaperView.controller.wallpaperSourceAnimated(wallpaperView.controller.previewWallpaper)
 			playing: wallpaperView.active
 			radius: 30
 			power: 4
-			sourceWidth: wallpaperView.expandedGallery ? Math.ceil(previewFrame.width) : 560
-			sourceHeight: wallpaperView.expandedGallery ? Math.ceil(previewFrame.height) : 320
-
-			onSourceChanged: Qt.callLater(previewFrame.cross)
-			onAnimatedChanged: Qt.callLater(previewFrame.cross)
+			// Stable decode sizes keep the cache warm while panel geometry animates.
+			sourceWidth: 560
+			sourceHeight: 320
 			onReadyChanged: {
 				if (ready && previewFrame.waitingReady) {
 					previewFrame.waitingReady = false
 					previewCross.restart()
 				}
 			}
-			Component.onCompleted: {
-				previewFrame.shownSource = preview.source
-				previewFrame.shownAnimated = preview.animated
-			}
 		}
-
-		SquircleImage {
+		Image {
 			id: previewGhost
-
 			anchors.fill: parent
-			source: previewFrame.previousSource
-			animated: previewFrame.previousAnimated
-			radius: 30
-			power: 4
-			sourceWidth: wallpaperView.expandedGallery ? Math.ceil(previewFrame.width) : 560
-			sourceHeight: wallpaperView.expandedGallery ? Math.ceil(previewFrame.height) : 320
 			opacity: previewFrame.ghostProgress
-			visible: previewFrame.ghostProgress > 0.001
-			playing: visible && wallpaperView.active
-			layer.enabled: visible
-			layer.effect: MultiEffect {
-				blurEnabled: true
-				blur: (1 - previewFrame.ghostProgress) * 0.85
-				blurMax: 24
-			}
+			visible: opacity > 0.001
+			cache: false
 		}
 
 		ParallelAnimation {
 			id: previewCross
+			onFinished: {
+				previewGhost.source = ""
+				previewFrame.snapshot = null
+			}
 
 			NumberAnimation {
 				target: previewFrame
 				property: "ghostProgress"
 				from: 1
 				to: 0
-				duration: 180
+				duration: Preferences.motion(180)
 				easing.type: Easing.OutCubic
 			}
 			NumberAnimation {
@@ -185,7 +210,7 @@ Item {
 				property: "scale"
 				from: 1.02
 				to: 1
-				duration: 180
+				duration: Preferences.motion(180)
 				easing.type: Easing.OutCubic
 			}
 		}
@@ -207,6 +232,7 @@ Item {
 		flickDeceleration: 1400
 		maximumFlickVelocity: 2600
 		model: wallpaperView.controller.wallpapers
+		currentIndex: wallpaperView.controller.wallpapers.indexOf(wallpaperView.controller.currentWallpaper)
 
 		HoverHandler {
 			id: gridHover
@@ -277,13 +303,13 @@ Item {
 				SquircleImage {
 					anchors.fill: parent
 					source: {
-						const path = wallpaperView.controller.wallpaperIsVideo(modelData) ? wallpaperView.controller.wallpaperThumb(modelData) : modelData
+						const path = wallpaperView.controller.wallpaperThumb(modelData) || (wallpaperView.controller.wallpaperIsVideo(modelData) ? "" : modelData)
 						return path.length > 0 ? "file://" + path : ""
 					}
 					radius: 13
 					power: 4
-					sourceWidth: wallpaperView.expandedGallery ? Math.ceil(thumb.width) : 168
-					sourceHeight: wallpaperView.expandedGallery ? Math.ceil(thumb.height) : 120
+					sourceWidth: wallpaperView.expandedGallery ? 256 : 168
+					sourceHeight: wallpaperView.expandedGallery ? 144 : 120
 				}
 
 				Rectangle {
@@ -360,7 +386,7 @@ Item {
 					radius: 14
 					fillColor: "transparent"
 					strokeColor: wallpaperView.theme.accent
-					strokeWidth: wallpaperView.controller.hoveredWallpaper === modelData || wallpaperView.controller.previewWallpaper === modelData ? 1.4 : 0
+					strokeWidth: wallpaperView.controller.hoveredWallpaper === modelData || wallpaperView.controller.currentWallpaper === modelData ? 1.4 : 0
 				}
 
 				TapHandler {

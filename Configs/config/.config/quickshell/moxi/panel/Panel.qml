@@ -72,6 +72,8 @@ PanelWindow {
 	property bool inputReady: true
 	property alias settingsVisible: pager.settingsOpen
 	property real settingsHeight: 600
+	readonly property int contentMargin: 20
+	readonly property real preferredWidth: settingsVisible ? 920 : layout.implicitWidth + contentMargin * 2
 	readonly property real preferredHeight: settingsVisible ? settingsHeight : 420
 	property var surfaceHost: null
 	visible: surfaceHost === null
@@ -110,7 +112,8 @@ PanelWindow {
 	property real cornerRadius: panel.expanded ? 30 : panel.anchorHeight / 2
 	readonly property real cornerPower: 4
 
-	readonly property real playerSideWidth: Math.max(180, Math.round((layout.width - 422) / 2))
+	// Preserve the stock column sizes when optional sections are hidden.
+	readonly property real playerSideWidth: 229
 
 	Behavior on cornerRadius {
 		NumberAnimation {
@@ -155,7 +158,7 @@ PanelWindow {
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.top: parent.top
 		y: panel.expanded ? 50 : panel.anchorY
-		width: panel.expanded ? 920 : panel.anchorWidth
+		width: panel.expanded ? panel.preferredWidth : panel.anchorWidth
 		height: panel.expanded ? panel.preferredHeight : panel.anchorHeight
 		opacity: panel.surfaceVisible ? 1 : 0
 
@@ -167,7 +170,7 @@ PanelWindow {
 
 		Behavior on y {
 			NumberAnimation {
-				duration: panel.expanded ? 300 : 220
+				duration: panel.expanded ? 284 : 210
 				easing.type: Easing.Bezier
 				easing.bezierCurve: [0.32, 0.72, 0, 1]
 			}
@@ -175,7 +178,7 @@ PanelWindow {
 
 		Behavior on width {
 			NumberAnimation {
-				duration: panel.expanded ? 300 : 220
+				duration: Preferences.motion(panel.expanded ? 284 : 210)
 				easing.type: Easing.Bezier
 				easing.bezierCurve: [0.32, 0.72, 0, 1]
 			}
@@ -183,7 +186,7 @@ PanelWindow {
 
 		Behavior on height {
 			NumberAnimation {
-				duration: panel.expanded ? 300 : 220
+				duration: Preferences.motion(panel.expanded ? 284 : 210)
 				easing.type: Easing.Bezier
 				easing.bezierCurve: [0.32, 0.72, 0, 1]
 			}
@@ -230,7 +233,7 @@ PanelWindow {
 				parent: pager.desktopHost
 
 				anchors.fill: parent
-				anchors.margins: 20
+				anchors.margins: panel.contentMargin
 				spacing: 20
 				opacity: panel.contentVisible ? 1 : 0
 
@@ -256,7 +259,7 @@ PanelWindow {
 				Rectangle {
 					visible: calendar.visible
 					Layout.fillHeight: true
-					width: 1
+					Layout.preferredWidth: 1
 					color: Qt.rgba(theme.foreground.r, theme.foreground.g, theme.foreground.b, 0.12)
 				}
 
@@ -281,7 +284,7 @@ PanelWindow {
 				Rectangle {
 					visible: wallpaperView.visible
 					Layout.fillHeight: true
-					width: 1
+					Layout.preferredWidth: 1
 					color: Qt.rgba(theme.foreground.r, theme.foreground.g, theme.foreground.b, 0.12)
 				}
 

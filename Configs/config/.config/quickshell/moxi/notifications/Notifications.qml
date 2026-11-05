@@ -376,6 +376,8 @@ PanelWindow {
 										color: root.mutedColor
 										elide: Text.ElideRight
 										font.family: root.fontFamily
+										font.contextFontMerging: true
+										renderTypeQuality: Text.HighRenderTypeQuality
 										font.pixelSize: 11
 										text: card.modelData && card.modelData.appName ? card.modelData.appName : ""
 									}
@@ -386,6 +388,8 @@ PanelWindow {
 									visible: text.length > 0
 									color: root.foreground
 									font.family: root.fontFamily
+									font.contextFontMerging: true
+									renderTypeQuality: Text.HighRenderTypeQuality
 									font.pixelSize: 14
 									font.weight: Font.Medium
 									text: card.modelData && card.modelData.summary ? card.modelData.summary : ""
@@ -414,6 +418,8 @@ PanelWindow {
 							visible: text.length > 0
 							color: root.mutedColor
 							font.family: root.fontFamily
+							font.contextFontMerging: true
+							renderTypeQuality: Text.HighRenderTypeQuality
 							font.pixelSize: 12
 							text: card.modelData && card.modelData.body ? card.modelData.body : ""
 							wrapMode: Text.WordWrap
