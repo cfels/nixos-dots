@@ -11,6 +11,9 @@ from test_lyrics_panel import block_after
 
 
 class QmlPanelTests(unittest.TestCase):
+    def test_audio_events_only_refresh_changed_controls(self):
+        self.run_scenario(REPO / "tests/qml/AudioUpdatesScenario.qml")
+
     @unittest.skipUnless(
         shutil.which("Xvfb") and shutil.which("fc-match"),
         "Xvfb and Fontconfig are required for text rendering",
@@ -31,6 +34,12 @@ class QmlPanelTests(unittest.TestCase):
 
     def test_settings_messages_fade_collapse_and_preserve_errors(self):
         self.run_scenario(REPO / "tests/qml/SettingsMessageAnimationScenario.qml")
+
+    @unittest.skipUnless(shutil.which("Xvfb"), "Xvfb is required for message rendering")
+    def test_settings_message_layout_animation_opengl(self):
+        self.run_scenario(
+            REPO / "tests/qml/SettingsMessageAnimationScenario.qml", renderer="opengl"
+        )
 
     @unittest.skipUnless(shutil.which("Xvfb"), "Xvfb is required for exit rendering")
     def test_settings_exit_freezes_layout_and_releases_its_gpu_source(self):

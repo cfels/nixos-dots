@@ -7,6 +7,7 @@ ShellRoot {
 	id: scenario
 	property int step: 0
 	property int attempts: 0
+	property bool frozenFrameSaved: false
 	Window {
 		visible: true
 		width: 320
@@ -47,9 +48,18 @@ ShellRoot {
 						return
 					scenario.check(subject.busy && subject.snapshot !== null, "Outgoing page was lost during crossover")
 					scenario.check(subject.contentHost.x > 0 && subject.contentHost.opacity > 0 && subject.contentHost.opacity < 1, "Incoming page did not crossfade from the right")
+					if (subject.hardwareCapture) {
+						scenario.check(subject.snapshot.sourceItem === subject.contentHost && !subject.snapshot.live, "Tab transition did not use a frozen GPU texture")
+						subject.snapshot.grabToImage(result => {
+							result.saveToFile("/work/settings-frozen.png")
+							scenario.frozenFrameSaved = true
+						})
+					}
 					scenario.step++
 				} else if (scenario.step === 2) {
 					if (subject.busy)
+						return
+					if (subject.hardwareCapture && !scenario.frozenFrameSaved)
 						return
 					scenario.check(subject.snapshot === null && subject.progress === 1 && subject.contentHost.x === 0, "Crossover retained its capture or offset")
 					subject.change(function () {

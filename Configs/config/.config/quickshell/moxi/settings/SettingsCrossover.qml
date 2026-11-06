@@ -16,6 +16,7 @@ Item {
 	readonly property bool busy: capturing || spring.running
 	readonly property real distance: Math.min(180, width * 0.25)
 	readonly property real blend: Math.max(0, Math.min(1, progress))
+	readonly property bool hardwareCapture: GraphicsInfo.api !== GraphicsInfo.Software && GraphicsInfo.api !== GraphicsInfo.Unknown
 	clip: true
 
 	function change(action, origin) {
@@ -32,8 +33,12 @@ Item {
 		captureChange = action
 		direction = origin < 0 ? -1 : 1
 		const serial = ++generation
-		// Freeze only the outgoing pixels. Audio and wallpaper pages are never
-		// duplicated, and this in-memory image is released when the spring settles.
+		// Keep snapshots on the GPU when possible; a readback stalls tab changes.
+		if (hardwareCapture) {
+			gpuCapture.active = true
+			return
+		}
+		// The software renderer keeps the existing image-based fallback.
 		if (!livePage.grabToImage(result => {
 			if (serial !== crossover.generation)
 				return
@@ -56,6 +61,7 @@ Item {
 		spring.stop()
 		progress = 1
 		ghost.source = ""
+		gpuCapture.active = false
 		snapshot = null
 		capturing = false
 		const next = pendingChange || captureChange
@@ -108,5 +114,36 @@ Item {
 		opacity: 1 - crossover.blend
 		visible: source.toString().length > 0
 		cache: false
+	}
+	Loader {
+		id: gpuCapture
+		active: false
+		width: crossover.width
+		height: crossover.height
+		x: crossover.capturing ? 0 : -crossover.direction * crossover.distance * crossover.progress
+		opacity: crossover.capturing ? 1 : 1 - crossover.blend
+		onLoaded: {
+			item.serial = crossover.generation
+			item.scheduleUpdate()
+		}
+		sourceComponent: ShaderEffectSource {
+			property int serial: 0
+			anchors.fill: parent
+			sourceItem: livePage
+			live: false
+			hideSource: crossover.capturing
+			smooth: true
+			onScheduledUpdateCompleted: {
+				if (serial !== crossover.generation || !crossover.capturing)
+					return
+				crossover.snapshot = this
+				const apply = crossover.captureChange
+				crossover.captureChange = null
+				apply()
+				crossover.progress = 0
+				crossover.capturing = false
+				spring.start()
+			}
+		}
 	}
 }

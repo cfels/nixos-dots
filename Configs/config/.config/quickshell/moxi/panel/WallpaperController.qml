@@ -139,6 +139,7 @@ Scope {
 		id: scan
 
 		property var found: []
+		property var seen: ({})
 		property var thumbs: ({})
 		property var previews: ({})
 		property string signature: ""
@@ -153,9 +154,10 @@ Scope {
 				const fields = line.split("\t")
 				const path = fields[0]
 
-				if (path.length === 0 || scan.found.indexOf(path) !== -1)
+				if (path.length === 0 || scan.seen[path])
 					return
-				scan.found = scan.found.concat([path])
+				scan.seen[path] = true
+				scan.found.push(path)
 
 				if (fields[1] && fields[1].length > 0)
 					scan.thumbs[path] = fields[1]
@@ -195,6 +197,7 @@ Scope {
 			}
 
 			scan.found = []
+			scan.seen = ({})
 			scan.thumbs = ({})
 			scan.previews = ({})
 

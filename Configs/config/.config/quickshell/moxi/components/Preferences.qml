@@ -161,7 +161,7 @@ Scope {
 				initial[item.key] = item.default
 			values = initial
 		} catch (problem) {
-			error = "Settings definitions are unavailable: " + problem
+			error = "Couldn't load settings: " + problem
 		}
 		refresh()
 	}

@@ -30,7 +30,7 @@ Item {
 		id: backdrop
 		anchors.fill: parent
 		visible: false
-		live: surface.blurEnabled
+		live: surface.blurEnabled || sourceItem === null
 		sourceItem: surface.blurEnabled ? surface.sourceItem : null
 		sourceRect: surface.captureRect
 	}

@@ -41,7 +41,7 @@ ColumnLayout {
 	}
 	RowLayout {
 		SettingsButton {
-			text: "Choose wallpaper…"
+			text: "Choose a wallpaper…"
 			onClicked: chooser.open()
 		}
 		SettingsButton {
@@ -110,12 +110,12 @@ ColumnLayout {
 		}
 		onExited: (code, exitStatus) => {
 			if (code !== 0) {
-				page.error = diagnosticError.text.trim() || "The wallpaper renderer is not running"
+				page.error = diagnosticError.text.trim() || "The wallpaper renderer isn't running"
 				return
 			}
 			try {
 				const data = JSON.parse(diagnosticOutput.text)
-				page.status = data.state + " · " + data.outputs.length + " output(s)"
+				page.status = data.state + " · " + data.outputs.length + (data.outputs.length === 1 ? " screen" : " screens")
 				page.error = data.error || ""
 			} catch (problem) {
 				page.error = String(problem)

@@ -68,10 +68,11 @@ Item {
 			Layout.alignment: Qt.AlignRight
 			spacing: 8
 			Loader {
+				asynchronous: true
 				readonly property Item control: item as Item
 				Layout.fillWidth: true
 				Layout.preferredWidth: 220
-				Layout.preferredHeight: control ? control.implicitHeight : 38
+				Layout.preferredHeight: control ? control.implicitHeight : 32
 				sourceComponent: row.definition.kind === "toggle" ? toggle : row.definition.kind === "slider" ? slider : row.definition.kind === "choice" ? choice : row.definition.kind === "application" ? application : row.definition.kind === "player" ? player : field
 			}
 		}
@@ -196,7 +197,7 @@ Item {
 				}
 			].concat(row.current && !players.values.some(node => node.dbusName === row.current) ? [
 				{
-					label: row.current + " (not available)",
+					label: row.current + " (unavailable)",
 					id: row.current
 				}
 			] : []).concat(players.values.map(node => ({

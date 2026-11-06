@@ -37,7 +37,7 @@ ColumnLayout {
 	}
 	Text {
 		visible: audio.ready && audio.outputModel.count === 0
-		text: "No output devices connected"
+		text: "No audio outputs found"
 		color: SettingsStyle.theme.muted
 		font.family: SettingsStyle.fontFamily
 	}
@@ -57,12 +57,12 @@ ColumnLayout {
 	}
 	Text {
 		visible: audio.ready && audio.inputModel.count === 0
-		text: "No microphones connected"
+		text: "No microphones found"
 		color: SettingsStyle.theme.muted
 		font.family: SettingsStyle.fontFamily
 	}
 	Text {
-		text: "Applications"
+		text: "Apps"
 		color: SettingsStyle.theme.accent
 		font.family: SettingsStyle.fontFamily
 		font.pixelSize: 15
@@ -77,7 +77,7 @@ ColumnLayout {
 	}
 	Text {
 		visible: audio.ready && audio.streamModel.count === 0
-		text: "No applications are playing audio"
+		text: "No apps are playing audio"
 		color: SettingsStyle.theme.muted
 		font.family: SettingsStyle.fontFamily
 	}

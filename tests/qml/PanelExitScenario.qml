@@ -78,7 +78,7 @@ ShellRoot {
 				} else {
 					if (pager.transitioning)
 						return
-					scenario.check(!pager.settingsItem && !pager.testExit.sourceItem, "Closed Settings retained a page or GPU source")
+					scenario.check(!pager.settingsItem && !pager.testExit.sourceItem && pager.testExit.live, "Closed Settings retained a page or GPU source")
 					console.info("PANEL_SCENARIO_OK")
 					Qt.quit()
 				}

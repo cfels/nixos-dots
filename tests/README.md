@@ -43,6 +43,14 @@ The lyrics responses in `fixtures/lyrics/providers.json` are synthetic fixtures 
 
 Panel tests execute the existing JavaScript function bodies to check cancellation requests, track-key guards, and duration-only messages. They do not instantiate Quickshell, verify signal delivery order, or render animations. Process-group cancellation tests verify group cleanup, not Quickshell's process-tree termination semantics.
 
+Separate QML checks exercise real Settings transitions in software and isolated
+OpenGL. They verify the outgoing GPU snapshot's pixels and cleanup, rapid
+navigation, reduced motion, and that repeated audio events leave unchanged
+controls alone. Audio subscription tests also check duplicate suppression;
+private audio integration checks cover external volume, routing and hotplug.
+These checks use Xvfb/Mesa, not the desktop's live GPU, and do not establish
+hardware frame rates.
+
 Wallpaper command tests check renderer reuse, failure recovery, and cleanup after transition completion. The OpenGL scenario renders the actual grow mask from all four corners and checks its pixels, including PNG/JPG-to-video captures during the reveal. It also plays real video and GIF fixtures, verifies that both videos advance during a reveal, retires the outgoing decoder afterward, and checks queued selections. Desktop tests still need a running compositor to verify layer placement, hardware playback, and live Hyprglass sampling. The wallpaper renderer requires Qt Multimedia and runs separately from panel reloads.
 
 PremiumWalls tests additionally exercise per-session opening reservations, concurrent output/audio ownership, manifest validation, opening-to-showcase playback, repeated loops, fullscreen pause/resume, component reloads, and live settings. The playback scenario needs Xvfb and the existing PulseAudio test tools (`pulseaudio`, `pactl`, and `parec`). It starts a private audio server with a delayed null sink, verifies the opening waits for that sink, and captures non-silent sound. Contrasting posters and startup frame captures check for empty or fallback frames after playback begins. It never records desktop audio or uses host speakers.

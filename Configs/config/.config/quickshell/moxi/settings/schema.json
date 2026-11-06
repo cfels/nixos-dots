@@ -6,15 +6,15 @@
       "label": "Use wallpaper colors",
       "default": true,
       "kind": "toggle",
-      "description": "Create desktop colors with Matugen when you choose a wallpaper.",
+      "description": "Match your desktop colors to your wallpaper.",
       "category": "appearance"
     },
     {
       "key": "appearance.shellOpacity",
-      "label": "Shell opacity",
+      "label": "Desktop opacity",
       "default": 1.0,
       "kind": "slider",
-      "description": "Applies to the bar, panel, tray and notifications. 1 keeps the original opacity.",
+      "description": "Change the transparency of the bar, panel, tray and notifications.",
       "category": "appearance",
       "min": 0.3,
       "max": 1.3,
@@ -26,7 +26,7 @@
       "label": "Rounded screen corners",
       "default": true,
       "kind": "toggle",
-      "description": "Add rounded corners at the edges of each screen.",
+      "description": "",
       "category": "appearance"
     },
     {
@@ -34,7 +34,7 @@
       "label": "Screen corner radius",
       "default": 24,
       "kind": "slider",
-      "description": "Used when rounded screen corners are on.",
+      "description": "How rounded your screen corners look.",
       "category": "appearance",
       "min": 8,
       "max": 64,
@@ -82,7 +82,7 @@
     },
     {
       "key": "appearance.rounding",
-      "label": "Window rounding",
+      "label": "Window roundness",
       "default": 16,
       "kind": "slider",
       "description": "",
@@ -170,10 +170,10 @@
     },
     {
       "key": "appearance.animations",
-      "label": "Window and workspace animations",
+      "label": "Window animations",
       "default": true,
       "kind": "toggle",
-      "description": "",
+      "description": "Animate windows and workspace changes.",
       "category": "appearance",
       "apply": "hyprland"
     },
@@ -205,10 +205,10 @@
     },
     {
       "key": "appearance.reducedMotion",
-      "label": "Reduced motion",
+      "label": "Reduce motion",
       "default": false,
       "kind": "toggle",
-      "description": "Reduce shell animations and scrolling effects. Wallpaper videos keep playing.",
+      "description": "Use fewer interface animations; wallpaper videos still play.",
       "category": "appearance"
     },
     {
@@ -216,15 +216,15 @@
       "label": "Wallpaper folder",
       "default": "~/walls",
       "kind": "path",
-      "description": "Show images, GIFs, videos and Velina wallpapers in this folder. Subfolders are not included.",
+      "description": "Find wallpapers here, without looking in subfolders.",
       "category": "wallpaper"
     },
     {
       "key": "wallpaper.revealDuration",
-      "label": "Transition duration",
+      "label": "Transition duration (ms)",
       "default": 450,
       "kind": "slider",
-      "description": "In milliseconds. Applies the next time you change wallpapers.",
+      "description": "How long the next wallpaper change takes.",
       "category": "wallpaper",
       "min": 0,
       "max": 2000,
@@ -233,7 +233,7 @@
     },
     {
       "key": "wallpaper.origin",
-      "label": "Transition origin",
+      "label": "Start transitions from",
       "default": "random",
       "kind": "choice",
       "description": "",
@@ -248,7 +248,7 @@
     },
     {
       "key": "wallpaper.fit",
-      "label": "Image and video fit",
+      "label": "Wallpaper fit",
       "default": "cover",
       "kind": "choice",
       "description": "",
@@ -260,42 +260,42 @@
     },
     {
       "key": "wallpaper.pauseFullscreen",
-      "label": "Pause videos and GIFs in fullscreen",
+      "label": "Pause videos in fullscreen",
       "default": false,
       "kind": "toggle",
-      "description": "Pause only on the screen with the active fullscreen window.",
+      "description": "Pause videos and GIFs on the screen with a fullscreen app.",
       "category": "wallpaper"
     },
     {
       "key": "premium.openingEnabled",
-      "label": "Play opening",
+      "label": "Play intro",
       "default": true,
       "kind": "toggle",
-      "description": "Saved for this wallpaper. Doesn't replay the opening or its sound this session.",
+      "description": "Applies to future starts; the intro won't replay this session.",
       "category": "wallpaper"
     },
     {
       "key": "premium.startupAudio",
-      "label": "Opening sound",
+      "label": "Intro sound",
       "default": true,
       "kind": "toggle",
-      "description": "Saved for this wallpaper. Doesn't replay the opening or its sound this session.",
+      "description": "Play sound with the intro on future starts.",
       "category": "wallpaper"
     },
     {
       "key": "premium.loop",
-      "label": "Loop showcase",
+      "label": "Loop scene",
       "default": true,
       "kind": "toggle",
-      "description": "",
+      "description": "Repeat the scene after the intro.",
       "category": "wallpaper"
     },
     {
       "key": "premium.pauseWhenFullscreen",
-      "label": "Pause PremiumWalls in fullscreen",
+      "label": "Pause in fullscreen",
       "default": true,
       "kind": "toggle",
-      "description": "",
+      "description": "Pause this wallpaper while a fullscreen app is active.",
       "category": "wallpaper"
     },
     {
@@ -313,7 +313,7 @@
     },
     {
       "key": "premium.fit",
-      "label": "PremiumWalls fit",
+      "label": "Wallpaper fit",
       "default": "cover",
       "kind": "choice",
       "description": "",
@@ -348,12 +348,12 @@
       "label": "Audio visualizer",
       "default": true,
       "kind": "toggle",
-      "description": "Stops audio analysis when turned off.",
+      "description": "",
       "category": "bar"
     },
     {
       "key": "bar.tray",
-      "label": "System tray",
+      "label": "Show system tray",
       "default": true,
       "kind": "toggle",
       "description": "",
@@ -361,7 +361,7 @@
     },
     {
       "key": "bar.calendar",
-      "label": "Calendar",
+      "label": "Show calendar",
       "default": true,
       "kind": "toggle",
       "description": "",
@@ -369,7 +369,7 @@
     },
     {
       "key": "bar.wallpapers",
-      "label": "Wallpaper picker",
+      "label": "Show wallpaper picker",
       "default": true,
       "kind": "toggle",
       "description": "",
@@ -377,10 +377,10 @@
     },
     {
       "key": "bar.holdDelay",
-      "label": "Press and hold delay",
+      "label": "Hold to open (ms)",
       "default": 420,
       "kind": "slider",
-      "description": "Time in milliseconds before the panel opens.",
+      "description": "How long to hold the bar to open the panel.",
       "category": "bar",
       "min": 150,
       "max": 1500,
@@ -389,10 +389,10 @@
     },
     {
       "key": "bar.closeDelay",
-      "label": "Panel close delay",
+      "label": "Panel close delay (ms)",
       "default": 320,
       "kind": "slider",
-      "description": "In milliseconds.",
+      "description": "",
       "category": "bar",
       "min": 100,
       "max": 2000,
@@ -401,10 +401,10 @@
     },
     {
       "key": "advanced.trayOpenDelay",
-      "label": "Tray open delay",
+      "label": "Tray open delay (ms)",
       "default": 160,
       "kind": "slider",
-      "description": "In milliseconds.",
+      "description": "",
       "category": "bar",
       "min": 0,
       "max": 1500,
@@ -413,10 +413,10 @@
     },
     {
       "key": "advanced.trayCloseDelay",
-      "label": "Tray close delay",
+      "label": "Tray close delay (ms)",
       "default": 320,
       "kind": "slider",
-      "description": "In milliseconds.",
+      "description": "",
       "category": "bar",
       "min": 100,
       "max": 2000,
@@ -446,10 +446,10 @@
     },
     {
       "key": "notifications.duration",
-      "label": "Display duration",
+      "label": "Notification duration (s)",
       "default": 5,
       "kind": "slider",
-      "description": "In seconds. Applies to new notifications.",
+      "description": "How long new notifications stay on screen.",
       "category": "notifications",
       "min": 1,
       "max": 30,
@@ -458,10 +458,10 @@
     },
     {
       "key": "notifications.maximum",
-      "label": "Visible notifications",
+      "label": "Notifications at once",
       "default": 4,
       "kind": "slider",
-      "description": "Maximum shown at once.",
+      "description": "",
       "category": "notifications",
       "min": 1,
       "max": 10,
@@ -473,7 +473,7 @@
       "label": "Keyboard layout",
       "default": "pl",
       "kind": "text",
-      "description": "Separate layout codes with commas. Changes the desktop layout, not the login screen or console.",
+      "description": "Use codes like pl or us, separated by commas; desktop only.",
       "category": "desktop",
       "apply": "hyprland"
     },
@@ -482,7 +482,7 @@
       "label": "Pointer sensitivity",
       "default": -0.8,
       "kind": "slider",
-      "description": "Changes pointer movement in Hyprland, not the mouse's DPI.",
+      "description": "Change pointer speed without changing mouse DPI.",
       "category": "desktop",
       "min": -1.0,
       "max": 1.0,
@@ -511,7 +511,7 @@
       "label": "Terminal",
       "default": "kitty",
       "kind": "application",
-      "description": "Used by keyboard shortcuts. File associations stay unchanged.",
+      "description": "Used by shortcuts; doesn't change how files open.",
       "category": "desktop"
     },
     {
@@ -519,7 +519,7 @@
       "label": "Browser",
       "default": "helium",
       "kind": "application",
-      "description": "Used by keyboard shortcuts. File associations stay unchanged.",
+      "description": "Used by shortcuts; doesn't change how files open.",
       "category": "desktop"
     },
     {
@@ -527,7 +527,7 @@
       "label": "File manager",
       "default": "dolphin",
       "kind": "application",
-      "description": "Used by keyboard shortcuts. File associations stay unchanged.",
+      "description": "Used by shortcuts; doesn't change how files open.",
       "category": "desktop"
     },
     {
@@ -535,7 +535,7 @@
       "label": "Editor",
       "default": "codium",
       "kind": "application",
-      "description": "Used by keyboard shortcuts. File associations stay unchanged.",
+      "description": "Used by shortcuts; doesn't change how files open.",
       "category": "desktop"
     },
     {
@@ -543,15 +543,15 @@
       "label": "Chat",
       "default": "discord",
       "kind": "application",
-      "description": "Used by keyboard shortcuts. File associations stay unchanged.",
+      "description": "Used by shortcuts; doesn't change how files open.",
       "category": "desktop"
     },
     {
       "key": "audio.scrollStep",
-      "label": "Volume scroll step",
+      "label": "Volume scroll step (%)",
       "default": 5,
       "kind": "slider",
-      "description": "Percentage points per scroll step on the bar.",
+      "description": "How much scrolling the bar changes the volume.",
       "category": "audio",
       "min": 1,
       "max": 20,
@@ -563,12 +563,12 @@
       "label": "Preferred player",
       "default": "",
       "kind": "player",
-      "description": "Uses the first available player when set to Automatic or when your choice isn't running.",
+      "description": "Falls back to another player if your choice isn't running.",
       "category": "audio"
     },
     {
       "key": "media.autoLyrics",
-      "label": "Fetch lyrics automatically",
+      "label": "Get lyrics automatically",
       "default": true,
       "kind": "toggle",
       "description": "",
@@ -576,10 +576,10 @@
     },
     {
       "key": "media.lyricsOffset",
-      "label": "Lyrics timing offset",
+      "label": "Lyrics timing (s)",
       "default": 0.0,
       "kind": "slider",
-      "description": "Seconds added to playback time to keep lyrics in sync.",
+      "description": "Positive values show lyrics sooner; negative values delay them.",
       "category": "audio",
       "min": -10.0,
       "max": 10.0,
@@ -588,10 +588,10 @@
     },
     {
       "key": "media.onlineArtwork",
-      "label": "Fetch cover art online",
+      "label": "Get cover art online",
       "default": true,
       "kind": "toggle",
-      "description": "Local and cached cover art stays available.",
+      "description": "Local and saved covers are still available.",
       "category": "audio"
     }
   ]

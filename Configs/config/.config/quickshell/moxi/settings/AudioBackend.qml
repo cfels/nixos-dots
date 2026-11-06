@@ -32,6 +32,7 @@ Scope {
 				model.remove(i)
 		}
 		for (const item of items) {
+			const signature = JSON.stringify(item)
 			let index = -1
 			for (let i = 0; i < model.count; ++i)
 				if (model.get(i).nodeData.id === item.id && model.get(i).nodeData.serial === item.serial) {
@@ -40,10 +41,14 @@ Scope {
 				}
 			if (index < 0)
 				model.append({
-					nodeData: item
+					nodeData: item,
+					signature: signature
 				})
-			else
-				model.setProperty(index, "nodeData", item)
+			else if (model.get(index).signature !== signature)
+				model.set(index, {
+					nodeData: item,
+					signature: signature
+				})
 		}
 	}
 	function ingest(line) {
@@ -61,12 +66,13 @@ Scope {
 			sync(outputRows, data.outputs)
 			sync(inputRows, data.inputs)
 			sync(streamRows, data.streams)
-			outputs = data.outputs
+			if (JSON.stringify(outputs) !== JSON.stringify(data.outputs))
+				outputs = data.outputs
 			server = data.server
 			ready = true
 			error = ""
 		} catch (problem) {
-			error = "Couldn't read audio information: " + problem
+			error = "Couldn't load audio details: " + problem
 		}
 	}
 	function change(action, kind, node, value) {
@@ -110,7 +116,7 @@ Scope {
 		}
 		onExited: (code, status) => {
 			if (audio.active && code !== 0 && !audio.error)
-				audio.error = subscriptionError.text.trim() || "Audio disconnected. Reconnect to try again."
+				audio.error = subscriptionError.text.trim() || "Audio disconnected. Try reconnecting."
 		}
 	}
 	Process {

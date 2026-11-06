@@ -227,8 +227,9 @@ Item {
 				Layout.fillWidth: true
 				Layout.fillHeight: true
 				spacing: 12
-				RowLayout {
+				ColumnLayout {
 					Layout.fillWidth: true
+					spacing: 0
 					Text {
 						Layout.fillWidth: true
 						text: window.query ? "Search results" : window.categories.find(item => item.key === window.category).label
@@ -236,68 +237,65 @@ Item {
 						font.pixelSize: 18
 						color: SettingsStyle.theme.foreground
 					}
-				}
-				Item {
-					id: statusMessage
-					Layout.fillWidth: true
-					Layout.topMargin: -settingsColumn.spacing * (1 - space)
-					Layout.minimumHeight: 0
-					Layout.preferredHeight: implicitHeight
-					Layout.maximumHeight: implicitHeight
-					readonly property string failure: Preferences.saveError || Preferences.applyError || Preferences.error || window.actionError
-					readonly property string currentText: failure || Preferences.message
-					property string shownText: ""
-					property bool shownError: false
-					property real reveal: currentText ? 1 : 0
-					property real space: currentText || reveal > 0 ? 1 : 0
-					implicitHeight: statusLabel.implicitHeight * space
-					visible: space > 0 || reveal > 0
-					function updateMessage(): void {
-						if (currentText) {
-							shownText = currentText
-							shownError = failure.length > 0
+					Item {
+						id: statusMessage
+						Layout.fillWidth: true
+						Layout.minimumHeight: 0
+						Layout.preferredHeight: implicitHeight
+						Layout.maximumHeight: implicitHeight
+						readonly property string failure: Preferences.saveError || Preferences.applyError || Preferences.error || window.actionError
+						readonly property string currentText: failure || Preferences.message
+						property string shownText: ""
+						property bool shownError: false
+						property real reveal: currentText ? 1 : 0
+						// Share the fade's progress with the layout so the settings move with it.
+						implicitHeight: (statusLabel.implicitHeight + settingsColumn.spacing) * reveal
+						visible: reveal > 0
+						function updateMessage(): void {
+							if (currentText) {
+								shownText = currentText
+								shownError = failure.length > 0
+							}
 						}
-					}
-					onCurrentTextChanged: updateMessage()
-					Component.onCompleted: updateMessage()
-					onSpaceChanged: if (space === 0 && !currentText && reveal === 0) shownText = ""
-					Behavior on reveal {
-						NumberAnimation {
-							duration: Preferences.motion(300)
-							easing.type: Easing.OutCubic
+						onCurrentTextChanged: updateMessage()
+						Component.onCompleted: updateMessage()
+						onRevealChanged: if (reveal === 0 && !currentText)
+							shownText = ""
+						Behavior on reveal {
+							NumberAnimation {
+								duration: Preferences.motion(300)
+								easing.type: Easing.OutCubic
+							}
 						}
-					}
-					Behavior on space {
-						NumberAnimation {
-							duration: Preferences.motion(180)
-							easing.type: Easing.OutCubic
-						}
-					}
-					Text {
-						id: statusLabel
-						width: parent.width
-						text: statusMessage.shownText
-						color: statusMessage.shownError ? SettingsStyle.theme.danger : SettingsStyle.theme.accent
-						font.family: SettingsStyle.fontFamily
-						font.pixelSize: 11
-						wrapMode: Text.WordWrap
-						opacity: statusMessage.reveal
-						scale: 0.98 + 0.02 * statusMessage.reveal
-						transformOrigin: Item.Left
-						transform: Translate { y: -10 * (1 - statusMessage.reveal) }
-						layer.enabled: statusMessage.reveal > 0 && statusMessage.reveal < 1
-						layer.effect: MultiEffect {
-							blurEnabled: true
-							blurMax: 12
-							blur: 0.65 * (1 - statusMessage.reveal)
-							autoPaddingEnabled: true
+						Text {
+							id: statusLabel
+							width: parent.width
+							y: settingsColumn.spacing * statusMessage.reveal
+							text: statusMessage.shownText
+							color: statusMessage.shownError ? SettingsStyle.theme.danger : SettingsStyle.theme.accent
+							font.family: SettingsStyle.fontFamily
+							font.pixelSize: 11
+							wrapMode: Text.WordWrap
+							opacity: statusMessage.reveal
+							scale: 0.98 + 0.02 * statusMessage.reveal
+							transformOrigin: Item.Left
+							transform: Translate {
+								y: -10 * (1 - statusMessage.reveal)
+							}
+							layer.enabled: statusMessage.reveal > 0 && statusMessage.reveal < 1
+							layer.effect: MultiEffect {
+								blurEnabled: true
+								blurMax: 12
+								blur: 0.65 * (1 - statusMessage.reveal)
+								autoPaddingEnabled: true
+							}
 						}
 					}
 				}
 				Text {
 					Layout.fillWidth: true
 					visible: !window.query && (window.category === "appearance" || window.category === "desktop")
-					text: window.category === "appearance" ? "Window changes apply automatically. Hyprland reloads briefly." : "Keyboard and pointer changes apply after a brief Hyprland reload."
+					text: window.category === "appearance" ? "Window changes apply automatically with a quick Hyprland reload." : "Keyboard and pointer changes apply with a quick Hyprland reload."
 					color: SettingsStyle.theme.muted
 					font.family: SettingsStyle.fontFamily
 					font.pixelSize: 10
@@ -311,7 +309,7 @@ Item {
 				}
 				SettingsButton {
 					visible: Preferences.applyError.length > 0
-					text: "Try applying changes again"
+					text: "Try again"
 					enabled: !Preferences.saving && !Preferences.applying
 					onClicked: Preferences.applyHyprland()
 				}
@@ -367,7 +365,7 @@ Item {
 							}
 							Text {
 								visible: window.query.length > 0 && window.rows.length === 0
-								text: "No matching settings"
+								text: "No settings found"
 								color: SettingsStyle.theme.muted
 								font.family: SettingsStyle.fontFamily
 							}
@@ -377,7 +375,7 @@ Item {
 								Layout.topMargin: 12
 								Layout.bottomMargin: 12
 								text: "Send test notification"
-								onClicked: window.action(["notify-send", "-a", "Settings", "Test notification", "This is a test notification. Do not disturb hides it too."])
+								onClicked: window.action(["notify-send", "-a", "Settings", "Test notification", "Notifications are working. Do not disturb hides this one too."])
 							}
 							SettingsButton {
 								visible: !window.query && window.category === "desktop" && !window.confirmClear
@@ -393,7 +391,7 @@ Item {
 								Layout.bottomMargin: 12
 								Text {
 									Layout.fillWidth: true
-									text: "Clear all saved clipboard entries and the current clipboard?"
+									text: "Clear your clipboard and all saved entries?"
 									color: SettingsStyle.theme.danger
 									wrapMode: Text.WordWrap
 									font.family: SettingsStyle.fontFamily
@@ -424,7 +422,7 @@ Item {
 								}
 								Text {
 									Layout.fillWidth: true
-									text: window.project.commit || "Version information unavailable"
+									text: window.project.commit || "Version unavailable"
 									color: SettingsStyle.theme.muted
 									font.family: SettingsStyle.fontFamily
 									font.pixelSize: 12
@@ -464,7 +462,7 @@ Item {
 			}
 			Text {
 				Layout.fillWidth: true
-				text: "Reset appearance, panel, notification, input, media and PremiumWalls settings to their original defaults. Your wallpapers, files, clipboard history, device volumes and mouse DPI are kept. Hyprland changes apply automatically."
+				text: "Reset Moxi preferences without touching your files, wallpapers, clipboard history, audio volumes or mouse DPI. Window and input changes apply automatically."
 				color: SettingsStyle.theme.muted
 				font.family: SettingsStyle.fontFamily
 				font.pixelSize: 12
@@ -497,7 +495,7 @@ Item {
 		}
 		onExited: (code, status) => {
 			if (code !== 0)
-				window.actionError = actionStderr.text.trim() || "Couldn't complete this action"
+				window.actionError = actionStderr.text.trim() || "Couldn't finish this action"
 		}
 	}
 	Process {

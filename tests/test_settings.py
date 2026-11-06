@@ -7,7 +7,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from support import REPO
 from test_lyrics_panel import block_after
@@ -310,6 +310,40 @@ if (launcher.index.length !== 1 || launcher.index[0].entry.name !== "Kitty") thr
 
 
 class AudioAdapterTests(unittest.TestCase):
+    def test_subscription_only_publishes_changed_snapshots(self):
+        initial = self.state()
+        changed = {**initial, "inputs": [{"id": 4, "serial": "104"}]}
+        process = Mock()
+        selector = Mock()
+        clock = [0.0]
+        calls = [0]
+        key = Mock()
+
+        def events(timeout):
+            calls[0] += 1
+            clock[0] += 0.1
+            if calls[0] > 4:
+                raise RuntimeError("End of test events")
+            return [(key, 1)] if calls[0] % 2 else []
+
+        selector.select.side_effect = events
+        with (
+            patch.object(audio.signal, "signal"),
+            patch.object(audio.subprocess, "Popen", return_value=process),
+            patch.object(audio.selectors, "DefaultSelector") as factory,
+            patch.object(audio.os, "read", return_value=b"Event 'change' on sink #3\n"),
+            patch.object(audio.time, "monotonic", side_effect=lambda: clock[0]),
+            patch.object(audio, "snapshot", side_effect=[initial, initial, changed]),
+            patch.object(audio, "emit") as emit,
+        ):
+            factory.return_value.__enter__.return_value = selector
+            with self.assertRaisesRegex(RuntimeError, "End of test events"):
+                audio.watch()
+            self.assertEqual(
+                [call.args[0] for call in emit.call_args_list], [initial, changed]
+            )
+            process.terminate.assert_called_once()
+
     def state(self):
         return {
             "outputs": [{"id": 3, "serial": "103", "name": "usb-headset", "ports": []}],

@@ -131,7 +131,7 @@ Item {
 		visible: sourceItem !== null
 		sourceItem: !pager.settingsOpen && pager.transitioning && GraphicsInfo.api !== GraphicsInfo.Software ? settings.item as Item : null
 		// Keep the exit on the GPU, without a readback or repainting every control.
-		live: false
+		live: sourceItem === null
 		hideSource: true
 		smooth: true
 	}

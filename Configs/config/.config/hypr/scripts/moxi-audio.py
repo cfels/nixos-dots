@@ -154,7 +154,8 @@ def watch():
     try:
         with selectors.DefaultSelector() as selector:
             selector.register(process.stdout, selectors.EVENT_READ)
-            emit(snapshot())
+            previous = snapshot()
+            emit(previous)
             due = None
             buffered = b""
             while True:
@@ -180,7 +181,10 @@ def watch():
                         ):
                             due = time.monotonic() + 0.08
                 if due is not None and time.monotonic() >= due:
-                    emit(snapshot())
+                    current = snapshot()
+                    if current != previous:
+                        emit(current)
+                        previous = current
                     due = None
     finally:
         process.terminate()

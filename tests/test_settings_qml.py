@@ -238,7 +238,31 @@ qs -p /work/shell.qml --no-color
         self.assertNotIn("Cannot create delegate", output)
         self.assertNotIn("was not initialized", output)
         images = list(desktop.work.glob("settings-*.png"))
-        self.assertEqual(len(images), 1 if popup else 0 if crossover else 7, output)
+        self.assertEqual(
+            len(images),
+            1 if popup or (crossover and opengl) else 0 if crossover else 7,
+            output,
+        )
+        if crossover and opengl:
+            raw = subprocess.check_output(
+                [
+                    "ffmpeg",
+                    "-v",
+                    "error",
+                    "-i",
+                    str(images[0]),
+                    "-f",
+                    "rawvideo",
+                    "-pix_fmt",
+                    "rgb24",
+                    "-",
+                ]
+            )
+            center = (90 * 320 + 160) * 3
+            red, green, blue = raw[center : center + 3]
+            self.assertGreater(red, 200, (red, green, blue))
+            self.assertLess(green, 10, (red, green, blue))
+            self.assertLess(blue, 10, (red, green, blue))
         if popup:
             raw = subprocess.check_output(
                 [

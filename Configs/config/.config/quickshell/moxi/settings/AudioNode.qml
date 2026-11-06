@@ -49,7 +49,7 @@ Item {
 				}
 				Text {
 					Layout.fillWidth: true
-					text: card.stream ? card.nodeData.detail : card.nodeData.state + " · " + card.nodeData.availability
+					text: card.stream ? card.nodeData.detail : (({ RUNNING: "In use", IDLE: "Ready", SUSPENDED: "Idle" })[card.nodeData.state] || card.nodeData.state || "Status unknown") + (card.nodeData.availability === "not available" ? " · Unavailable" : card.nodeData.availability === "unknown" ? " · Availability unknown" : "")
 					font.family: SettingsStyle.fontFamily
 					font.pixelSize: 10
 					color: SettingsStyle.theme.muted
