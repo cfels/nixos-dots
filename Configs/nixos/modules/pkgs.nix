@@ -25,6 +25,7 @@
   
   environment.systemPackages = with pkgs; [
 v4l-utils
+protontricks
 krita
 gh
 imv
