@@ -19,6 +19,7 @@ in
 {
   home.packages = with pkgs; [
     fagramWithNativeFrame
+    inputs.hushmic-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.pineconemc.packages.${pkgs.stdenv.hostPlatform.system}.prismlauncher
     (inputs.seanime.packages.${pkgs.stdenv.hostPlatform.system}.seanime-denshi.overrideAttrs (
       oldAttrs:

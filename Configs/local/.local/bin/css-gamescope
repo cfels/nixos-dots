@@ -1,0 +1,127 @@
+#!/usr/bin/env python3
+"""Run Gamescope with a desktop-to-game text clipboard bridge."""
+
+import hashlib
+import os
+import signal
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+XCLIP = Path.home() / ".local/share/css-clipboard/xclip/bin/xclip"
+SCRIPT = str(Path(__file__).resolve())
+
+
+def copy_text(display: str, state_path: str) -> int:
+    data = sys.stdin.buffer.read()
+    state = Path(state_path)
+    digest = hashlib.sha256(data).hexdigest()
+    # Gamescope can publish our selection back to the host. Ignore that echo.
+    if state.exists() and state.read_text() == digest:
+        return 0
+    state.write_text(digest)
+    result = subprocess.run(
+        [str(XCLIP), "-display", display, "-selection", "clipboard", "-in"],
+        input=data,
+        check=False,
+    )
+    if result.returncode:
+        state.unlink(missing_ok=True)
+    return result.returncode
+
+
+def bridge(command: list[str]) -> int:
+    host_wayland = os.environ["CSS_HOST_WAYLAND_DISPLAY"]
+    display = os.environ["DISPLAY"]
+    if not XCLIP.is_file():
+        raise RuntimeError(f"Missing clipboard tool: {XCLIP}")
+    watcher_env = os.environ.copy()
+    watcher_env["WAYLAND_DISPLAY"] = host_wayland
+    with tempfile.TemporaryDirectory(prefix="css-clipboard-") as temporary:
+        watcher = subprocess.Popen(
+            [
+                "wl-paste",
+                "--type",
+                "text",
+                "--watch",
+                SCRIPT,
+                "--copy",
+                display,
+                str(Path(temporary) / "digest"),
+            ],
+            env=watcher_env,
+        )
+        game = None
+        previous_handlers = {}
+        try:
+            game = subprocess.Popen(command)
+
+            def forward_signal(number, _frame):
+                if game.poll() is None:
+                    game.send_signal(number)
+
+            for number in [signal.SIGINT, signal.SIGTERM, signal.SIGHUP]:
+                previous_handlers[number] = signal.signal(number, forward_signal)
+            while True:
+                pid, status = os.wait()
+                if pid == game.pid:
+                    game.returncode = os.waitstatus_to_exitcode(status)
+                    return (
+                        game.returncode
+                        if game.returncode >= 0
+                        else 128 - game.returncode
+                    )
+                if pid == watcher.pid:
+                    watcher.returncode = os.waitstatus_to_exitcode(status)
+                    print(
+                        "css-gamescope: clipboard watcher stopped unexpectedly "
+                        f"(status {watcher.returncode}).",
+                        file=sys.stderr,
+                    )
+        finally:
+            for number, handler in previous_handlers.items():
+                signal.signal(number, handler)
+            if watcher.poll() is None:
+                watcher.terminate()
+            watcher.wait()
+            if game is not None and game.poll() is None:
+                game.terminate()
+                game.wait()
+
+
+def main() -> int:
+    arguments = sys.argv[1:]
+    if arguments and arguments[0] == "--copy":
+        if len(arguments) != 3:
+            raise ValueError("Expected --copy DISPLAY STATE_FILE")
+        return copy_text(arguments[1], arguments[2])
+    if arguments and arguments[0] == "--bridge":
+        if len(arguments) < 2:
+            raise ValueError("Missing game command")
+        return bridge(arguments[1:])
+    if "--" not in arguments:
+        raise ValueError("Usage: css-gamescope [gamescope options] -- GAME [arguments]")
+    separator = arguments.index("--")
+    if separator == len(arguments) - 1:
+        raise ValueError("Missing game command")
+    environment = os.environ.copy()
+    environment["CSS_HOST_WAYLAND_DISPLAY"] = os.environ["WAYLAND_DISPLAY"]
+    command = [
+        "gamescope",
+        *arguments[:separator],
+        "--",
+        SCRIPT,
+        "--bridge",
+        *arguments[separator + 1 :],
+    ]
+    os.execvpe(command[0], command, environment)
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except (OSError, KeyError, ValueError, RuntimeError) as error:
+        print(f"css-gamescope: {error}", file=sys.stderr)
+        sys.exit(1)

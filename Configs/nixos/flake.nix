@@ -20,6 +20,10 @@
       url = "github:AlvaroParker/helium-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    hushmic-nix = {
+      url = "github:crowquillx/hushmic-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     fagram = {
       url = "github:cfels/fadesktop";
       inputs.nixpkgs.follows = "nixpkgs";
