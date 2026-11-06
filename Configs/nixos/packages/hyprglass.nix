@@ -2,7 +2,7 @@
 pkgs:
 pkgs.hyprlandPlugins.mkHyprlandPlugin rec {
   pluginName = "hyprglass";
-  version = "1.1.0";
+  version = "1.1.1";
 
   src = inputs.hyprglass;
 

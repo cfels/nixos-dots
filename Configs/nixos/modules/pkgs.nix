@@ -3,6 +3,12 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # fonts for CS:S
+  fonts.packages = with pkgs; [
+    corefonts
+    liberation_ttf
+  ];
+
   services.flatpak.enable = true;
   programs.hyprland = {
     enable = true;
