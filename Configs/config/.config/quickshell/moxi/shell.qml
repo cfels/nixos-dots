@@ -116,7 +116,7 @@ ShellRoot {
 
 	BarModule.Bar {
 		id: pill
-		onSettingsRequested: root.showSettings("audio")
+		onSettingsRequested: root.showSettings("appearance")
 
 		popupPush: Math.max(reloadPopup.push, trayPopup.push)
 		islandProgress: island.progress

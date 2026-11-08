@@ -20,17 +20,23 @@ class BarInputTests(unittest.TestCase):
             for name in ("onPressed", "onReleased", "onPositionChanged", "onCanceled")
         }
         bodies["hold"] = block_after(source, "function openPanelFromHold(")
+        shell = (REPO / "Configs/config/.config/quickshell/moxi/shell.qml").read_text()
+        bodies["settings"] = (
+            shell.split("onSettingsRequested:", 1)[1].splitlines()[0].strip()
+        )
         script = (
             """import assert from "node:assert/strict";
 const bodies = JSON.parse(await Bun.stdin.text());
 let now = 1000;
 globalThis.Date = {now() { return now; }};
 globalThis.Qt = {LeftButton: 1, RightButton: 2};
+globalThis.root = {settingsPage: null, showSettings(page) {this.settingsPage = page;}};
 Object.assign(globalThis, {pressX: 0, pressY: 0, pressedAt: 0, swiping: false, activePress: false, pressHadOverlay: false, pressed: true});
 globalThis.holdTimer = {interval: 420, active: false, restart() {this.active = true;}, stop() {this.active = false;}};
 globalThis.bar = {
   held: false, holdHandled: false, panelOpen: false, hasPlayer: true, songSwipe: 0, openings: 0, settings: 0,
-  panelRequested() {this.openings++; this.panelOpen = true;}, settingsRequested() {this.settings++;},
+  panelRequested() {this.openings++; this.panelOpen = true;},
+  settingsRequested() {this.settings++; new Function(bodies.settings)();},
   player: {canTogglePlaying: true, canGoNext: true, canGoPrevious: true, toggles: 0, skips: 0,
     togglePlaying() {this.toggles++;}, next() {this.skips++;}, previous() {this.skips--;}}
 };
@@ -64,6 +70,13 @@ assert.equal(bar.openings, 1); assert.equal(bar.player.toggles, 0);""")
     def test_short_click_still_controls_playback(self):
         self.run_gesture("""press(left); now += 80; release(left);
 assert.equal(bar.openings, 0); assert.equal(bar.player.toggles, 1);""")
+
+    def test_right_click_opens_appearance_without_toggling_music(self):
+        self.run_gesture("""const right = {...left, button: Qt.RightButton, buttons: Qt.RightButton};
+press(right); release(right);
+assert.equal(bar.settings, 1);
+if (root.settingsPage !== "appearance") throw new Error("Right-click opened " + root.settingsPage);
+assert.equal(bar.player.toggles, 0);""")
 
     def test_overlay_closing_during_press_does_not_start_music(self):
         self.run_gesture("""bar.panelOpen = true; press(left); bar.panelOpen = false; now += 80; release(left);
